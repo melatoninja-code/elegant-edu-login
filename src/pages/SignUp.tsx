@@ -1,28 +1,28 @@
 import AuthCard from "@/components/AuthCard";
-import LoginForm from "@/components/LoginForm";
+import SignupForm from "@/components/SignupForm";
 
-const Index = () => {
+const SignUp = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-light p-4">
       <div className="w-full max-w-md space-y-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary-dark mb-2">
-            Welcome Back
+            Join EduSchool
           </h1>
-          <p className="text-neutral">Login to access your account</p>
+          <p className="text-neutral">Create your account to get started</p>
         </div>
 
         <AuthCard>
-          <LoginForm />
+          <SignupForm />
         </AuthCard>
 
         <p className="text-center text-sm text-neutral mt-4">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <a
-            href="/signup"
+            href="/"
             className="text-primary hover:text-primary-dark font-semibold"
           >
-            Sign up here
+            Login here
           </a>
         </p>
       </div>
@@ -30,4 +30,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default SignUp;
