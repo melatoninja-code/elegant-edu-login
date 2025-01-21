@@ -15,7 +15,6 @@ export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
-  const [selectedTeacherCredentials, setSelectedTeacherCredentials] = useState<{ email: string; password: string } | undefined>();
   const { toast } = useToast();
 
   // First, get the session and user role
@@ -112,9 +111,8 @@ export function TeacherList() {
           teachers={teachers}
           isLoading={isLoading}
           isAdmin={isAdmin}
-          onSelectTeacher={(teacher, credentials) => {
+          onSelectTeacher={(teacher) => {
             setSelectedTeacher(teacher);
-            setSelectedTeacherCredentials(credentials);
           }}
           onEditTeacher={(teacher) => {
             setEditingTeacher(teacher);
@@ -142,10 +140,8 @@ export function TeacherList() {
           teacher={selectedTeacher}
           onClose={() => {
             setSelectedTeacher(null);
-            setSelectedTeacherCredentials(undefined);
           }}
           isAdmin={isAdmin}
-          credentials={selectedTeacherCredentials}
         />
       </CardContent>
     </Card>
