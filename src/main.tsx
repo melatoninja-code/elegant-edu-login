@@ -6,7 +6,6 @@ import Index from './pages/Index';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Teachers from './pages/Teachers';
-import AppLayout from './components/layout/AppLayout';
 
 const router = createBrowserRouter([
   {
@@ -18,17 +17,12 @@ const router = createBrowserRouter([
     element: <SignUp />,
   },
   {
-    element: <AppLayout />,
-    children: [
-      {
-        path: "/dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "/teachers",
-        element: <Teachers />,
-      },
-    ],
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/teachers",
+    element: <Teachers />,
   },
 ]);
 
