@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 import { Teacher } from "./types";
 import { TeacherActions } from "./TeacherActions";
 import { useState } from "react";
@@ -79,7 +79,12 @@ export function TeacherTable({
                 className="font-medium cursor-pointer hover:text-primary transition-colors"
                 onClick={() => onSelectTeacher(teacher, teacherCredentials[teacher.id])}
               >
-                {teacher.name}
+                <div className="flex items-center gap-2">
+                  {teacher.auth_id && (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  )}
+                  {teacher.name}
+                </div>
               </TableCell>
               <TableCell className="hidden md:table-cell capitalize">
                 {teacher.gender}
