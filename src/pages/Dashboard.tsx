@@ -16,7 +16,6 @@ import {
 } from "lucide-react"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
-import { TeacherList } from "@/components/teachers/TeacherList"
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -89,10 +88,6 @@ export default function Dashboard() {
                     </Card>
                   ))}
                 </div>
-              </section>
-              
-              <section className="mt-8">
-                <TeacherList />
               </section>
             </div>
           </div>

@@ -5,6 +5,7 @@ import './index.css';
 import Index from './pages/Index';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
+import Teachers from './pages/Teachers';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
+  },
+  {
+    path: "/teachers",
+    element: <Teachers />,
   },
 ]);
 
