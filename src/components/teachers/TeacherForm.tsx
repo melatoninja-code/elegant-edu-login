@@ -109,21 +109,48 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
 
       if (!values.isEditing) {
         const formValues = values as z.infer<typeof formSchema> & { isEditing: false };
-        // Create the auth user first
+        
+        // Check if user already exists
+        const { data: existingUser, error: checkError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', formValues.email)
+          .single();
+
+        if (existingUser) {
+          toast({
+            title: "Error",
+            description: "A teacher with this email already exists",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Create the auth user
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formValues.email,
           password: formValues.password,
           options: {
             data: {
-              role: 'user' // Set the default role to 'user' for teachers
+              role: 'user'
             }
           }
         });
 
-        if (authError) throw authError;
+        if (authError) {
+          if (authError.message === "User already registered") {
+            toast({
+              title: "Error",
+              description: "This email is already registered. Please use a different email address.",
+              variant: "destructive",
+            });
+            return;
+          }
+          throw authError;
+        }
+        
         authId = authData.user?.id;
 
-        // Create the profile with user role
         if (authId) {
           const { error: profileError } = await supabase
             .from('profiles')
