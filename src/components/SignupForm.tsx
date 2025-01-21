@@ -1,14 +1,12 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { User, Lock, GraduationCap } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
-const SignupForm = () => {
-  const [name, setName] = useState("");
+export default function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +23,7 @@ const SignupForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password) {
+    if (!email || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -44,39 +42,26 @@ const SignupForm = () => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      setIsLoading(true);
-      
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: name,
-          },
-        },
       });
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
+      if (error) throw error;
 
-      if (data.user) {
-        toast({
-          title: "Success",
-          description: "Account created successfully! You can now log in.",
-        });
-        navigate("/");
-      }
-    } catch (error) {
+      toast({
+        title: "Success!",
+        description: "Please check your email to verify your account",
+      });
+      
+      navigate("/dashboard");
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -85,64 +70,53 @@ const SignupForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="name">Full Name</Label>
-        <div className="relative">
-          <User className="absolute left-3 top-3 h-4 w-4 text-neutral" />
-          <Input
-            id="name"
-            type="text"
-            placeholder="Enter your full name"
-            className="pl-10"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={isLoading}
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <div className="relative">
-          <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-neutral" />
-          <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            className="pl-10"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <div className="relative">
-          <Lock className="absolute left-3 top-3 h-4 w-4 text-neutral" />
-          <Input
-            id="password"
-            type="password"
-            placeholder="Create a password (min. 6 characters)"
-            className="pl-10"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-          />
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Password must be at least 6 characters long
+    <div className="mx-auto max-w-sm space-y-6">
+      <div className="space-y-2 text-center">
+        <h1 className="text-3xl font-bold">Create an Account</h1>
+        <p className="text-gray-500 dark:text-gray-400">
+          Enter your email below to create your account
         </p>
       </div>
-      <Button
-        type="submit"
-        className="w-full bg-primary hover:bg-primary-dark transition-colors"
-        disabled={isLoading}
-      >
-        {isLoading ? "Creating account..." : "Sign Up"}
-      </Button>
-    </form>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              className="pl-10"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+            <Input
+              id="password"
+              type="password"
+              placeholder="Create a password (min. 6 characters)"
+              className="pl-10"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Password must be at least 6 characters long
+          </p>
+        </div>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating account..." : "Create account"}
+        </Button>
+      </form>
+    </div>
   );
-};
-
-export default SignupForm;
+}
