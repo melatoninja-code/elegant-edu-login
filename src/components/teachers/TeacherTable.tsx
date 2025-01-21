@@ -89,8 +89,10 @@ export function TeacherTable({
               {isAdmin && (
                 <TableCell>
                   <TeacherActions
+                    teacher={teacher}
                     onEdit={() => onEditTeacher(teacher)}
                     onDelete={() => onDeleteTeacher(teacher.id)}
+                    isAdmin={isAdmin}
                   />
                 </TableCell>
               )}
