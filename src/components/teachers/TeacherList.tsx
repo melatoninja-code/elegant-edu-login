@@ -67,11 +67,12 @@ export function TeacherList() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const query = supabase.from("teachers").select(
-        isAdmin 
-          ? "*"
-          : "id, name, gender, studies, dorm_room"
-      );
+      let query;
+      if (isAdmin) {
+        query = supabase.from("teachers").select("*");
+      } else {
+        query = supabase.from("teachers").select("id, name, gender, studies, dorm_room");
+      }
 
       const { data, error } = await query;
       if (error) throw error;
