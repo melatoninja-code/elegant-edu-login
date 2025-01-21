@@ -58,14 +58,14 @@ export default function Dashboard() {
   ]
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+    <SidebarProvider defaultOpen>
+      <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <main className="flex-1">
-          <div className="p-8 border-b bg-white">
-            <h1 className="text-2xl font-bold text-gray-900">Dayah School System</h1>
+          <div className="flex items-center justify-between p-6 border-b">
+            <h1 className="text-2xl font-bold">Dayah School System</h1>
           </div>
-          <div className="p-8">
+          <div className="p-6">
             <div className="grid gap-6">
               <section>
                 <h2 className="text-3xl font-bold mb-6">Welcome back!</h2>
