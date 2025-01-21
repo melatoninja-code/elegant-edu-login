@@ -59,10 +59,14 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
     setIsLoading(true);
     try {
+      // Store current session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
       // Create auth account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
         password,
+        email_confirm: true
       });
 
       if (authError) throw authError;
@@ -76,9 +80,14 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
       if (updateError) throw updateError;
 
+      // Restore admin session if it exists
+      if (currentSession) {
+        await supabase.auth.setSession(currentSession);
+      }
+
       toast({
         title: "Success",
-        description: "Account created successfully. User will receive an email to verify their account.",
+        description: "Account created successfully",
       });
       
       if (onAccountCreated) {
