@@ -30,7 +30,7 @@ export function TeacherList() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
 
-  const { data: userRole } = useQuery({
+  const { data: userRole, refetch: refetchRole } = useQuery({
     queryKey: ["userRole"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -64,13 +64,13 @@ export function TeacherList() {
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'teachers'
         },
         () => {
-          // Refetch data when changes occur
           refetch();
+          refetchRole(); // Also refetch the role to ensure admin status is maintained
         }
       )
       .subscribe();
@@ -78,7 +78,7 @@ export function TeacherList() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, [refetch, refetchRole]);
 
   const handleDelete = async (id: string) => {
     if (!isAdmin) {
@@ -205,6 +205,7 @@ export function TeacherList() {
               setIsFormOpen(false);
               setEditingTeacher(null);
               refetch();
+              refetchRole(); // Refetch role when form closes
             }}
           />
         )}
