@@ -108,10 +108,11 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       let authId: string | undefined;
 
       if (!values.isEditing) {
+        const formValues = values as z.infer<typeof formSchema> & { isEditing: false };
         // Create the auth user first
         const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: values.email,
-          password: values.password,
+          email: formValues.email,
+          password: formValues.password,
           options: {
             data: {
               role: 'user' // Set the default role to 'user' for teachers
@@ -128,7 +129,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
             .from('profiles')
             .insert({
               id: authId,
-              email: values.email,
+              email: formValues.email,
               role: 'user'
             });
 
