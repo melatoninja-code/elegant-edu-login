@@ -123,22 +123,22 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+      <Card className="w-full max-w-lg bg-white/95 shadow-xl border-primary/20 animate-fadeIn">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-primary/5 rounded-t-lg">
+          <CardTitle className="text-xl font-semibold text-primary-dark">
             {teacher ? "Edit Teacher" : "Add Teacher"}
           </CardTitle>
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 hover:bg-primary/10"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6 pb-4 px-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -146,9 +146,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel className="font-medium">Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,13 +160,13 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gender</FormLabel>
+                    <FormLabel className="font-medium">Gender</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-primary/20 focus-visible:ring-primary">
                           <SelectValue placeholder="Select gender" />
                         </SelectTrigger>
                       </FormControl>
@@ -186,9 +186,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 name="phone_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel className="font-medium">Phone Number</FormLabel>
                     <FormControl>
-                      <Input {...field} type="tel" />
+                      <Input {...field} type="tel" className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -200,9 +200,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 name="studies"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Studies</FormLabel>
+                    <FormLabel className="font-medium">Studies</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -214,9 +214,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel className="font-medium">Address</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -228,20 +228,28 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 name="dorm_room"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dorm Room (Optional)</FormLabel>
+                    <FormLabel className="font-medium">Dorm Room (Optional)</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="outline" onClick={onClose}>
+              <div className="flex justify-end gap-2 pt-4 border-t border-primary/10">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="border-primary/20 hover:bg-primary/5"
+                >
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button 
+                  type="submit"
+                  className="bg-primary hover:bg-primary-dark"
+                >
                   {teacher ? "Update Teacher" : "Add Teacher"}
                 </Button>
               </div>
