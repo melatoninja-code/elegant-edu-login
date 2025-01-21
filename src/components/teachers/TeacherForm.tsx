@@ -23,8 +23,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { X } from "lucide-react";
+import { TeacherProfilePicture } from "./TeacherProfilePicture";
+import { TeacherAuthFields, authSchema } from "./TeacherAuthFields";
 
-const formSchema = z.object({
+const baseFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   gender: z.string(),
   address: z.string().min(5, "Address must be at least 5 characters"),
@@ -32,6 +34,18 @@ const formSchema = z.object({
   dorm_room: z.string().optional(),
   studies: z.string().min(2, "Studies must be at least 2 characters"),
 });
+
+const formSchema = z.discriminatedUnion("isEditing", [
+  z.object({
+    isEditing: z.literal(true),
+    ...baseFormSchema.shape,
+  }),
+  z.object({
+    isEditing: z.literal(false),
+    ...baseFormSchema.shape,
+    ...authSchema.shape,
+  }),
+]);
 
 interface TeacherFormProps {
   teacher?: {
@@ -42,6 +56,7 @@ interface TeacherFormProps {
     phone_number: string;
     dorm_room: string | null;
     studies: string;
+    profile_picture_url?: string | null;
   } | null;
   onClose: () => void;
   onSuccess: () => void;
@@ -50,6 +65,9 @@ interface TeacherFormProps {
 export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   const { toast } = useToast();
   const [userId, setUserId] = useState<string | null>(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(
+    teacher?.profile_picture_url || null
+  );
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -62,12 +80,15 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      isEditing: !!teacher,
       name: teacher?.name || "",
       gender: teacher?.gender || "",
       address: teacher?.address || "",
       phone_number: teacher?.phone_number || "",
       dorm_room: teacher?.dorm_room || "",
       studies: teacher?.studies || "",
+      email: "",
+      password: "",
     },
   });
 
@@ -82,6 +103,18 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
     }
 
     try {
+      let authId: string | undefined;
+
+      if (!values.isEditing) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+        });
+
+        if (authError) throw authError;
+        authId = authData.user?.id;
+      }
+
       const submissionData = {
         name: values.name,
         gender: values.gender,
@@ -90,6 +123,8 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         studies: values.studies,
         dorm_room: values.dorm_room || null,
         created_by: userId,
+        profile_picture_url: profilePictureUrl,
+        ...(authId && { auth_id: authId }),
       };
 
       if (teacher?.id) {
@@ -113,10 +148,10 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         });
       }
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Something went wrong",
+        description: error.message,
         variant: "destructive",
       });
     }
@@ -141,6 +176,16 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         <CardContent className="pt-6 pb-4 px-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <TeacherProfilePicture
+                currentUrl={profilePictureUrl}
+                onUpload={setProfilePictureUrl}
+              />
+
+              <TeacherAuthFields
+                form={form}
+                isEditing={!!teacher}
+              />
+
               <FormField
                 control={form.control}
                 name="name"

@@ -72,6 +72,7 @@ export type Database = {
       teachers: {
         Row: {
           address: string
+          auth_id: string | null
           created_at: string
           created_by: string
           dorm_room: string | null
@@ -79,10 +80,12 @@ export type Database = {
           id: string
           name: string
           phone_number: string
+          profile_picture_url: string | null
           studies: string
         }
         Insert: {
           address: string
+          auth_id?: string | null
           created_at?: string
           created_by: string
           dorm_room?: string | null
@@ -90,10 +93,12 @@ export type Database = {
           id?: string
           name: string
           phone_number: string
+          profile_picture_url?: string | null
           studies: string
         }
         Update: {
           address?: string
+          auth_id?: string | null
           created_at?: string
           created_by?: string
           dorm_room?: string | null
@@ -101,6 +106,7 @@ export type Database = {
           id?: string
           name?: string
           phone_number?: string
+          profile_picture_url?: string | null
           studies?: string
         }
         Relationships: [
