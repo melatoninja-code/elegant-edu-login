@@ -22,6 +22,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 
+// Make all required fields non-optional in the schema
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   gender: z.string(),
@@ -80,10 +81,15 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
     }
 
     try {
+      // Ensure all required fields are present and properly typed
       const submissionData = {
-        ...values,
+        name: values.name,
+        gender: values.gender,
+        address: values.address,
+        phone_number: values.phone_number,
+        studies: values.studies,
+        dorm_room: values.dorm_room || null,
         created_by: userId,
-        dorm_room: values.dorm_room || null, // Convert empty string to null
       };
 
       if (teacher?.id) {
