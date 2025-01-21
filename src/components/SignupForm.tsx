@@ -4,15 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User, Lock, GraduationCap } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!name || !email || !password) {
       toast({
         title: "Error",
@@ -21,11 +26,45 @@ const SignupForm = () => {
       });
       return;
     }
-    // Handle signup logic here
-    toast({
-      title: "Success",
-      description: "Account created successfully!",
-    });
+
+    try {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.user) {
+        toast({
+          title: "Success",
+          description: "Account created successfully! You can now log in.",
+        });
+        navigate("/");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,6 +80,7 @@ const SignupForm = () => {
             className="pl-10"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
           />
         </div>
       </div>
@@ -55,6 +95,7 @@ const SignupForm = () => {
             className="pl-10"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
       </div>
@@ -69,14 +110,16 @@ const SignupForm = () => {
             className="pl-10"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
         </div>
       </div>
       <Button
         type="submit"
         className="w-full bg-primary hover:bg-primary-dark transition-colors"
+        disabled={isLoading}
       >
-        Sign Up
+        {isLoading ? "Creating account..." : "Sign Up"}
       </Button>
     </form>
   );
