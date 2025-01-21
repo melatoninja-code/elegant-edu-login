@@ -15,15 +15,26 @@ import { TeacherForm } from "./TeacherForm";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-interface Teacher {
+// Base interface with common fields
+interface BaseTeacher {
   id: string;
   name: string;
+  gender: string;
+  studies: string;
+  dorm_room: string | null;
+}
+
+// Extended interface for admin view
+interface AdminTeacher extends BaseTeacher {
   address: string;
   phone_number: string;
-  dorm_room: string | null;
-  studies: string;
-  gender: string;
+  profile_picture_url?: string | null;
+  auth_id?: string | null;
+  created_by: string;
 }
+
+// Union type that can be either base or admin teacher
+type Teacher = BaseTeacher | AdminTeacher;
 
 export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -44,9 +55,7 @@ export function TeacherList() {
       
       return profile?.role;
     },
-    // Refresh every 30 seconds while the component is mounted
     refetchInterval: 30000,
-    // Also refresh when the window regains focus
     refetchOnWindowFocus: true,
   });
 
@@ -55,11 +64,9 @@ export function TeacherList() {
   const { data: teachers, isLoading, refetch } = useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
-      // First check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // If admin, fetch all fields, otherwise only fetch public fields
       const query = supabase.from("teachers").select(
         isAdmin 
           ? "*"
@@ -70,7 +77,7 @@ export function TeacherList() {
       if (error) throw error;
       return data as Teacher[];
     },
-    enabled: !!userRole, // Only run query when we have the user role
+    enabled: !!userRole,
   });
 
   // Subscribe to real-time changes
@@ -168,7 +175,7 @@ export function TeacherList() {
                     <TableCell className="hidden md:table-cell capitalize">
                       {teacher.gender}
                     </TableCell>
-                    {isAdmin && (
+                    {isAdmin && 'phone_number' in teacher && (
                       <>
                         <TableCell>{teacher.phone_number}</TableCell>
                         <TableCell className="hidden lg:table-cell">
@@ -212,7 +219,7 @@ export function TeacherList() {
 
         {isFormOpen && (
           <TeacherForm
-            teacher={editingTeacher}
+            teacher={editingTeacher as AdminTeacher}
             onClose={() => {
               setIsFormOpen(false);
               setEditingTeacher(null);
