@@ -1,9 +1,9 @@
-import { Edit, Trash, UserPlus } from "lucide-react";
+import { Edit, Trash, UserPlus, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,6 +33,7 @@ interface TeacherActionsProps {
 export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, isAdmin }: TeacherActionsProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [email, setEmail] = useState(teacher.email || "");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -94,16 +95,12 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
       if (sessionError) throw sessionError;
 
-      toast({
-        title: "Success",
-        description: "Account created successfully. User will receive an email to verify their account.",
-      });
-      
       if (onAccountCreated) {
         onAccountCreated(email, password);
       }
       
       setIsDialogOpen(false);
+      setIsSuccessDialogOpen(true);
     } catch (error: any) {
       console.error("Error creating teacher account:", error);
       toast({
@@ -204,6 +201,21 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
                 {isLoading ? "Creating..." : "Create Account"}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent className="sm:max-w-md text-center">
+          <div className="flex flex-col items-center gap-4 py-6">
+            <CheckCircle className="h-12 w-12 text-green-500" />
+            <DialogTitle>Account Created Successfully!</DialogTitle>
+            <p className="text-muted-foreground">
+              An account has been created for {teacher.name}. They will receive an email to verify their account.
+            </p>
+            <Button onClick={() => setIsSuccessDialogOpen(false)}>
+              Close
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
