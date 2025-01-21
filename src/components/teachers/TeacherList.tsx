@@ -14,6 +14,13 @@ import { useState, useEffect } from "react";
 import { TeacherForm } from "./TeacherForm";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Teacher {
   id: string;
@@ -29,6 +36,7 @@ interface Teacher {
 export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
 
   const { data: userRole, refetch: refetchRole } = useQuery({
@@ -154,7 +162,12 @@ export function TeacherList() {
               <TableBody>
                 {teachers?.map((teacher) => (
                   <TableRow key={teacher.id}>
-                    <TableCell className="font-medium">{teacher.name}</TableCell>
+                    <TableCell 
+                      className="font-medium cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => setSelectedTeacher(teacher)}
+                    >
+                      {teacher.name}
+                    </TableCell>
                     <TableCell className="hidden md:table-cell capitalize">
                       {teacher.gender}
                     </TableCell>
@@ -213,6 +226,48 @@ export function TeacherList() {
             }}
           />
         )}
+
+        <Dialog open={!!selectedTeacher} onOpenChange={() => setSelectedTeacher(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Teacher Details</DialogTitle>
+            </DialogHeader>
+            {selectedTeacher && (
+              <div className="grid gap-4 py-4">
+                <div className="flex items-center justify-center">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={selectedTeacher.profile_picture_url || ''} alt={selectedTeacher.name} />
+                    <AvatarFallback>{selectedTeacher.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <span className="font-medium">Name:</span>
+                  <span className="col-span-3">{selectedTeacher.name}</span>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <span className="font-medium">Gender:</span>
+                  <span className="col-span-3 capitalize">{selectedTeacher.gender}</span>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <span className="font-medium">Studies:</span>
+                  <span className="col-span-3">{selectedTeacher.studies}</span>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <span className="font-medium">Dorm:</span>
+                  <span className="col-span-3">{selectedTeacher.dorm_room || '-'}</span>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <span className="font-medium">Address:</span>
+                  <span className="col-span-3">{selectedTeacher.address}</span>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <span className="font-medium">Phone:</span>
+                  <span className="col-span-3">{selectedTeacher.phone_number}</span>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
