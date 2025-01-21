@@ -14,7 +14,7 @@ import {
   BookOpen,
   Clock,
 } from "lucide-react"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
 
 export default function Dashboard() {
@@ -62,7 +62,8 @@ export default function Dashboard() {
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <main className="flex-1">
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center gap-4 p-6 border-b">
+            <SidebarTrigger />
             <h1 className="text-2xl font-bold">Dayah School System</h1>
           </div>
           <div className="p-6">
