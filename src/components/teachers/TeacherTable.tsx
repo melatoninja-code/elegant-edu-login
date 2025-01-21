@@ -9,12 +9,13 @@ import {
 import { Loader2 } from "lucide-react";
 import { Teacher } from "./types";
 import { TeacherActions } from "./TeacherActions";
+import { useState } from "react";
 
 interface TeacherTableProps {
   teachers: Teacher[] | null;
   isLoading: boolean;
   isAdmin: boolean;
-  onSelectTeacher: (teacher: Teacher) => void;
+  onSelectTeacher: (teacher: Teacher, credentials?: { email: string; password: string }) => void;
   onEditTeacher: (teacher: Teacher) => void;
   onDeleteTeacher: (id: string) => void;
 }
@@ -27,6 +28,8 @@ export function TeacherTable({
   onEditTeacher,
   onDeleteTeacher,
 }: TeacherTableProps) {
+  const [teacherCredentials, setTeacherCredentials] = useState<Record<string, { email: string; password: string }>>({});
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -43,6 +46,13 @@ export function TeacherTable({
       </div>
     );
   }
+
+  const handleAccountCreated = (teacherId: string, email: string, password: string) => {
+    setTeacherCredentials(prev => ({
+      ...prev,
+      [teacherId]: { email, password }
+    }));
+  };
 
   return (
     <div className="overflow-x-auto rounded-md border border-primary/20">
@@ -67,7 +77,7 @@ export function TeacherTable({
             >
               <TableCell
                 className="font-medium cursor-pointer hover:text-primary transition-colors"
-                onClick={() => onSelectTeacher(teacher)}
+                onClick={() => onSelectTeacher(teacher, teacherCredentials[teacher.id])}
               >
                 {teacher.name}
               </TableCell>
@@ -92,6 +102,7 @@ export function TeacherTable({
                     teacher={teacher}
                     onEdit={() => onEditTeacher(teacher)}
                     onDelete={() => onDeleteTeacher(teacher.id)}
+                    onAccountCreated={(email, password) => handleAccountCreated(teacher.id, email, password)}
                     isAdmin={isAdmin}
                   />
                 </TableCell>

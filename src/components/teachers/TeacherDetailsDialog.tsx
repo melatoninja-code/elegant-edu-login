@@ -1,78 +1,99 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Teacher } from "./types";
-import { Separator } from "@/components/ui/separator";
+import { Mail, Phone, MapPin, School, Home, User2 } from "lucide-react";
 
 interface TeacherDetailsDialogProps {
   teacher: Teacher | null;
   onClose: () => void;
+  isAdmin?: boolean;
+  credentials?: {
+    email: string;
+    password: string;
+  };
 }
 
-export function TeacherDetailsDialog({ teacher, onClose }: TeacherDetailsDialogProps) {
+export function TeacherDetailsDialog({ teacher, onClose, isAdmin, credentials }: TeacherDetailsDialogProps) {
   if (!teacher) return null;
 
+  const initials = teacher.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+
   return (
-    <Card className="w-full animate-fadeIn">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-2xl font-semibold text-primary-dark">Teacher Details</CardTitle>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
-          onClick={onClose}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-8 py-6">
-          <div className="flex items-center justify-center">
-            <Avatar className="h-32 w-32 ring-4 ring-primary/20">
-              <AvatarImage src={teacher.profile_picture_url || ''} alt={teacher.name} />
-              <AvatarFallback className="bg-primary/10 text-primary-dark text-2xl">
-                {teacher.name.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
+    <Dialog open={!!teacher} onOpenChange={() => onClose()}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold">Teacher Details</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={teacher.profile_picture_url || ""} alt={teacher.name} />
+              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
             </Avatar>
-          </div>
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <h4 className="font-medium text-base text-muted-foreground">Personal Information</h4>
-              <Separator className="bg-primary/10" />
-              <div className="grid grid-cols-4 items-center gap-6">
-                <span className="font-medium">Name:</span>
-                <span className="col-span-3">{teacher.name}</span>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-6">
-                <span className="font-medium">Gender:</span>
-                <span className="col-span-3 capitalize">{teacher.gender}</span>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-6">
-                <span className="font-medium">Studies:</span>
-                <span className="col-span-3">{teacher.studies}</span>
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold">{teacher.name}</h2>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Badge variant="outline" className="capitalize">
+                  {teacher.gender}
+                </Badge>
+                {teacher.dorm_room && (
+                  <Badge variant="outline">Room {teacher.dorm_room}</Badge>
+                )}
               </div>
             </div>
-            
-            <div className="space-y-4">
-              <h4 className="font-medium text-base text-muted-foreground">Contact Information</h4>
-              <Separator className="bg-primary/10" />
-              <div className="grid grid-cols-4 items-center gap-6">
-                <span className="font-medium">Dorm:</span>
-                <span className="col-span-3">{teacher.dorm_room || '-'}</span>
+          </div>
+
+          {isAdmin && credentials && (
+            <div className="p-4 bg-muted/50 rounded-lg space-y-2 border border-border/50">
+              <h3 className="font-medium text-sm text-muted-foreground">Account Credentials</h3>
+              <div className="grid gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Email:</span>
+                  <span>{credentials.email}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Password:</span>
+                  <span>{credentials.password}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-6">
-                <span className="font-medium">Address:</span>
-                <span className="col-span-3">{teacher.address}</span>
+            </div>
+          )}
+
+          <div className="grid gap-4">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span>{teacher.email || "No email set"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <span>{teacher.phone_number}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span>{teacher.address}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <School className="h-4 w-4 text-muted-foreground" />
+              <span>{teacher.studies}</span>
+            </div>
+            {teacher.dorm_room && (
+              <div className="flex items-center gap-2">
+                <Home className="h-4 w-4 text-muted-foreground" />
+                <span>Room {teacher.dorm_room}</span>
               </div>
-              <div className="grid grid-cols-4 items-center gap-6">
-                <span className="font-medium">Phone:</span>
-                <span className="col-span-3">{teacher.phone_number}</span>
-              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <User2 className="h-4 w-4 text-muted-foreground" />
+              <span className="capitalize">{teacher.gender}</span>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

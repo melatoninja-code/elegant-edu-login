@@ -15,6 +15,7 @@ export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [selectedTeacherCredentials, setSelectedTeacherCredentials] = useState<{ email: string; password: string } | undefined>();
   const { toast } = useToast();
 
   const { data: userRole, error: roleError, refetch: refetchRole } = useQuery({
@@ -44,7 +45,7 @@ export function TeacherList() {
 
       const { data, error } = await supabase
         .from("teachers")
-        .select("id, name, gender, studies, dorm_room, address, phone_number, profile_picture_url");
+        .select("id, name, gender, studies, dorm_room, address, phone_number, profile_picture_url, email, auth_id");
       
       if (error) throw error;
       return data as Teacher[];
@@ -103,7 +104,10 @@ export function TeacherList() {
           teachers={teachers}
           isLoading={isLoading}
           isAdmin={isAdmin}
-          onSelectTeacher={setSelectedTeacher}
+          onSelectTeacher={(teacher, credentials) => {
+            setSelectedTeacher(teacher);
+            setSelectedTeacherCredentials(credentials);
+          }}
           onEditTeacher={(teacher) => {
             setEditingTeacher(teacher);
             setIsFormOpen(true);
@@ -129,7 +133,12 @@ export function TeacherList() {
 
         <TeacherDetailsDialog
           teacher={selectedTeacher}
-          onClose={() => setSelectedTeacher(null)}
+          onClose={() => {
+            setSelectedTeacher(null);
+            setSelectedTeacherCredentials(undefined);
+          }}
+          isAdmin={isAdmin}
+          credentials={selectedTeacherCredentials}
         />
       </CardContent>
     </Card>
