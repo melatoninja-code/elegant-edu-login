@@ -30,6 +30,86 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_tags: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          tag: Database["public"]["Enums"]["teacher_tag"]
+          teacher_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          tag: Database["public"]["Enums"]["teacher_tag"]
+          teacher_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          tag?: Database["public"]["Enums"]["teacher_tag"]
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_tags_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_tags_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teachers: {
+        Row: {
+          address: string
+          created_at: string
+          created_by: string
+          dorm_room: string | null
+          id: string
+          name: string
+          phone_number: string
+          studies: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          created_by: string
+          dorm_room?: string | null
+          id?: string
+          name: string
+          phone_number: string
+          studies: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          created_by?: string
+          dorm_room?: string | null
+          id?: string
+          name?: string
+          phone_number?: string
+          studies?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teachers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -38,6 +118,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      teacher_tag:
+        | "head_teacher"
+        | "senior_teacher"
+        | "junior_teacher"
+        | "substitute_teacher"
+        | "intern"
       user_role: "admin" | "user"
     }
     CompositeTypes: {
