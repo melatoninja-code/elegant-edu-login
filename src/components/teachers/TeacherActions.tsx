@@ -93,31 +93,34 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
 
   return (
     <>
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <Button
           variant="outline"
           size="icon"
           onClick={onEdit}
-          className="h-8 w-8 border-primary/20 hover:bg-primary/5 transition-colors"
+          className="h-8 w-8 min-w-8 border-primary/20 hover:bg-primary/5 transition-colors"
+          title="Edit"
         >
-          <Edit className="h-4 w-4" />
+          <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
         <Button
           variant="outline"
           size="icon"
           onClick={() => setIsDeleteDialogOpen(true)}
-          className="h-8 w-8 border-primary/20 hover:bg-primary/5 hover:text-red-500 transition-colors"
+          className="h-8 w-8 min-w-8 border-primary/20 hover:bg-primary/5 hover:text-red-500 transition-colors"
+          title="Delete"
         >
-          <Trash className="h-4 w-4" />
+          <Trash className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
         {isAdmin && !teacher.auth_id && (
           <Button
             variant="outline"
             size="icon"
             onClick={() => setIsDialogOpen(true)}
-            className="h-8 w-8 border-primary/20 hover:bg-primary/5 hover:text-green-500 transition-colors"
+            className="h-8 w-8 min-w-8 border-primary/20 hover:bg-primary/5 hover:text-green-500 transition-colors"
+            title="Create Account"
           >
-            <UserPlus className="h-4 w-4" />
+            <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
         )}
       </div>
