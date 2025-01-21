@@ -64,9 +64,9 @@ export function SidebarNav() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-base px-4 py-2">Main Menu</SidebarGroupLabel>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-2">
           {menuItems.map((item) => (
             <SidebarNavItem
               key={item.title}
