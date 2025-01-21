@@ -81,9 +81,9 @@ export function TeacherTable({
               >
                 <div className="flex items-center gap-2">
                   {teacher.auth_id && (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
                   )}
-                  {teacher.name}
+                  <span>{teacher.name}</span>
                 </div>
               </TableCell>
               <TableCell className="hidden md:table-cell capitalize">
