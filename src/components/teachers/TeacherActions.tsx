@@ -59,11 +59,11 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
     setIsLoading(true);
     try {
-      // Store current session
-      const { data: currentSessionData } = await supabase.auth.getSession();
-      const currentSession = currentSessionData?.session;
+      // Store current admin session
+      const { data: { session: adminSession } } = await supabase.auth.getSession();
+      if (!adminSession) throw new Error("No admin session found");
 
-      // Create auth account
+      // Create teacher account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -86,13 +86,13 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
       if (updateError) throw updateError;
 
-      // Restore admin session if it exists
-      if (currentSession) {
-        await supabase.auth.setSession({
-          access_token: currentSession.access_token,
-          refresh_token: currentSession.refresh_token,
-        });
-      }
+      // Explicitly restore admin session
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: adminSession.access_token,
+        refresh_token: adminSession.refresh_token,
+      });
+
+      if (sessionError) throw sessionError;
 
       toast({
         title: "Success",
@@ -105,11 +105,25 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
       
       setIsDialogOpen(false);
     } catch (error: any) {
+      console.error("Error creating teacher account:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to create account",
         variant: "destructive",
       });
+
+      // Attempt to restore admin session in case of error
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession) {
+          await supabase.auth.setSession({
+            access_token: currentSession.access_token,
+            refresh_token: currentSession.refresh_token,
+          });
+        }
+      } catch (sessionError) {
+        console.error("Error restoring admin session:", sessionError);
+      }
     } finally {
       setIsLoading(false);
     }
