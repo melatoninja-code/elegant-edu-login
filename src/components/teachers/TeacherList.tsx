@@ -30,6 +30,24 @@ export function TeacherList() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
 
+  const { data: userRole } = useQuery({
+    queryKey: ["userRole"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      
+      return profile?.role;
+    },
+  });
+
+  const isAdmin = userRole === "admin";
+
   const { data: teachers, isLoading, refetch } = useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
@@ -40,6 +58,15 @@ export function TeacherList() {
   });
 
   const handleDelete = async (id: string) => {
+    if (!isAdmin) {
+      toast({
+        title: "Error",
+        description: "Only administrators can delete teachers",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase.from("teachers").delete().eq("id", id);
     if (error) {
       toast({
@@ -60,10 +87,12 @@ export function TeacherList() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-2xl font-bold">Teachers</CardTitle>
-        <Button onClick={() => setIsFormOpen(true)}>
-          <Plus className="mr-2" />
-          Add Teacher
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setIsFormOpen(true)}>
+            <Plus className="mr-2" />
+            Add Teacher
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -72,7 +101,8 @@ export function TeacherList() {
           </div>
         ) : !teachers?.length ? (
           <div className="text-center py-8 text-muted-foreground">
-            No teachers found. Add one to get started.
+            No teachers found.
+            {isAdmin && " Add one to get started."}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -81,11 +111,15 @@ export function TeacherList() {
                 <TableRow>
                   <TableHead className="w-[200px]">Name</TableHead>
                   <TableHead className="hidden md:table-cell">Gender</TableHead>
-                  <TableHead>Phone</TableHead>
+                  {isAdmin && (
+                    <>
+                      <TableHead>Phone</TableHead>
+                      <TableHead className="hidden lg:table-cell">Address</TableHead>
+                    </>
+                  )}
                   <TableHead className="hidden md:table-cell">Studies</TableHead>
-                  <TableHead className="hidden lg:table-cell">Address</TableHead>
                   <TableHead className="hidden lg:table-cell">Dorm Room</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -95,35 +129,41 @@ export function TeacherList() {
                     <TableCell className="hidden md:table-cell capitalize">
                       {teacher.gender}
                     </TableCell>
-                    <TableCell>{teacher.phone_number}</TableCell>
+                    {isAdmin && (
+                      <>
+                        <TableCell>{teacher.phone_number}</TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          {teacher.address}
+                        </TableCell>
+                      </>
+                    )}
                     <TableCell className="hidden md:table-cell">
                       {teacher.studies}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      {teacher.address}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
                       {teacher.dorm_room || "-"}
                     </TableCell>
-                    <TableCell className="space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setEditingTeacher(teacher);
-                          setIsFormOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(teacher.id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingTeacher(teacher);
+                            setIsFormOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(teacher.id)}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
