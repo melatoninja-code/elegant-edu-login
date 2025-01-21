@@ -59,10 +59,11 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
     setIsLoading(true);
     try {
-      // Store current session before creating new user
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      // Store current session
+      const { data: currentSessionData } = await supabase.auth.getSession();
+      const currentSession = currentSessionData?.session;
 
-      // Create auth account using regular signup with auto sign in disabled
+      // Create auth account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -85,9 +86,12 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
       if (updateError) throw updateError;
 
-      // Restore admin session
+      // Restore admin session if it exists
       if (currentSession) {
-        await supabase.auth.setSession(currentSession);
+        await supabase.auth.setSession({
+          access_token: currentSession.access_token,
+          refresh_token: currentSession.refresh_token,
+        });
       }
 
       toast({
