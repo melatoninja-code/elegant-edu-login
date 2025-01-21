@@ -9,10 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash, UserPlus } from "lucide-react";
+import { Edit, Loader2, Plus, Trash } from "lucide-react";
 import { useState } from "react";
 import { TeacherForm } from "./TeacherForm";
 import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface Teacher {
   id: string;
@@ -29,7 +30,7 @@ export function TeacherList() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
 
-  const { data: teachers, refetch } = useQuery({
+  const { data: teachers, isLoading, refetch } = useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
       const { data, error } = await supabase.from("teachers").select("*");
@@ -56,74 +57,95 @@ export function TeacherList() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Teachers</h2>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle className="text-2xl font-bold">Teachers</CardTitle>
         <Button onClick={() => setIsFormOpen(true)}>
-          <UserPlus className="mr-2" />
+          <Plus className="mr-2" />
           Add Teacher
         </Button>
-      </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : !teachers?.length ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No teachers found. Add one to get started.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[200px]">Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Gender</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead className="hidden md:table-cell">Studies</TableHead>
+                  <TableHead className="hidden lg:table-cell">Address</TableHead>
+                  <TableHead className="hidden lg:table-cell">Dorm Room</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teachers?.map((teacher) => (
+                  <TableRow key={teacher.id}>
+                    <TableCell className="font-medium">{teacher.name}</TableCell>
+                    <TableCell className="hidden md:table-cell capitalize">
+                      {teacher.gender}
+                    </TableCell>
+                    <TableCell>{teacher.phone_number}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {teacher.studies}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {teacher.address}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {teacher.dorm_room || "-"}
+                    </TableCell>
+                    <TableCell className="space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingTeacher(teacher);
+                          setIsFormOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(teacher.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
-      {isFormOpen && (
-        <TeacherForm
-          teacher={editingTeacher}
-          onClose={() => {
-            setIsFormOpen(false);
-            setEditingTeacher(null);
-          }}
-          onSuccess={() => {
-            setIsFormOpen(false);
-            setEditingTeacher(null);
-            refetch();
-          }}
-        />
-      )}
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Gender</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Studies</TableHead>
-            <TableHead>Address</TableHead>
-            <TableHead>Dorm Room</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {teachers?.map((teacher) => (
-            <TableRow key={teacher.id}>
-              <TableCell>{teacher.name}</TableCell>
-              <TableCell className="capitalize">{teacher.gender}</TableCell>
-              <TableCell>{teacher.phone_number}</TableCell>
-              <TableCell>{teacher.studies}</TableCell>
-              <TableCell>{teacher.address}</TableCell>
-              <TableCell>{teacher.dorm_room || "-"}</TableCell>
-              <TableCell className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setEditingTeacher(teacher);
-                    setIsFormOpen(true);
-                  }}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDelete(teacher.id)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        {isFormOpen && (
+          <TeacherForm
+            teacher={editingTeacher}
+            onClose={() => {
+              setIsFormOpen(false);
+              setEditingTeacher(null);
+            }}
+            onSuccess={() => {
+              setIsFormOpen(false);
+              setEditingTeacher(null);
+              refetch();
+            }}
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 }
