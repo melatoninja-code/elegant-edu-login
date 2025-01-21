@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -46,6 +47,16 @@ interface TeacherFormProps {
 
 export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   const { toast } = useToast();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,11 +70,20 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to perform this action",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       if (teacher?.id) {
         const { error } = await supabase
           .from("teachers")
-          .update(values)
+          .update({ ...values, created_by: userId })
           .eq("id", teacher.id);
         if (error) throw error;
         toast({
@@ -71,7 +91,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
           description: "Teacher updated successfully",
         });
       } else {
-        const { error } = await supabase.from("teachers").insert([values]);
+        const { error } = await supabase
+          .from("teachers")
+          .insert([{ ...values, created_by: userId }]);
         if (error) throw error;
         toast({
           title: "Success",
