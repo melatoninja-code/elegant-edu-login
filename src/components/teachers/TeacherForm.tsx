@@ -123,9 +123,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm z-50">
-      <Card className="w-full max-w-2xl bg-white/95 shadow-xl border-primary/20 animate-fadeIn">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-primary/5 rounded-t-lg">
-          <CardTitle className="text-xl font-semibold text-primary-dark">
+      <Card className="w-full max-w-4xl bg-white/98 shadow-2xl border-primary/10 animate-fadeIn">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-primary/5 rounded-t-lg border-b border-primary/10">
+          <CardTitle className="text-2xl font-semibold text-primary-dark">
             {teacher ? "Edit Teacher" : "Add Teacher"}
           </CardTitle>
           <Button
@@ -137,9 +137,9 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent className="pt-6 pb-4 px-6">
+        <CardContent className="pt-8 pb-6 px-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <TeacherProfilePicture
                 currentUrl={profilePictureUrl}
                 onUpload={setProfilePictureUrl}
@@ -148,7 +148,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
               <TeacherPersonalInfoFields form={form} />
               <TeacherContactInfoFields form={form} />
 
-              <div className="flex justify-end gap-2 pt-4 border-t border-primary/10">
+              <div className="flex justify-end gap-2 pt-6 border-t border-primary/10">
                 <Button 
                   type="button" 
                   variant="outline" 
