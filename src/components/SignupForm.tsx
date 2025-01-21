@@ -15,6 +15,13 @@ const SignupForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const validatePassword = (password: string) => {
+    if (password.length < 6) {
+      return "Password must be at least 6 characters long";
+    }
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -22,6 +29,16 @@ const SignupForm = () => {
       toast({
         title: "Error",
         description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast({
+        title: "Invalid Password",
+        description: passwordError,
         variant: "destructive",
       });
       return;
@@ -106,13 +123,16 @@ const SignupForm = () => {
           <Input
             id="password"
             type="password"
-            placeholder="Create a password"
+            placeholder="Create a password (min. 6 characters)"
             className="pl-10"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
           />
         </div>
+        <p className="text-sm text-muted-foreground">
+          Password must be at least 6 characters long
+        </p>
       </div>
       <Button
         type="submit"
