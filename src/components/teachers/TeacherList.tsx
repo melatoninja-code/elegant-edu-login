@@ -18,29 +18,38 @@ export function TeacherList() {
   const [selectedTeacherCredentials, setSelectedTeacherCredentials] = useState<{ email: string; password: string } | undefined>();
   const { toast } = useToast();
 
-  const { data: userRole, error: roleError, refetch: refetchRole } = useQuery({
-    queryKey: ["userRole"],
+  // First, get the session and user role
+  const { data: session } = useQuery({
+    queryKey: ["session"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  const { data: userRole, error: roleError } = useQuery({
+    queryKey: ["userRole", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
       
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", user.id)
+        .eq("id", session.user.id)
         .maybeSingle();
       
       return profile?.role || null;
     },
+    enabled: !!session?.user?.id,
   });
 
   const isAdmin = userRole === "admin";
 
+  // Then fetch teachers data
   const { data: teachers, isLoading, error: teachersError, refetch } = useQuery({
-    queryKey: ["teachers"],
+    queryKey: ["teachers", session?.user?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!session?.user?.id) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
         .from("teachers")
@@ -49,7 +58,7 @@ export function TeacherList() {
       if (error) throw error;
       return data as Teacher[];
     },
-    enabled: !!userRole,
+    enabled: !!session?.user?.id,
   });
 
   const handleDelete = async (id: string) => {
@@ -125,7 +134,6 @@ export function TeacherList() {
               setIsFormOpen(false);
               setEditingTeacher(null);
               refetch();
-              refetchRole();
             }}
           />
         )}
