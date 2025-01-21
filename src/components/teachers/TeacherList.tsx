@@ -44,6 +44,10 @@ export function TeacherList() {
       
       return profile?.role;
     },
+    // Refresh every 30 seconds while the component is mounted
+    refetchInterval: 30000,
+    // Also refresh when the window regains focus
+    refetchOnWindowFocus: true,
   });
 
   const isAdmin = userRole === "admin";
@@ -70,7 +74,7 @@ export function TeacherList() {
         },
         () => {
           refetch();
-          refetchRole(); // Also refetch the role to ensure admin status is maintained
+          refetchRole();
         }
       )
       .subscribe();
@@ -205,7 +209,7 @@ export function TeacherList() {
               setIsFormOpen(false);
               setEditingTeacher(null);
               refetch();
-              refetchRole(); // Refetch role when form closes
+              refetchRole();
             }}
           />
         )}
