@@ -1,5 +1,5 @@
 import { SidebarHeader as Header } from "@/components/ui/sidebar"
-import { LogOut } from "lucide-react"
+import { LogOut, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
@@ -14,7 +14,11 @@ export function SidebarHeader() {
 
   return (
     <Header className="border-b">
-      <div className="container mx-auto px-4 py-4 flex justify-end">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-8 w-8 text-primary" />
+          <span className="font-semibold text-lg">Dayah</span>
+        </div>
         <Button variant="ghost" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Logout
