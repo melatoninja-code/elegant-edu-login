@@ -123,7 +123,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm z-50">
       <Card className="w-full max-w-lg bg-white/95 shadow-xl border-primary/20 animate-fadeIn">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-primary/5 rounded-t-lg">
           <CardTitle className="text-xl font-semibold text-primary-dark">
@@ -166,14 +166,14 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="border-primary/20 focus-visible:ring-primary">
+                        <SelectTrigger className="border-primary/20 focus-visible:ring-primary bg-white">
                           <SelectValue placeholder="Select gender" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                      <SelectContent className="bg-white/95 backdrop-blur-sm border-primary/20 shadow-lg z-[100]">
+                        <SelectItem value="male" className="hover:bg-primary/5 focus:bg-primary/5">Male</SelectItem>
+                        <SelectItem value="female" className="hover:bg-primary/5 focus:bg-primary/5">Female</SelectItem>
+                        <SelectItem value="other" className="hover:bg-primary/5 focus:bg-primary/5">Other</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
