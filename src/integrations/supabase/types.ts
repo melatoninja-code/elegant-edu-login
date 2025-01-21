@@ -75,6 +75,7 @@ export type Database = {
           created_at: string
           created_by: string
           dorm_room: string | null
+          gender: string
           id: string
           name: string
           phone_number: string
@@ -85,6 +86,7 @@ export type Database = {
           created_at?: string
           created_by: string
           dorm_room?: string | null
+          gender: string
           id?: string
           name: string
           phone_number: string
@@ -95,6 +97,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           dorm_room?: string | null
+          gender?: string
           id?: string
           name?: string
           phone_number?: string
