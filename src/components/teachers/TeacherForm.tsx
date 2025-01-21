@@ -2,28 +2,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { X } from "lucide-react";
 import { TeacherProfilePicture } from "./TeacherProfilePicture";
+import { TeacherPersonalInfoFields } from "./TeacherPersonalInfoFields";
+import { TeacherContactInfoFields } from "./TeacherContactInfoFields";
+import { FormValues } from "./types";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -33,8 +21,6 @@ const formSchema = z.object({
   address: z.string().min(5, "Address must be at least 5 characters"),
   phone_number: z.string().min(10, "Phone number must be at least 10 characters"),
 });
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface TeacherFormProps {
   teacher?: {
@@ -159,101 +145,8 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 onUpload={setProfilePictureUrl}
               />
 
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Gender</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="border-primary/20 focus-visible:ring-primary bg-white">
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white/95 backdrop-blur-sm border-primary/20 shadow-lg z-[100]">
-                        <SelectItem value="male" className="hover:bg-primary/5 focus:bg-primary/5">Male</SelectItem>
-                        <SelectItem value="female" className="hover:bg-primary/5 focus:bg-primary/5">Female</SelectItem>
-                        <SelectItem value="other" className="hover:bg-primary/5 focus:bg-primary/5">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="studies"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Studies</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dorm_room"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Dorm Room (Optional)</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Phone Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <TeacherPersonalInfoFields form={form} />
+              <TeacherContactInfoFields form={form} />
 
               <div className="flex justify-end gap-2 pt-4 border-t border-primary/10">
                 <Button 
