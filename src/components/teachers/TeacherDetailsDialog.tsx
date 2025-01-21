@@ -16,7 +16,7 @@ interface TeacherDetailsDialogProps {
 export function TeacherDetailsDialog({ teacher, onClose }: TeacherDetailsDialogProps) {
   return (
     <Dialog open={!!teacher} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl animate-fadeIn bg-white/98 backdrop-blur-sm shadow-2xl border-primary/10">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto animate-fadeIn">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-primary-dark">Teacher Details</DialogTitle>
         </DialogHeader>
