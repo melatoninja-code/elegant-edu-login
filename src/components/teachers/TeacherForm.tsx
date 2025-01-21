@@ -24,7 +24,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { X } from "lucide-react";
 import { TeacherProfilePicture } from "./TeacherProfilePicture";
-import { TeacherAuthFields, authSchema } from "./TeacherAuthFields";
+import { TeacherAuthFields } from "./TeacherAuthFields";
 
 const baseFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -43,7 +43,8 @@ const formSchema = z.discriminatedUnion("isEditing", [
   z.object({
     isEditing: z.literal(false),
     ...baseFormSchema.shape,
-    ...authSchema.shape,
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
   }),
 ]);
 
@@ -107,13 +108,32 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       let authId: string | undefined;
 
       if (!values.isEditing) {
+        // Create the auth user first
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
+          options: {
+            data: {
+              role: 'user' // Set the default role to 'user' for teachers
+            }
+          }
         });
 
         if (authError) throw authError;
         authId = authData.user?.id;
+
+        // Create the profile with user role
+        if (authId) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authId,
+              email: values.email,
+              role: 'user'
+            });
+
+          if (profileError) throw profileError;
+        }
       }
 
       const submissionData = {
@@ -145,7 +165,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         if (error) throw error;
         toast({
           title: "Success",
-          description: "Teacher added successfully",
+          description: "Teacher added successfully. They can now log in with their email and password.",
         });
       }
       onSuccess();
