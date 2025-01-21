@@ -6,6 +6,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TeacherActionsProps {
   onEdit: () => void;
@@ -14,12 +24,14 @@ interface TeacherActionsProps {
     id: string;
     email?: string;
     auth_id?: string | null;
+    name: string;
   };
   isAdmin: boolean;
 }
 
 export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherActionsProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [email, setEmail] = useState(teacher.email || "");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +105,7 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
         <Button
           variant="outline"
           size="icon"
-          onClick={onDelete}
+          onClick={() => setIsDeleteDialogOpen(true)}
           className="h-8 w-8 border-primary/20 hover:bg-primary/5 hover:text-red-500 transition-colors"
         >
           <Trash className="h-4 w-4" />
@@ -154,6 +166,30 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete {teacher.name}'s record
+              and remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onDelete();
+                setIsDeleteDialogOpen(false);
+              }}
+              className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
