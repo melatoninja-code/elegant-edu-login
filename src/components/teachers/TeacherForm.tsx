@@ -110,12 +110,12 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       if (!values.isEditing) {
         const formValues = values as z.infer<typeof formSchema> & { isEditing: false };
         
-        // Check if user already exists
+        // Check if user already exists using maybeSingle() instead of single()
         const { data: existingUser, error: checkError } = await supabase
           .from('profiles')
           .select('id')
           .eq('email', formValues.email)
-          .single();
+          .maybeSingle();
 
         if (existingUser) {
           toast({
@@ -151,17 +151,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         
         authId = authData.user?.id;
 
-        if (authId) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              id: authId,
-              email: formValues.email,
-              role: 'user'
-            });
-
-          if (profileError) throw profileError;
-        }
+        // Don't create a profile here since it's handled by the trigger
       }
 
       const submissionData = {
