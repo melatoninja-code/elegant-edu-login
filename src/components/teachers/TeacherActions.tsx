@@ -59,10 +59,13 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
     }
 
     setIsLoading(true);
+    let adminSession = null;
+
     try {
       // Store current admin session
-      const { data: { session: adminSession } } = await supabase.auth.getSession();
-      if (!adminSession) throw new Error("No admin session found");
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession) throw new Error("No admin session found");
+      adminSession = currentSession;
 
       // Create teacher account
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -88,12 +91,10 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
       if (updateError) throw updateError;
 
       // Explicitly restore admin session
-      const { error: sessionError } = await supabase.auth.setSession({
+      await supabase.auth.setSession({
         access_token: adminSession.access_token,
         refresh_token: adminSession.refresh_token,
       });
-
-      if (sessionError) throw sessionError;
 
       if (onAccountCreated) {
         onAccountCreated(email, password);
@@ -108,20 +109,23 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
         description: error.message || "Failed to create account",
         variant: "destructive",
       });
-
-      // Attempt to restore admin session in case of error
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (currentSession) {
+    } finally {
+      // Always attempt to restore admin session in finally block
+      if (adminSession) {
+        try {
           await supabase.auth.setSession({
-            access_token: currentSession.access_token,
-            refresh_token: currentSession.refresh_token,
+            access_token: adminSession.access_token,
+            refresh_token: adminSession.refresh_token,
+          });
+        } catch (sessionError) {
+          console.error("Error restoring admin session:", sessionError);
+          toast({
+            title: "Warning",
+            description: "Your admin session may have expired. Please refresh the page.",
+            variant: "destructive",
           });
         }
-      } catch (sessionError) {
-        console.error("Error restoring admin session:", sessionError);
       }
-    } finally {
       setIsLoading(false);
     }
   };
