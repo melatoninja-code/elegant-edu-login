@@ -59,5 +59,3 @@ export function TeacherAuthFields({ form, isEditing }: TeacherAuthFieldsProps) {
     </div>
   );
 }
-
-export { authSchema };
