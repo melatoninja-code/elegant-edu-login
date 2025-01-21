@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { TeacherForm } from "./TeacherForm";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { TeacherListHeader } from "./TeacherListHeader";
 import { TeacherTable } from "./TeacherTable";
 import { TeacherDetailsDialog } from "./TeacherDetailsDialog";
 import { Teacher } from "./types";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -15,27 +17,26 @@ export function TeacherList() {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
 
-  const { data: userRole, refetch: refetchRole } = useQuery({
+  const { data: userRole, error: roleError, refetch: refetchRole } = useQuery({
     queryKey: ["userRole"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
       
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single();
       
+      if (error) throw error;
       return profile?.role;
     },
-    refetchInterval: 30000,
-    refetchOnWindowFocus: true,
   });
 
   const isAdmin = userRole === "admin";
 
-  const { data: teachers, isLoading, refetch } = useQuery({
+  const { data: teachers, isLoading, error: teachersError, refetch } = useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -61,24 +62,38 @@ export function TeacherList() {
       return;
     }
 
-    const { error } = await supabase.from("teachers").delete().eq("id", id);
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete teacher",
-        variant: "destructive",
-      });
-    } else {
+    try {
+      const { error } = await supabase.from("teachers").delete().eq("id", id);
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Teacher deleted successfully",
       });
       refetch();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete teacher",
+        variant: "destructive",
+      });
     }
   };
 
+  if (roleError || teachersError) {
+    return (
+      <Alert variant="destructive" className="animate-fadeIn">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          {roleError?.message || teachersError?.message || "An error occurred while loading data"}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
-    <Card>
+    <Card className="animate-fadeIn shadow-lg border-primary/20">
       <TeacherListHeader
         isAdmin={isAdmin}
         onAddTeacher={() => setIsFormOpen(true)}

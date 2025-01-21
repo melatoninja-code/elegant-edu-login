@@ -13,6 +13,7 @@ export function TeacherActions({ onEdit, onDelete }: TeacherActionsProps) {
         variant="outline"
         size="sm"
         onClick={onEdit}
+        className="border-primary/20 hover:bg-primary/5 transition-colors"
       >
         <Edit className="h-4 w-4" />
       </Button>
@@ -20,6 +21,7 @@ export function TeacherActions({ onEdit, onDelete }: TeacherActionsProps) {
         variant="outline"
         size="sm"
         onClick={onDelete}
+        className="border-primary/20 hover:bg-primary/5 hover:text-red-500 transition-colors"
       >
         <Trash className="h-4 w-4" />
       </Button>

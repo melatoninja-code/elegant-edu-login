@@ -37,7 +37,7 @@ export function TeacherTable({
 
   if (!teachers?.length) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="text-center py-8 text-muted-foreground animate-fadeIn">
         No teachers found.
         {isAdmin && " Add one to get started."}
       </div>
@@ -45,22 +45,26 @@ export function TeacherTable({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-md border border-primary/20">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[200px]">Name</TableHead>
-            <TableHead className="hidden md:table-cell">Gender</TableHead>
-            <TableHead className="hidden md:table-cell">Studies</TableHead>
-            <TableHead className="hidden lg:table-cell">Dorm Room</TableHead>
-            <TableHead className="hidden lg:table-cell">Address</TableHead>
-            <TableHead className="hidden lg:table-cell">Phone</TableHead>
+          <TableRow className="bg-primary/5 hover:bg-primary/10">
+            <TableHead className="w-[200px] font-semibold">Name</TableHead>
+            <TableHead className="hidden md:table-cell font-semibold">Gender</TableHead>
+            <TableHead className="hidden md:table-cell font-semibold">Studies</TableHead>
+            <TableHead className="hidden lg:table-cell font-semibold">Dorm Room</TableHead>
+            <TableHead className="hidden lg:table-cell font-semibold">Address</TableHead>
+            <TableHead className="hidden lg:table-cell font-semibold">Phone</TableHead>
             {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {teachers.map((teacher) => (
-            <TableRow key={teacher.id}>
+          {teachers.map((teacher, index) => (
+            <TableRow 
+              key={teacher.id}
+              className="animate-fadeIn"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               <TableCell
                 className="font-medium cursor-pointer hover:text-primary transition-colors"
                 onClick={() => onSelectTeacher(teacher)}
