@@ -68,6 +68,7 @@ interface TeacherFormProps {
 export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   const { toast } = useToast();
   const [userId, setUserId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(
     teacher?.profile_picture_url || null
   );
@@ -104,18 +105,26 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       let authId: string | undefined;
 
       if (!values.isEditing) {
         const formValues = values as z.infer<typeof formSchema> & { isEditing: false };
         
-        // Check if user already exists using maybeSingle() instead of single()
+        console.log("Creating new teacher with email:", formValues.email);
+        
+        // Check if user already exists
         const { data: existingUser, error: checkError } = await supabase
           .from('profiles')
           .select('id')
           .eq('email', formValues.email)
           .maybeSingle();
+
+        if (checkError) {
+          console.error("Error checking existing user:", checkError);
+          throw checkError;
+        }
 
         if (existingUser) {
           toast({
@@ -138,6 +147,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         });
 
         if (authError) {
+          console.error("Error creating auth user:", authError);
           if (authError.message === "User already registered") {
             toast({
               title: "Error",
@@ -149,9 +159,8 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
           throw authError;
         }
         
+        console.log("Auth user created successfully:", authData.user?.id);
         authId = authData.user?.id;
-
-        // Don't create a profile here since it's handled by the trigger
       }
 
       const submissionData = {
@@ -167,20 +176,31 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       };
 
       if (teacher?.id) {
+        console.log("Updating existing teacher:", teacher.id);
         const { error } = await supabase
           .from("teachers")
           .update(submissionData)
           .eq("id", teacher.id);
-        if (error) throw error;
+        if (error) {
+          console.error("Error updating teacher:", error);
+          throw error;
+        }
         toast({
           title: "Success",
           description: "Teacher updated successfully",
         });
       } else {
-        const { error } = await supabase
+        console.log("Creating new teacher with data:", submissionData);
+        const { error, data } = await supabase
           .from("teachers")
-          .insert([submissionData]);
-        if (error) throw error;
+          .insert([submissionData])
+          .select()
+          .single();
+        if (error) {
+          console.error("Error creating teacher:", error);
+          throw error;
+        }
+        console.log("Teacher created successfully:", data);
         toast({
           title: "Success",
           description: "Teacher added successfully. They can now log in with their email and password.",
@@ -188,13 +208,18 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       }
       onSuccess();
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  // ... keep existing code (form JSX)
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm z-50">
@@ -326,6 +351,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                   type="button" 
                   variant="outline" 
                   onClick={onClose}
+                  disabled={isSubmitting}
                   className="border-primary/20 hover:bg-primary/5"
                 >
                   Cancel
@@ -333,8 +359,15 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 <Button 
                   type="submit"
                   className="bg-primary hover:bg-primary-dark"
+                  disabled={isSubmitting}
                 >
-                  {teacher ? "Update Teacher" : "Add Teacher"}
+                  {isSubmitting ? (
+                    "Saving..."
+                  ) : teacher ? (
+                    "Update Teacher"
+                  ) : (
+                    "Add Teacher"
+                  )}
                 </Button>
               </div>
             </form>
