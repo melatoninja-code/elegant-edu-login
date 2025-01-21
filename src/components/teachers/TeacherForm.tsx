@@ -123,7 +123,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm z-50">
-      <Card className="w-full max-w-lg bg-white/95 shadow-xl border-primary/20 animate-fadeIn">
+      <Card className="w-full max-w-2xl bg-white/95 shadow-xl border-primary/20 animate-fadeIn">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-primary/5 rounded-t-lg">
           <CardTitle className="text-xl font-semibold text-primary-dark">
             {teacher ? "Edit Teacher" : "Add Teacher"}
