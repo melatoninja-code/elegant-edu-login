@@ -47,6 +47,8 @@ const formSchema = z.discriminatedUnion("isEditing", [
   }),
 ]);
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface TeacherFormProps {
   teacher?: {
     id: string;
@@ -77,7 +79,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
     getCurrentUser();
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       isEditing: !!teacher,
@@ -87,12 +89,11 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       phone_number: teacher?.phone_number || "",
       dorm_room: teacher?.dorm_room || "",
       studies: teacher?.studies || "",
-      email: "",
-      password: "",
+      ...(teacher ? {} : { email: "", password: "" }),
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     if (!userId) {
       toast({
         title: "Error",
