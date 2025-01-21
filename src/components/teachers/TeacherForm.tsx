@@ -30,6 +30,8 @@ const formSchema = z.object({
   gender: z.string(),
   studies: z.string().min(2, "Studies must be at least 2 characters"),
   dorm_room: z.string().optional(),
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  phone_number: z.string().min(10, "Phone number must be at least 10 characters"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -41,6 +43,8 @@ interface TeacherFormProps {
     gender: string;
     dorm_room: string | null;
     studies: string;
+    address: string;
+    phone_number: string;
     profile_picture_url?: string | null;
   } | null;
   onClose: () => void;
@@ -70,6 +74,8 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       gender: teacher?.gender || "",
       dorm_room: teacher?.dorm_room || "",
       studies: teacher?.studies || "",
+      address: teacher?.address || "",
+      phone_number: teacher?.phone_number || "",
     },
   });
 
@@ -90,6 +96,8 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         gender: values.gender,
         studies: values.studies,
         dorm_room: values.dorm_room || null,
+        address: values.address,
+        phone_number: values.phone_number,
         created_by: userId,
         profile_picture_url: profilePictureUrl,
       };
@@ -211,6 +219,34 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-medium">Dorm Room (Optional)</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-medium">Address</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-medium">Phone Number</FormLabel>
                     <FormControl>
                       <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>

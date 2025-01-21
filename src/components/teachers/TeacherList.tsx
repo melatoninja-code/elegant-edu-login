@@ -21,6 +21,8 @@ interface Teacher {
   gender: string;
   studies: string;
   dorm_room: string | null;
+  address: string;
+  phone_number: string;
   profile_picture_url?: string | null;
 }
 
@@ -57,7 +59,7 @@ export function TeacherList() {
 
       const { data, error } = await supabase
         .from("teachers")
-        .select("id, name, gender, studies, dorm_room, profile_picture_url");
+        .select("id, name, gender, studies, dorm_room, address, phone_number, profile_picture_url");
       
       if (error) throw error;
       return data as Teacher[];
@@ -144,6 +146,8 @@ export function TeacherList() {
                   <TableHead className="hidden md:table-cell">Gender</TableHead>
                   <TableHead className="hidden md:table-cell">Studies</TableHead>
                   <TableHead className="hidden lg:table-cell">Dorm Room</TableHead>
+                  <TableHead className="hidden lg:table-cell">Address</TableHead>
+                  <TableHead className="hidden lg:table-cell">Phone</TableHead>
                   {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
@@ -159,6 +163,12 @@ export function TeacherList() {
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {teacher.dorm_room || "-"}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {teacher.address}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {teacher.phone_number}
                     </TableCell>
                     {isAdmin && (
                       <TableCell className="space-x-2">
