@@ -55,10 +55,22 @@ export function TeacherList() {
   const { data: teachers, isLoading, refetch } = useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("teachers").select("*");
+      // First check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // If admin, fetch all fields, otherwise only fetch public fields
+      const query = supabase.from("teachers").select(
+        isAdmin 
+          ? "*"
+          : "id, name, gender, studies, dorm_room"
+      );
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as Teacher[];
     },
+    enabled: !!userRole, // Only run query when we have the user role
   });
 
   // Subscribe to real-time changes
