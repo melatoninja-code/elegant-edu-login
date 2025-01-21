@@ -17,12 +17,12 @@ export function SidebarNavItem({ icon: Icon, title, description, onClick }: Side
     <SidebarMenuItem>
       <SidebarMenuButton
         tooltip={description}
-        className="group py-3"
+        className="group"
         size="lg"
         onClick={onClick}
       >
         <Icon className="h-5 w-5" />
-        <span className="text-base">{title}</span>
+        <span>{title}</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   )
