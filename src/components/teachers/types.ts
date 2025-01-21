@@ -7,6 +7,8 @@ export interface Teacher {
   address: string;
   phone_number: string;
   profile_picture_url?: string | null;
+  email?: string | null;
+  auth_id?: string | null;
 }
 
 export type FormValues = {
