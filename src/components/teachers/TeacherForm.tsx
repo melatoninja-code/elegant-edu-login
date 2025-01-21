@@ -122,59 +122,57 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-2xl font-semibold text-primary-dark">
-            {teacher ? "Edit Teacher" : "Add Teacher"}
-          </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <TeacherProfilePicture
-                currentUrl={profilePictureUrl}
-                onUpload={setProfilePictureUrl}
-              />
+    <Card className="w-full animate-fadeIn bg-white shadow-lg border-primary/20">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-2xl font-semibold text-primary-dark">
+          {teacher ? "Edit Teacher" : "Add Teacher"}
+        </CardTitle>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          onClick={onClose}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <TeacherProfilePicture
+              currentUrl={profilePictureUrl}
+              onUpload={setProfilePictureUrl}
+            />
 
-              <TeacherPersonalInfoFields form={form} />
-              <TeacherContactInfoFields form={form} />
+            <TeacherPersonalInfoFields form={form} />
+            <TeacherContactInfoFields form={form} />
 
-              <div className="flex justify-end gap-2 pt-6 border-t">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit"
-                  className="bg-primary hover:bg-primary-dark"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    "Saving..."
-                  ) : teacher ? (
-                    "Update Teacher"
-                  ) : (
-                    "Add Teacher"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex justify-end gap-2 pt-6 border-t">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                className="bg-primary hover:bg-primary-dark"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  "Saving..."
+                ) : teacher ? (
+                  "Update Teacher"
+                ) : (
+                  "Add Teacher"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }
