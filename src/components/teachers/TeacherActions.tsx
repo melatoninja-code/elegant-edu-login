@@ -8,20 +8,20 @@ interface TeacherActionsProps {
 
 export function TeacherActions({ onEdit, onDelete }: TeacherActionsProps) {
   return (
-    <div className="space-x-2">
+    <div className="flex items-center justify-end gap-2">
       <Button
         variant="outline"
-        size="sm"
+        size="icon"
         onClick={onEdit}
-        className="border-primary/20 hover:bg-primary/5 transition-colors"
+        className="h-8 w-8 border-primary/20 hover:bg-primary/5 transition-colors"
       >
         <Edit className="h-4 w-4" />
       </Button>
       <Button
         variant="outline"
-        size="sm"
+        size="icon"
         onClick={onDelete}
-        className="border-primary/20 hover:bg-primary/5 hover:text-red-500 transition-colors"
+        className="h-8 w-8 border-primary/20 hover:bg-primary/5 hover:text-red-500 transition-colors"
       >
         <Trash className="h-4 w-4" />
       </Button>
