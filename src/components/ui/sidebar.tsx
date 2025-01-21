@@ -18,6 +18,7 @@ export {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarTrigger,
 } from "./sidebar/sidebar-components"
 
 export { SidebarProvider, useSidebar } from "./sidebar/sidebar-context"
