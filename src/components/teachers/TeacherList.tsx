@@ -24,14 +24,13 @@ export function TeacherList() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
       
-      const { data: profile, error } = await supabase
+      const { data: profile } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
       
-      if (error) throw error;
-      return profile?.role;
+      return profile?.role || null;
     },
   });
 
