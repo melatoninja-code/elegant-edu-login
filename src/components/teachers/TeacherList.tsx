@@ -45,7 +45,7 @@ export function TeacherList() {
 
       const { data, error } = await supabase
         .from("teachers")
-        .select("id, name, gender, studies, dorm_room, address, phone_number, profile_picture_url, email, auth_id");
+        .select("*");
       
       if (error) throw error;
       return data as Teacher[];
