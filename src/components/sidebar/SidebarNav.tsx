@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Users, BookOpen, Calendar, Bell, Wallet } from "lucide-react"
+import { Users, BookOpen, Calendar, Bell, Wallet, MessageSquare, UserCheck, GraduationCap } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,6 +9,24 @@ import {
 import { SidebarNavItem } from "./SidebarNavItem"
 
 const menuItems = [
+  {
+    title: "Studies",
+    icon: GraduationCap,
+    path: "/studies",
+    description: "Course materials & resources",
+  },
+  {
+    title: "Forum",
+    icon: MessageSquare,
+    path: "/forum",
+    description: "Discussions & announcements",
+  },
+  {
+    title: "Attendance",
+    icon: UserCheck,
+    path: "/attendance",
+    description: "Track & manage attendance",
+  },
   {
     title: "Students",
     icon: Users,
