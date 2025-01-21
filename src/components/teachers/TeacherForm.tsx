@@ -80,10 +80,16 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
     }
 
     try {
+      const submissionData = {
+        ...values,
+        created_by: userId,
+        dorm_room: values.dorm_room || null, // Convert empty string to null
+      };
+
       if (teacher?.id) {
         const { error } = await supabase
           .from("teachers")
-          .update({ ...values, created_by: userId })
+          .update(submissionData)
           .eq("id", teacher.id);
         if (error) throw error;
         toast({
@@ -93,7 +99,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       } else {
         const { error } = await supabase
           .from("teachers")
-          .insert([{ ...values, created_by: userId }]);
+          .insert([submissionData]);
         if (error) throw error;
         toast({
           title: "Success",
