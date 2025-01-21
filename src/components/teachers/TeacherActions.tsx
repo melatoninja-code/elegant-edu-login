@@ -59,14 +59,18 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
 
     setIsLoading(true);
     try {
-      // Create auth account using regular signup
+      // Store current session before creating new user
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+
+      // Create auth account using regular signup with auto sign in disabled
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             role: 'teacher'
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         }
       });
 
@@ -80,6 +84,11 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
         .eq("id", teacher.id);
 
       if (updateError) throw updateError;
+
+      // Restore admin session
+      if (currentSession) {
+        await supabase.auth.setSession(currentSession);
+      }
 
       toast({
         title: "Success",
