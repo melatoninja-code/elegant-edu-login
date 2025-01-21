@@ -9,6 +9,8 @@ export interface Teacher {
   profile_picture_url?: string | null;
   email?: string | null;
   auth_id?: string | null;
+  account_email?: string | null;
+  account_password?: string | null;
 }
 
 export type FormValues = {

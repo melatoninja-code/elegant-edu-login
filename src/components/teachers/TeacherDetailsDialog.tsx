@@ -8,13 +8,9 @@ interface TeacherDetailsDialogProps {
   teacher: Teacher | null;
   onClose: () => void;
   isAdmin?: boolean;
-  credentials?: {
-    email: string;
-    password: string;
-  };
 }
 
-export function TeacherDetailsDialog({ teacher, onClose, isAdmin, credentials }: TeacherDetailsDialogProps) {
+export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetailsDialogProps) {
   if (!teacher) return null;
 
   const initials = teacher.name
@@ -48,17 +44,17 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin, credentials }:
             </div>
           </div>
 
-          {isAdmin && credentials && (
+          {isAdmin && teacher.account_email && teacher.account_password && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-2 border border-border/50">
               <h3 className="font-medium text-sm text-muted-foreground">Account Credentials</h3>
               <div className="grid gap-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Email:</span>
-                  <span>{credentials.email}</span>
+                  <span>{teacher.account_email}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Password:</span>
-                  <span>{credentials.password}</span>
+                  <span>{teacher.account_password}</span>
                 </div>
               </div>
             </div>

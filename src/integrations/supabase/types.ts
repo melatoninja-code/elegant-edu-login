@@ -71,6 +71,8 @@ export type Database = {
       }
       teachers: {
         Row: {
+          account_email: string | null
+          account_password: string | null
           address: string
           auth_id: string | null
           created_at: string
@@ -85,6 +87,8 @@ export type Database = {
           studies: string
         }
         Insert: {
+          account_email?: string | null
+          account_password?: string | null
           address: string
           auth_id?: string | null
           created_at?: string
@@ -99,6 +103,8 @@ export type Database = {
           studies: string
         }
         Update: {
+          account_email?: string | null
+          account_password?: string | null
           address?: string
           auth_id?: string | null
           created_at?: string

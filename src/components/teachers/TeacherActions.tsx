@@ -82,10 +82,15 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
       if (authError) throw authError;
       if (!authData.user) throw new Error("Failed to create account");
 
-      // Update teacher record with auth_id
+      // Update teacher record with auth_id and credentials
       const { error: updateError } = await supabase
         .from("teachers")
-        .update({ auth_id: authData.user.id, email })
+        .update({ 
+          auth_id: authData.user.id, 
+          email,
+          account_email: email,
+          account_password: password
+        })
         .eq("id", teacher.id);
 
       if (updateError) throw updateError;
