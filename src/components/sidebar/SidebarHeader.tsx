@@ -15,10 +15,13 @@ export function SidebarHeader() {
   return (
     <Header className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <button 
+          onClick={() => navigate('/dashboard')} 
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
           <Building2 className="h-8 w-8 text-primary" />
           <span className="font-semibold text-lg">Dayah</span>
-        </div>
+        </button>
         <Button variant="ghost" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Logout

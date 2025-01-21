@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Users, BookOpen, Calendar, Bell, Wallet, MessageSquare, UserCheck, GraduationCap } from "lucide-react"
+import { Users, BookOpen, Calendar, Bell, Wallet, MessageSquare, UserCheck, GraduationCap, Home } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,6 +9,12 @@ import {
 import { SidebarNavItem } from "./SidebarNavItem"
 
 const menuItems = [
+  {
+    title: "Home",
+    icon: Home,
+    path: "/dashboard",
+    description: "Dashboard overview",
+  },
   {
     title: "Studies",
     icon: GraduationCap,
