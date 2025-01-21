@@ -15,26 +15,14 @@ import { TeacherForm } from "./TeacherForm";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-// Base interface with common fields
-interface BaseTeacher {
+interface Teacher {
   id: string;
   name: string;
   gender: string;
   studies: string;
   dorm_room: string | null;
-}
-
-// Extended interface for admin view
-interface AdminTeacher extends BaseTeacher {
-  address: string;
-  phone_number: string;
   profile_picture_url?: string | null;
-  auth_id?: string | null;
-  created_by: string;
 }
-
-// Union type that can be either base or admin teacher
-type Teacher = BaseTeacher | AdminTeacher;
 
 export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -67,14 +55,10 @@ export function TeacherList() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      let query;
-      if (isAdmin) {
-        query = supabase.from("teachers").select("*");
-      } else {
-        query = supabase.from("teachers").select("id, name, gender, studies, dorm_room");
-      }
-
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("id, name, gender, studies, dorm_room, profile_picture_url");
+      
       if (error) throw error;
       return data as Teacher[];
     },
@@ -158,12 +142,6 @@ export function TeacherList() {
                 <TableRow>
                   <TableHead className="w-[200px]">Name</TableHead>
                   <TableHead className="hidden md:table-cell">Gender</TableHead>
-                  {isAdmin && (
-                    <>
-                      <TableHead>Phone</TableHead>
-                      <TableHead className="hidden lg:table-cell">Address</TableHead>
-                    </>
-                  )}
                   <TableHead className="hidden md:table-cell">Studies</TableHead>
                   <TableHead className="hidden lg:table-cell">Dorm Room</TableHead>
                   {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
@@ -176,14 +154,6 @@ export function TeacherList() {
                     <TableCell className="hidden md:table-cell capitalize">
                       {teacher.gender}
                     </TableCell>
-                    {isAdmin && 'phone_number' in teacher && (
-                      <>
-                        <TableCell>{teacher.phone_number}</TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {teacher.address}
-                        </TableCell>
-                      </>
-                    )}
                     <TableCell className="hidden md:table-cell">
                       {teacher.studies}
                     </TableCell>
@@ -220,7 +190,7 @@ export function TeacherList() {
 
         {isFormOpen && (
           <TeacherForm
-            teacher={editingTeacher as AdminTeacher}
+            teacher={editingTeacher}
             onClose={() => {
               setIsFormOpen(false);
               setEditingTeacher(null);

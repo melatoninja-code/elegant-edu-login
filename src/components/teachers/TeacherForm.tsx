@@ -20,33 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { X } from "lucide-react";
 import { TeacherProfilePicture } from "./TeacherProfilePicture";
-import { TeacherAuthFields } from "./TeacherAuthFields";
 
-const baseFormSchema = z.object({
+const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   gender: z.string(),
-  address: z.string().min(5, "Address must be at least 5 characters"),
-  phone_number: z.string().min(10, "Phone number must be at least 10 characters"),
-  dorm_room: z.string().optional(),
   studies: z.string().min(2, "Studies must be at least 2 characters"),
+  dorm_room: z.string().optional(),
 });
-
-const formSchema = z.discriminatedUnion("isEditing", [
-  z.object({
-    isEditing: z.literal(true),
-    ...baseFormSchema.shape,
-  }),
-  z.object({
-    isEditing: z.literal(false),
-    ...baseFormSchema.shape,
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-  }),
-]);
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -55,8 +39,6 @@ interface TeacherFormProps {
     id: string;
     name: string;
     gender: string;
-    address: string;
-    phone_number: string;
     dorm_room: string | null;
     studies: string;
     profile_picture_url?: string | null;
@@ -84,14 +66,10 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      isEditing: !!teacher,
       name: teacher?.name || "",
       gender: teacher?.gender || "",
-      address: teacher?.address || "",
-      phone_number: teacher?.phone_number || "",
       dorm_room: teacher?.dorm_room || "",
       studies: teacher?.studies || "",
-      ...(teacher ? {} : { email: "", password: "" }),
     },
   });
 
@@ -107,103 +85,33 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
 
     setIsSubmitting(true);
     try {
-      let authId: string | undefined;
-
-      if (!values.isEditing) {
-        const formValues = values as z.infer<typeof formSchema> & { isEditing: false };
-        
-        console.log("Creating new teacher with email:", formValues.email);
-        
-        // Check if user already exists
-        const { data: existingUser, error: checkError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', formValues.email)
-          .maybeSingle();
-
-        if (checkError) {
-          console.error("Error checking existing user:", checkError);
-          throw checkError;
-        }
-
-        if (existingUser) {
-          toast({
-            title: "Error",
-            description: "A teacher with this email already exists",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Create the auth user
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formValues.email,
-          password: formValues.password,
-          options: {
-            data: {
-              role: 'user'
-            }
-          }
-        });
-
-        if (authError) {
-          console.error("Error creating auth user:", authError);
-          if (authError.message === "User already registered") {
-            toast({
-              title: "Error",
-              description: "This email is already registered. Please use a different email address.",
-              variant: "destructive",
-            });
-            return;
-          }
-          throw authError;
-        }
-        
-        console.log("Auth user created successfully:", authData.user?.id);
-        authId = authData.user?.id;
-      }
-
       const submissionData = {
         name: values.name,
         gender: values.gender,
-        address: values.address,
-        phone_number: values.phone_number,
         studies: values.studies,
         dorm_room: values.dorm_room || null,
         created_by: userId,
         profile_picture_url: profilePictureUrl,
-        ...(authId && { auth_id: authId }),
       };
 
       if (teacher?.id) {
-        console.log("Updating existing teacher:", teacher.id);
         const { error } = await supabase
           .from("teachers")
           .update(submissionData)
           .eq("id", teacher.id);
-        if (error) {
-          console.error("Error updating teacher:", error);
-          throw error;
-        }
+        if (error) throw error;
         toast({
           title: "Success",
           description: "Teacher updated successfully",
         });
       } else {
-        console.log("Creating new teacher with data:", submissionData);
-        const { error, data } = await supabase
+        const { error } = await supabase
           .from("teachers")
-          .insert([submissionData])
-          .select()
-          .single();
-        if (error) {
-          console.error("Error creating teacher:", error);
-          throw error;
-        }
-        console.log("Teacher created successfully:", data);
+          .insert([submissionData]);
+        if (error) throw error;
         toast({
           title: "Success",
-          description: "Teacher added successfully. They can now log in with their email and password.",
+          description: "Teacher added successfully",
         });
       }
       onSuccess();
@@ -218,8 +126,6 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       setIsSubmitting(false);
     }
   };
-
-  // ... keep existing code (form JSX)
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm z-50">
@@ -243,11 +149,6 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
               <TeacherProfilePicture
                 currentUrl={profilePictureUrl}
                 onUpload={setProfilePictureUrl}
-              />
-
-              <TeacherAuthFields
-                form={form}
-                isEditing={!!teacher}
               />
 
               <FormField
@@ -292,38 +193,10 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
 
               <FormField
                 control={form.control}
-                name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Phone Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="tel" className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="studies"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-medium">Studies</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Address</FormLabel>
                     <FormControl>
                       <Input {...field} className="border-primary/20 focus-visible:ring-primary" />
                     </FormControl>
