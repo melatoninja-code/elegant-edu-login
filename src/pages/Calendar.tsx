@@ -42,6 +42,10 @@ export default function CalendarPage() {
     return events[dateStr as keyof typeof events]
   }
 
+  const formatDate = (date: Date) => {
+    return format(date, 'dd/MM/yyyy')
+  }
+
   return (
     <div className="flex h-screen bg-neutral-light/50">
       <AppSidebar />
@@ -65,6 +69,15 @@ export default function CalendarPage() {
                     mode="single"
                     selected={date}
                     onSelect={handleDateChange}
+                    locale={{
+                      localize: {
+                        day: (n) => ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][n],
+                        month: (n) => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][n],
+                      },
+                      formatLong: {
+                        date: () => 'dd/MM/yyyy'
+                      }
+                    }}
                     className={cn(
                       "rounded-md border w-full max-w-[350px]",
                       isMobile ? "transform-none" : "transform origin-top"
@@ -115,7 +128,7 @@ export default function CalendarPage() {
                 <Card className="bg-white shadow-md">
                   <CardHeader className="pb-3 border-b bg-primary-lighter">
                     <CardTitle className="text-lg text-primary-dark md:text-xl">
-                      {format(date, 'PPPP')}
+                      {formatDate(date)}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 md:p-6">
@@ -158,7 +171,7 @@ export default function CalendarPage() {
                             <span className="w-2 h-2 bg-primary rounded-full" />
                             <span className="font-medium text-primary-dark">{event.title}</span>
                           </div>
-                          <span className="text-sm text-neutral">{format(new Date(dateStr), 'MMM d')}</span>
+                          <span className="text-sm text-neutral">{format(new Date(dateStr), 'dd/MM')}</span>
                         </div>
                       ))}
                     </div>
