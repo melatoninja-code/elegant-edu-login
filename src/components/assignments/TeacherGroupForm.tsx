@@ -74,8 +74,9 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         description: "Group created successfully",
       });
 
+      // Reset form and trigger refetch
       reset();
-      onSuccess();
+      await onSuccess();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -88,33 +89,31 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Input
-            placeholder="Group Name"
-            {...register("name", { required: true })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Select
-            value={groupType}
-            onValueChange={(value) => setValue("type", value as FormData["type"])}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select group type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="class">Class</SelectItem>
-              <SelectItem value="club">Club</SelectItem>
-              <SelectItem value="study_group">Study Group</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-4">
+      <div className="flex-1">
+        <Input
+          placeholder="Group Name"
+          {...register("name", { required: true })}
+        />
+      </div>
+      <div className="w-[200px]">
+        <Select
+          value={groupType}
+          onValueChange={(value) => setValue("type", value as FormData["type"])}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select group type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="class">Class</SelectItem>
+            <SelectItem value="club">Club</SelectItem>
+            <SelectItem value="study_group">Study Group</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" disabled={isSubmitting}>
-        Create Group
+        {isSubmitting ? "Creating..." : "Create Group"}
       </Button>
     </form>
   );
