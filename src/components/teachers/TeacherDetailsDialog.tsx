@@ -44,25 +44,21 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetai
             </div>
           </div>
 
-          {isAdmin && (teacher.account_email || teacher.account_password) && (
+          {isAdmin && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-2 border border-border/50">
               <h3 className="font-medium text-sm text-muted-foreground flex items-center gap-2">
                 <Key className="h-4 w-4" />
                 Account Credentials
               </h3>
               <div className="grid gap-2 text-sm">
-                {teacher.account_email && (
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Email:</span>
-                    <span>{teacher.account_email}</span>
-                  </div>
-                )}
-                {teacher.account_password && (
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Password:</span>
-                    <span>{teacher.account_password}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Email:</span>
+                  <span>{teacher.account_email || "No account email set"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Password:</span>
+                  <span>{teacher.account_password || "No account password set"}</span>
+                </div>
               </div>
             </div>
           )}
