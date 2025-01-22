@@ -9,6 +9,7 @@ import { BookingFormValues } from "@/types/booking";
 import { BookingHeader } from "@/components/bookings/BookingHeader";
 import { AccessRestriction } from "@/components/bookings/AccessRestriction";
 import { BookingDialog } from "@/components/bookings/BookingDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Bookings() {
   const { toast } = useToast();
@@ -19,6 +20,7 @@ export default function Bookings() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasTeacherTag, setHasTeacherTag] = useState<boolean>(false);
   const [classrooms, setClassrooms] = useState<Array<{ id: string; name: string; room_number: string }>>([]);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
 
   useEffect(() => {
     const fetchClassrooms = async () => {
@@ -47,8 +49,8 @@ export default function Bookings() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setIsLoadingUserData(true);
         const { data: { user } } = await supabase.auth.getUser();
-        console.log('Current user:', user);
         
         if (user) {
           setUserId(user.id);
@@ -58,8 +60,6 @@ export default function Bookings() {
             .select('role')
             .eq('id', user.id)
             .maybeSingle();
-          
-          console.log('User profile:', profile);
           
           if (profile) {
             setUserRole(profile.role);
@@ -71,8 +71,6 @@ export default function Bookings() {
             .eq('auth_id', user.id)
             .maybeSingle();
           
-          console.log('Teacher data:', teacher);
-          
           if (teacher) {
             setTeacherId(teacher.id);
             
@@ -81,14 +79,10 @@ export default function Bookings() {
               .select('tag')
               .eq('teacher_id', teacher.id);
             
-            console.log('Teacher tags:', teacherTags);
-            
             if (teacherTags) {
-              // Case-insensitive check for the 'teacher' tag
               const hasTag = teacherTags.some(tag => 
                 tag.tag.toLowerCase() === 'teacher'
               );
-              console.log('Has Teacher tag:', hasTag);
               setHasTeacherTag(hasTag);
             }
           }
@@ -100,13 +94,15 @@ export default function Bookings() {
           title: "Error fetching user data",
           description: "Please try again later or contact support if the problem persists.",
         });
+      } finally {
+        setIsLoadingUserData(false);
       }
     };
 
     fetchUserData();
   }, [toast]);
 
-  const { data: bookings, isLoading } = useQuery({
+  const { data: bookings, isLoading: isLoadingBookings } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
       const query = supabase
@@ -189,6 +185,27 @@ export default function Bookings() {
     }
   };
 
+  if (isLoadingUserData) {
+    return (
+      <SidebarProvider>
+        <div className="flex h-screen bg-background">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col">
+            <div className="h-16 border-b flex items-center px-6">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-9 w-28 ml-auto" />
+            </div>
+            <div className="p-6 space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
   if (userRole === 'user' && !teacherId) {
     return (
       <AccessRestriction 
@@ -212,7 +229,15 @@ export default function Bookings() {
         <div className="flex-1 flex flex-col">
           <BookingHeader onNewBooking={() => setIsDialogOpen(true)} />
           <div className="p-6">
-            <BookingList bookings={bookings || []} />
+            {isLoadingBookings ? (
+              <div className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            ) : (
+              <BookingList bookings={bookings || []} />
+            )}
           </div>
         </div>
       </div>
