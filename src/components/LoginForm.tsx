@@ -38,7 +38,7 @@ const LoginForm = () => {
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
-          setAuthError("Incorrect email or password. Please try again.");
+          setAuthError("The password you entered is incorrect or these credentials don't exist.");
         } else {
           setAuthError(error.message);
         }
