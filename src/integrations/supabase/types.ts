@@ -83,6 +83,67 @@ export type Database = {
         }
         Relationships: []
       }
+      room_bookings: {
+        Row: {
+          classroom_id: string
+          created_at: string
+          created_by: string
+          end_time: string
+          id: string
+          purpose: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          classroom_id: string
+          created_at?: string
+          created_by: string
+          end_time: string
+          id?: string
+          purpose: string
+          start_time: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          classroom_id?: string
+          created_at?: string
+          created_by?: string
+          end_time?: string
+          id?: string
+          purpose?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_bookings_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_bookings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_bookings_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_tags: {
         Row: {
           created_at: string
@@ -189,6 +250,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      booking_status: "pending" | "approved" | "rejected" | "cancelled"
       classroom_type:
         | "lecture_hall"
         | "laboratory"
