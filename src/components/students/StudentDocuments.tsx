@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +24,7 @@ interface StudentDocument {
 export function StudentDocuments({ student }: StudentDocumentsProps) {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useState<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ['student-documents', student.id],
