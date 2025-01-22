@@ -4,33 +4,49 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, UserPlus, UserMinus, Users } from "lucide-react";
+import { User, UserPlus, UserMinus, Users, School } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TeacherGroupForm } from "./TeacherGroupForm";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Group {
   id: string;
   name: string;
   type: string;
+  teacher: { id: string; name: string } | null;
   students: Array<{ id: string; name: string }>;
 }
 
 export function TeacherGroupManagement() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { data: groups, refetch } = useQuery({
-    queryKey: ["teacherGroups"],
+  const { data: teachers } = useQuery({
+    queryKey: ["teachers"],
     queryFn: async () => {
-      // Get all groups
-      const { data: groups, error: groupsError } = await supabase
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("id, name")
+        .order("name");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: groups, refetch } = useQuery({
+    queryKey: ["teacherGroups", selectedTeacher],
+    queryFn: async () => {
+      let query = supabase
         .from("teacher_groups")
         .select(`
           id,
           name,
           type,
+          teacher:teachers(id, name),
           teacher_groups_students:teacher_group_student_assignments(
             student:students(
               id,
@@ -39,13 +55,19 @@ export function TeacherGroupManagement() {
           )
         `);
 
+      if (selectedTeacher) {
+        query = query.eq("teacher_id", selectedTeacher);
+      }
+
+      const { data: groups, error: groupsError } = await query;
+
       if (groupsError) throw groupsError;
 
-      // Transform the data to match our interface
       return groups.map((group) => ({
         id: group.id,
         name: group.name,
         type: group.type,
+        teacher: group.teacher,
         students: group.teacher_groups_students
           .map((assignment) => assignment.student)
           .filter((s): s is { id: string; name: string } => s !== null),
@@ -57,7 +79,6 @@ export function TeacherGroupManagement() {
     queryKey: ["availableStudents", selectedGroup],
     enabled: !!selectedGroup,
     queryFn: async () => {
-      // Get all active students
       const { data: students, error: studentsError } = await supabase
         .from("students")
         .select("id, name")
@@ -66,7 +87,6 @@ export function TeacherGroupManagement() {
 
       if (studentsError) throw studentsError;
 
-      // Get current assignments for the selected group
       const { data: assignments, error: assignmentsError } = await supabase
         .from("teacher_group_student_assignments")
         .select("student_id")
@@ -74,7 +94,6 @@ export function TeacherGroupManagement() {
 
       if (assignmentsError) throw assignmentsError;
 
-      // Filter out already assigned students
       const assignedIds = assignments.map((a) => a.student_id);
       return students.filter((student) => !assignedIds.includes(student.id));
     },
@@ -139,7 +158,22 @@ export function TeacherGroupManagement() {
 
   return (
     <div className="space-y-6">
-      <TeacherGroupForm onSuccess={refetch} />
+      <div className="flex items-center gap-4">
+        <Select value={selectedTeacher || ''} onValueChange={setSelectedTeacher}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select a teacher" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Teachers</SelectItem>
+            {teachers?.map((teacher) => (
+              <SelectItem key={teacher.id} value={teacher.id}>
+                {teacher.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <TeacherGroupForm onSuccess={refetch} />
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {groups?.map((group) => (
@@ -159,9 +193,17 @@ export function TeacherGroupManagement() {
                   <UserPlus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <Badge variant="secondary" className="w-fit">
-                {group.type}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="w-fit">
+                  {group.type}
+                </Badge>
+                {group.teacher && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <School className="h-3 w-3" />
+                    {group.teacher.name}
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 mb-2">
