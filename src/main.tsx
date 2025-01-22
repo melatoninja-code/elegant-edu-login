@@ -10,6 +10,7 @@ import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Teachers from './pages/Teachers';
 import Classrooms from './pages/Classrooms';
+import Calendar from './pages/Calendar';
 
 // Create a wrapper component to handle auth state
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
   {
     path: "/classrooms",
     element: <Classrooms />,
+  },
+  {
+    path: "/calendar",
+    element: <Calendar />,
   },
 ]);
 

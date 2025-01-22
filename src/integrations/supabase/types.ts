@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      classrooms: {
+        Row: {
+          building: string
+          capacity: number
+          created_at: string
+          created_by: string
+          description: string | null
+          floor: number
+          id: string
+          is_available: boolean
+          name: string
+          room_number: string
+          type: Database["public"]["Enums"]["classroom_type"]
+          updated_at: string
+        }
+        Insert: {
+          building?: string
+          capacity: number
+          created_at?: string
+          created_by: string
+          description?: string | null
+          floor?: number
+          id?: string
+          is_available?: boolean
+          name: string
+          room_number: string
+          type?: Database["public"]["Enums"]["classroom_type"]
+          updated_at?: string
+        }
+        Update: {
+          building?: string
+          capacity?: number
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          floor?: number
+          id?: string
+          is_available?: boolean
+          name?: string
+          room_number?: string
+          type?: Database["public"]["Enums"]["classroom_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classrooms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -136,6 +189,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      classroom_type:
+        | "lecture_hall"
+        | "laboratory"
+        | "standard"
+        | "computer_lab"
+        | "music_room"
+        | "art_studio"
+        | "gymnasium"
       teacher_tag:
         | "head_teacher"
         | "senior_teacher"
