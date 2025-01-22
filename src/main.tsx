@@ -44,6 +44,11 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" replace />;
   }
 
+  // Only wrap authenticated routes with SidebarProvider
+  if (session && window.location.pathname !== '/' && window.location.pathname !== '/signup') {
+    return <SidebarProvider>{children}</SidebarProvider>;
+  }
+
   return <>{children}</>;
 }
 
@@ -78,10 +83,8 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <SidebarProvider>
-      <AuthWrapper>
-        <RouterProvider router={router} />
-      </AuthWrapper>
-    </SidebarProvider>
+    <AuthWrapper>
+      <RouterProvider router={router} />
+    </AuthWrapper>
   </QueryClientProvider>
 );
