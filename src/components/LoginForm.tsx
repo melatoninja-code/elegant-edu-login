@@ -31,13 +31,13 @@ const LoginForm = () => {
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        if (error.message.includes("Invalid login credentials")) {
+        if (error.message === "Invalid login credentials") {
           setAuthError("The password you entered is incorrect or these credentials don't exist.");
         } else {
           setAuthError(error.message);
@@ -45,14 +45,13 @@ const LoginForm = () => {
         return;
       }
 
-      if (data.user) {
-        toast({
-          title: "Success",
-          description: "Login successful!",
-        });
-        navigate("/dashboard");
-      }
+      toast({
+        title: "Success",
+        description: "Login successful!",
+      });
+      navigate("/dashboard");
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
