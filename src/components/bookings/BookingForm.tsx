@@ -66,6 +66,7 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
   const handleSubmit = async (values: BookingFormValues) => {
     try {
       setIsSubmitting(true);
+      console.log('Submitting booking with values:', values); // Debug log
       await onSubmit(values);
       form.reset();
       toast({
@@ -73,6 +74,7 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
         description: "Your booking has been submitted successfully.",
       });
     } catch (error) {
+      console.error('Form submission error:', error); // Debug log
       toast({
         variant: "destructive",
         title: "Error",

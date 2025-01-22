@@ -139,44 +139,54 @@ export default function Bookings() {
       return;
     }
 
-    const startDateTime = new Date(values.start_date);
-    const [startHours, startMinutes] = values.start_time.split(':');
-    startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
-
-    const endDateTime = new Date(values.end_date);
-    const [endHours, endMinutes] = values.end_time.split(':');
-    endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
-
-    const { error } = await supabase
-      .from('room_bookings')
-      .insert({
-        classroom_id: values.classroom_id,
+    try {
+      console.log('Creating booking with values:', {
+        ...values,
         teacher_id: teacherId,
-        start_time: startDateTime.toISOString(),
-        end_time: endDateTime.toISOString(),
-        purpose: values.purpose,
-        status: 'pending',
         created_by: userId
+      }); // Debug log
+
+      const startDateTime = new Date(values.start_date);
+      const [startHours, startMinutes] = values.start_time.split(':');
+      startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+
+      const endDateTime = new Date(values.end_date);
+      const [endHours, endMinutes] = values.end_time.split(':');
+      endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+
+      const { error } = await supabase
+        .from('room_bookings')
+        .insert({
+          classroom_id: values.classroom_id,
+          teacher_id: teacherId,
+          start_time: startDateTime.toISOString(),
+          end_time: endDateTime.toISOString(),
+          purpose: values.purpose,
+          status: 'pending',
+          created_by: userId
+        });
+
+      if (error) {
+        console.error('Error creating booking:', error); // Debug log
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Your booking request has been submitted for approval.",
       });
 
-    if (error) {
-      console.error('Error creating booking:', error);
+      // Invalidate and refetch bookings
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      console.error('Booking creation error:', error); // Debug log
       toast({
         variant: "destructive",
         title: "Error creating booking",
-        description: error.message,
+        description: error.message || "Failed to create booking. Please try again.",
       });
-      return;
     }
-
-    toast({
-      title: "Booking created",
-      description: "Your booking request has been submitted for approval.",
-    });
-
-    // Invalidate and refetch bookings
-    queryClient.invalidateQueries({ queryKey: ['bookings'] });
-    setIsDialogOpen(false);
   };
 
   if (isLoading) {
