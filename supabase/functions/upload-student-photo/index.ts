@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import Sharp from 'https://esm.sh/sharp@0.32.6'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,23 +33,14 @@ serve(async (req) => {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = new Uint8Array(arrayBuffer)
 
-    // Process image with Sharp
-    const processedImageBuffer = await Sharp(buffer)
-      .resize(300, 300, {
-        fit: 'cover',
-        position: 'center'
-      })
-      .webp({ quality: 80 })
-      .toBuffer()
-
-    const fileExt = 'webp'
+    const fileExt = file.name.split('.').pop()
     const filePath = `${studentId}/${crypto.randomUUID()}.${fileExt}`
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('student-avatars')
-      .upload(filePath, processedImageBuffer, {
-        contentType: 'image/webp',
+      .upload(filePath, buffer, {
+        contentType: file.type,
         upsert: true
       })
 

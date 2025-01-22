@@ -20,4 +20,5 @@ export type Student = {
   emergency_contact_2_phone: string | null;
   created_at: string;
   updated_at: string;
+  profile_picture_url: string | null;
 };
