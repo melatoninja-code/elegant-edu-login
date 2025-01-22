@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Booking, BookingFormValues } from "@/types/booking";
 
 export default function Bookings() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [teacherId, setTeacherId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -95,7 +96,7 @@ export default function Bookings() {
   }, [toast]);
 
   // Fetch bookings
-  const { data: bookings, isLoading, refetch } = useQuery({
+  const { data: bookings, isLoading } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
       const query = supabase
@@ -128,8 +129,15 @@ export default function Bookings() {
     enabled: Boolean(userRole && (userRole === 'admin' || teacherId)),
   });
 
-  const onSubmit = async (values: BookingFormValues) => {
-    if (!teacherId || !userId) return;
+  const handleSubmit = async (values: BookingFormValues) => {
+    if (!teacherId || !userId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in as a teacher to create bookings.",
+      });
+      return;
+    }
 
     const startDateTime = new Date(values.start_date);
     const [startHours, startMinutes] = values.start_time.split(':');
@@ -152,6 +160,7 @@ export default function Bookings() {
       });
 
     if (error) {
+      console.error('Error creating booking:', error);
       toast({
         variant: "destructive",
         title: "Error creating booking",
@@ -165,8 +174,9 @@ export default function Bookings() {
       description: "Your booking request has been submitted for approval.",
     });
 
+    // Invalidate and refetch bookings
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
     setIsDialogOpen(false);
-    refetch();
   };
 
   if (isLoading) {
@@ -215,7 +225,7 @@ export default function Bookings() {
           <DialogHeader>
             <DialogTitle>Create New Booking</DialogTitle>
           </DialogHeader>
-          <BookingForm classrooms={classrooms} onSubmit={onSubmit} />
+          <BookingForm classrooms={classrooms} onSubmit={handleSubmit} />
         </DialogContent>
       </Dialog>
     </SidebarProvider>
