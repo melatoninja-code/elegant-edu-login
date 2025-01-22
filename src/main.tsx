@@ -9,6 +9,7 @@ import Index from './pages/Index';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Teachers from './pages/Teachers';
+import Classrooms from './pages/Classrooms';
 
 // Create a wrapper component to handle auth state
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
   {
     path: "/teachers",
     element: <Teachers />,
+  },
+  {
+    path: "/classrooms",
+    element: <Classrooms />,
   },
 ]);
 
