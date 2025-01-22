@@ -81,6 +81,7 @@ export function StudentTable({
           <TableHeader>
             <TableRow className="bg-primary/5 hover:bg-primary/10">
               <TableHead className="w-[200px] font-semibold">Name</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Gender</TableHead>
               <TableHead className="hidden md:table-cell font-semibold">Student ID</TableHead>
               <TableHead className="hidden md:table-cell font-semibold">Grade</TableHead>
               <TableHead className="hidden lg:table-cell font-semibold">Status</TableHead>
@@ -102,6 +103,9 @@ export function StudentTable({
                   >
                     {student.name}
                   </button>
+                </TableCell>
+                <TableCell className="hidden md:table-cell capitalize">
+                  {student.gender}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {student.student_id}
