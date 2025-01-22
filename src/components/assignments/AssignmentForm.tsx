@@ -2,98 +2,105 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Student } from "@/types/student";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, School, User, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const BATCH_SIZE = 100; // Process 100 assignments at a time
-const STUDENTS_PER_PAGE = 50;
 
 export function AssignmentForm() {
-  const [selectedTeacher, setSelectedTeacher] = useState<string>("");
+  const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const { data: teachers, isLoading: isLoadingTeachers } = useQuery({
-    queryKey: ["teachers"],
+  // Fetch teachers with their groups and students
+  const { data: teachersData, isLoading: isLoadingTeachers } = useQuery({
+    queryKey: ["teachersWithGroups"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: teachers, error } = await supabase
         .from("teachers")
-        .select("id, name")
+        .select(`
+          id,
+          name,
+          teacher_groups (
+            id,
+            name,
+            type,
+            teacher_groups_students:teacher_group_student_assignments (
+              student:students (
+                id,
+                name
+              )
+            )
+          )
+        `)
         .order("name");
-      
+
       if (error) throw error;
-      return data;
-    },
+
+      return teachers.map(teacher => ({
+        ...teacher,
+        teacher_groups: teacher.teacher_groups.map(group => ({
+          ...group,
+          students: group.teacher_groups_students
+            .map(assignment => assignment.student)
+            .filter((s): s is { id: string; name: string } => s !== null)
+        }))
+      }));
+    }
   });
 
-  const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
-    queryKey: ["students", currentPage, searchQuery],
+  // Fetch available students (not in selected group)
+  const { data: availableStudents, isLoading: isLoadingStudents } = useQuery({
+    queryKey: ["availableStudents", selectedGroup],
     queryFn: async () => {
-      let baseQuery = supabase
-        .from("students")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "active");
+      if (!selectedGroup) return [];
 
-      // Apply search filter if query exists
-      if (searchQuery) {
-        baseQuery = baseQuery.ilike("name", `%${searchQuery}%`);
-      }
-
-      // Get total count first
-      const { count } = await baseQuery;
-      const totalCount = count || 0;
-
-      // Then get paginated data with a separate query
-      const { data, error } = await supabase
+      const { data: students, error } = await supabase
         .from("students")
         .select("id, name")
         .eq("status", "active")
-        .order("name")
-        .range(
-          currentPage * STUDENTS_PER_PAGE,
-          (currentPage + 1) * STUDENTS_PER_PAGE - 1
-        );
+        .order("name");
 
       if (error) throw error;
 
-      return {
-        students: data,
-        totalCount,
-      };
+      // Filter out students already in the group
+      const selectedTeacherData = teachersData?.find(t => t.id === selectedTeacher);
+      const selectedGroupData = selectedTeacherData?.teacher_groups.find(g => g.id === selectedGroup);
+      const existingStudentIds = selectedGroupData?.students.map(s => s.id) || [];
+
+      return students.filter(student => !existingStudentIds.includes(student.id));
     },
+    enabled: !!selectedGroup
   });
 
   const processBatch = async (userId: string, batch: string[]) => {
-    const { error } = await supabase.from("teacher_student_assignments").insert(
-      batch.map((studentId) => ({
-        teacher_id: selectedTeacher,
-        student_id: studentId,
-        created_by: userId,
-      }))
-    );
+    if (!selectedGroup) return;
+
+    const { error } = await supabase
+      .from("teacher_group_student_assignments")
+      .insert(
+        batch.map(studentId => ({
+          group_id: selectedGroup,
+          student_id: studentId,
+          created_by: userId
+        }))
+      );
     if (error) throw error;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedTeacher || selectedStudents.length === 0) {
+  const handleSubmit = async () => {
+    if (!selectedGroup || selectedStudents.length === 0) {
       toast({
         title: "Error",
-        description: "Please select a teacher and at least one student",
-        variant: "destructive",
+        description: "Please select a group and at least one student",
+        variant: "destructive"
       });
       return;
     }
@@ -101,7 +108,6 @@ export function AssignmentForm() {
     setIsSubmitting(true);
 
     try {
-      // Get user ID first
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
@@ -113,108 +119,140 @@ export function AssignmentForm() {
 
       toast({
         title: "Success",
-        description: "Students assigned successfully",
+        description: "Students assigned successfully"
       });
 
-      // Reset form
-      setSelectedTeacher("");
+      // Reset selections
       setSelectedStudents([]);
+      setSelectedGroup(null);
     } catch (error: any) {
       console.error("Assignment error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to assign students",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const totalPages = Math.ceil((studentsData?.totalCount || 0) / STUDENTS_PER_PAGE);
-
-  if (isLoadingTeachers || isLoadingStudents) {
-    return <div className="flex items-center justify-center p-8">
-      <Loader2 className="h-6 w-6 animate-spin" />
-    </div>;
+  if (isLoadingTeachers) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Select Teacher</label>
-        <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a teacher" />
-          </SelectTrigger>
-          <SelectContent>
-            {teachers?.map((teacher) => (
-              <SelectItem key={teacher.id} value={teacher.id}>
+    <div className="space-y-6">
+      <Input
+        type="search"
+        placeholder="Search teachers or groups..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="max-w-md"
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {teachersData?.map(teacher => (
+          <Card 
+            key={teacher.id}
+            className={`hover:shadow-lg transition-shadow ${
+              selectedTeacher === teacher.id ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => setSelectedTeacher(teacher.id)}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <School className="h-5 w-5 text-primary" />
                 {teacher.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-4">
+                  {teacher.teacher_groups.map(group => (
+                    <div 
+                      key={group.id} 
+                      className={`space-y-2 p-2 rounded-md cursor-pointer hover:bg-accent ${
+                        selectedGroup === group.id ? 'bg-accent' : ''
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedGroup(group.id);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{group.name}</span>
+                        </div>
+                        <Badge variant="secondary" className="capitalize">
+                          {group.type}
+                        </Badge>
+                      </div>
+                      <div className="pl-6">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span>{group.students.length} students</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Select Students</label>
-        <Input
-          type="search"
-          placeholder="Search students..."
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(0); // Reset to first page on search
-          }}
-          className="mb-4"
-        />
-        <div className="border rounded-md p-4 space-y-2 max-h-[400px] overflow-y-auto">
-          {studentsData?.students?.map((student) => (
-            <label key={student.id} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={selectedStudents.includes(student.id)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedStudents([...selectedStudents, student.id]);
-                  } else {
-                    setSelectedStudents(selectedStudents.filter(id => id !== student.id));
-                  }
-                }}
-                className="rounded border-gray-300"
-              />
-              <span>{student.name}</span>
-            </label>
-          ))}
-        </div>
+      {selectedGroup && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Available Students</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoadingStudents ? (
+              <div className="flex items-center justify-center p-4">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : (
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-2">
+                  {availableStudents?.map(student => (
+                    <label
+                      key={student.id}
+                      className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.includes(student.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStudents([...selectedStudents, student.id]);
+                          } else {
+                            setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                          }
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <span>{student.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-              disabled={currentPage === 0}
-            >
-              Previous
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              Page {currentPage + 1} of {totalPages}
-            </span>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-              disabled={currentPage === totalPages - 1}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button
+        onClick={handleSubmit}
+        disabled={isSubmitting || !selectedGroup || selectedStudents.length === 0}
+        className="w-full"
+      >
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -224,6 +262,6 @@ export function AssignmentForm() {
           "Assign Students"
         )}
       </Button>
-    </form>
+    </div>
   );
 }
