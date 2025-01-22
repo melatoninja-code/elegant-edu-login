@@ -60,11 +60,27 @@ export function StudentList() {
         query = query.or(`name.ilike.%${searchQuery}%,student_id.ilike.%${searchQuery}%`);
       }
 
-      // Apply pagination
-      const from = (currentPage - 1) * pageSize;
-      const to = from + pageSize - 1;
+      // Get total count first
+      const { count } = await query;
+      const totalCount = count || 0;
+
+      // Calculate the correct page and offset
+      const safeCurrentPage = Math.min(
+        currentPage,
+        Math.max(1, Math.ceil(totalCount / pageSize))
+      );
       
-      const { data, count, error } = await query
+      // If current page changed, update it
+      if (safeCurrentPage !== currentPage) {
+        setCurrentPage(safeCurrentPage);
+      }
+
+      // Apply pagination with safe values
+      const from = (safeCurrentPage - 1) * pageSize;
+      const to = Math.min(from + pageSize - 1, totalCount);
+
+      // Fetch the actual data
+      const { data, error } = await query
         .order('name')
         .range(from, to);
 
@@ -72,7 +88,7 @@ export function StudentList() {
 
       return {
         students: data,
-        totalCount: count || 0,
+        totalCount,
       };
     },
     enabled: !!session?.user?.id,
@@ -137,7 +153,7 @@ export function StudentList() {
           }}
           onDeleteStudent={handleDelete}
           currentPage={currentPage}
-          totalPages={Math.ceil((studentsData?.totalCount || 0) / pageSize)}
+          totalPages={Math.max(1, Math.ceil((studentsData?.totalCount || 0) / pageSize))}
           onPageChange={setCurrentPage}
         />
 
