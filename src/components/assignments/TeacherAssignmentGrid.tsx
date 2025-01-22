@@ -1,13 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, Users, School } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GroupDetailsDialog } from "./GroupDetailsDialog";
+import { TeacherCard } from "./TeacherCard";
 
 export function TeacherAssignmentGrid() {
   const [selectedGroup, setSelectedGroup] = useState<{
@@ -77,13 +73,7 @@ export function TeacherAssignmentGrid() {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {[1, 2, 3, 4, 5].map(i => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="h-16 bg-muted" />
-            <CardContent className="space-y-2 p-3">
-              <div className="h-3 bg-muted rounded w-3/4" />
-              <div className="h-3 bg-muted rounded w-1/2" />
-            </CardContent>
-          </Card>
+          <Skeleton key={i} className="h-[240px]" />
         ))}
       </div>
     );
@@ -101,48 +91,11 @@ export function TeacherAssignmentGrid() {
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {teachersWithGroups.map(teacher => (
-          <Card key={teacher.id} className="hover:shadow-sm transition-shadow">
-            <CardHeader className="p-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <School className="h-4 w-4 text-primary" />
-                {teacher.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3">
-              <ScrollArea className="h-[180px]">
-                <div className="space-y-2">
-                  {teacher.teacher_groups.map(group => (
-                    <Button
-                      key={group.id}
-                      variant="ghost"
-                      className="w-full flex items-center justify-between p-2 h-auto text-sm hover:bg-muted/50"
-                      onClick={() => setSelectedGroup({
-                        id: group.id,
-                        name: group.name,
-                        type: group.type,
-                        teacherId: teacher.id,
-                        teacherName: teacher.name
-                      })}
-                    >
-                      <div className="flex items-center gap-2">
-                        <User className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-medium truncate">{group.name}</span>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">
-                        <Users className="h-3 w-3 mr-1" />
-                        {group.studentCount}
-                      </Badge>
-                    </Button>
-                  ))}
-                  {teacher.teacher_groups.length === 0 && (
-                    <div className="text-center text-muted-foreground py-2 text-sm">
-                      No groups
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+          <TeacherCard
+            key={teacher.id}
+            teacher={teacher}
+            onGroupSelect={setSelectedGroup}
+          />
         ))}
       </div>
 
