@@ -15,6 +15,7 @@ export function TeacherList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   // First, get the session and user role
@@ -59,6 +60,11 @@ export function TeacherList() {
     },
     enabled: !!session?.user?.id,
   });
+
+  // Filter teachers based on search query
+  const filteredTeachers = teachers?.filter(teacher =>
+    teacher.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleDelete = async (id: string) => {
     if (!isAdmin) {
@@ -105,10 +111,12 @@ export function TeacherList() {
       <TeacherListHeader
         isAdmin={isAdmin}
         onAddTeacher={() => setIsFormOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       <CardContent>
         <TeacherTable
-          teachers={teachers}
+          teachers={filteredTeachers}
           isLoading={isLoading}
           isAdmin={isAdmin}
           onSelectTeacher={(teacher) => {
