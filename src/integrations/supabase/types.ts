@@ -333,7 +333,7 @@ export type Database = {
           created_by: string
           id: string
           name: string
-          teacher_id: string
+          teacher_id: string | null
           type: Database["public"]["Enums"]["group_type"] | null
         }
         Insert: {
@@ -341,7 +341,7 @@ export type Database = {
           created_by: string
           id?: string
           name: string
-          teacher_id: string
+          teacher_id?: string | null
           type?: Database["public"]["Enums"]["group_type"] | null
         }
         Update: {
@@ -349,7 +349,7 @@ export type Database = {
           created_by?: string
           id?: string
           name?: string
-          teacher_id?: string
+          teacher_id?: string | null
           type?: Database["public"]["Enums"]["group_type"] | null
         }
         Relationships: [
