@@ -46,21 +46,21 @@ export default function CalendarPage() {
     <div className="flex h-screen bg-neutral-light/50">
       <AppSidebar />
       <main className="flex-1 overflow-auto p-2 md:p-6">
-        <div className="container mx-auto max-w-5xl">
+        <div className="container mx-auto">
           <h1 className="mb-4 md:mb-6 text-2xl font-bold tracking-tight text-primary-dark md:text-3xl">
             Calendar
           </h1>
           
-          <div className="grid gap-4 md:gap-6">
-            <Card className="bg-white shadow-md">
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="bg-white shadow-md md:col-span-2">
               <CardHeader className="pb-3 border-b">
                 <CardTitle className="text-lg text-primary md:text-xl">Select a Date</CardTitle>
               </CardHeader>
               <CardContent className={cn(
-                "pt-4 flex justify-center",
+                "pt-4",
                 isMobile ? "px-2" : "pt-6 px-4"
               )}>
-                <div key={key}>
+                <div key={key} className="flex justify-center">
                   <Calendar
                     mode="single"
                     selected={date}
@@ -111,39 +111,60 @@ export default function CalendarPage() {
             </Card>
 
             {date && (
-              <Card className="bg-white shadow-md">
-                <CardHeader className="pb-3 border-b bg-primary-lighter">
-                  <CardTitle className="text-lg text-primary-dark md:text-xl">
-                    {format(date, 'PPPP')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6">
-                  <div className="space-y-4">
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-                      <h3 className="mb-2 font-medium text-primary">Schedule</h3>
-                      {hasEvent(date) ? (
-                        <div className="space-y-2">
+              <div className="space-y-4 md:row-span-2">
+                <Card className="bg-white shadow-md">
+                  <CardHeader className="pb-3 border-b bg-primary-lighter">
+                    <CardTitle className="text-lg text-primary-dark md:text-xl">
+                      {format(date, 'PPPP')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 md:p-6">
+                    <div className="space-y-4">
+                      <div className="rounded-lg border border-neutral-200 bg-white p-4">
+                        <h3 className="mb-2 font-medium text-primary">Schedule</h3>
+                        {hasEvent(date) ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-2 h-2 bg-primary rounded-full" />
+                              <p className="font-medium text-primary-dark">{getEventDetails(date)?.title}</p>
+                            </div>
+                            <p className="text-sm text-neutral pl-4">Type: {getEventDetails(date)?.type}</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-neutral">
+                            No events scheduled for this date.
+                          </p>
+                        )}
+                      </div>
+                      <div className="rounded-lg border border-neutral-200 bg-white p-4">
+                        <h3 className="mb-2 font-medium text-primary">Notes</h3>
+                        <p className="text-sm text-neutral">
+                          Click on a date to view or add notes.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white shadow-md">
+                  <CardHeader className="pb-3 border-b">
+                    <CardTitle className="text-lg text-primary md:text-xl">Upcoming Events</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      {Object.entries(events).map(([dateStr, event]) => (
+                        <div key={dateStr} className="flex items-center justify-between p-2 rounded-lg hover:bg-neutral-light/50 transition-colors">
                           <div className="flex items-center space-x-2">
                             <span className="w-2 h-2 bg-primary rounded-full" />
-                            <p className="font-medium text-primary-dark">{getEventDetails(date)?.title}</p>
+                            <span className="font-medium text-primary-dark">{event.title}</span>
                           </div>
-                          <p className="text-sm text-neutral pl-4">Type: {getEventDetails(date)?.type}</p>
+                          <span className="text-sm text-neutral">{format(new Date(dateStr), 'MMM d')}</span>
                         </div>
-                      ) : (
-                        <p className="text-sm text-neutral">
-                          No events scheduled for this date.
-                        </p>
-                      )}
+                      ))}
                     </div>
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-                      <h3 className="mb-2 font-medium text-primary">Notes</h3>
-                      <p className="text-sm text-neutral">
-                        Click on a date to view or add notes.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </div>
         </div>
