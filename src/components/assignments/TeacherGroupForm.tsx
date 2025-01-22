@@ -12,11 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
+
+type GroupType = Database["public"]["Enums"]["group_type"];
 
 export function TeacherGroupForm() {
   const [selectedTeacher, setSelectedTeacher] = useState<string>("");
   const [groupName, setGroupName] = useState("");
-  const [groupType, setGroupType] = useState<string>("class");
+  const [groupType, setGroupType] = useState<GroupType>("class");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -121,7 +124,7 @@ export function TeacherGroupForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Group Type</label>
-        <Select value={groupType} onValueChange={setGroupType}>
+        <Select value={groupType} onValueChange={(value: GroupType) => setGroupType(value)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
