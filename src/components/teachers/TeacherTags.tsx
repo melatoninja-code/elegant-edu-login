@@ -13,7 +13,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
-const TAG_COLORS: { [key: string]: string } = {
+type TeacherTag = 
+  | "head_teacher"
+  | "senior_teacher"
+  | "junior_teacher"
+  | "substitute_teacher"
+  | "intern"
+  | "math_teacher"
+  | "science_teacher"
+  | "english_teacher"
+  | "history_teacher"
+  | "art_teacher"
+  | "music_teacher"
+  | "pe_teacher"
+  | "homeroom_teacher"
+  | "curriculum_coordinator"
+  | "student_counselor";
+
+const TAG_COLORS: { [key in TeacherTag]: string } = {
   head_teacher: "bg-purple-100 text-purple-800 hover:bg-purple-200",
   senior_teacher: "bg-blue-100 text-blue-800 hover:bg-blue-200",
   junior_teacher: "bg-green-100 text-green-800 hover:bg-green-200",
@@ -37,7 +54,7 @@ interface TeacherTagsProps {
 }
 
 export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
-  const [selectedTag, setSelectedTag] = useState<string>("");
+  const [selectedTag, setSelectedTag] = useState<TeacherTag | "">("");
   const { toast } = useToast();
 
   const { data: tags, refetch: refetchTags } = useQuery({
@@ -57,12 +74,17 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
     if (!selectedTag) return;
 
     try {
-      const { error } = await supabase.from("teacher_tags").insert([
-        {
-          teacher_id: teacherId,
-          tag: selectedTag,
-        },
-      ]);
+      // Get the current user's ID
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        throw new Error("No authenticated user found");
+      }
+
+      const { error } = await supabase.from("teacher_tags").insert({
+        teacher_id: teacherId,
+        tag: selectedTag,
+        created_by: session.user.id,
+      });
 
       if (error) throw error;
 
@@ -124,7 +146,7 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
           <Badge
             key={tag.id}
             variant="secondary"
-            className={`${TAG_COLORS[tag.tag]} animate-fadeIn`}
+            className={`${TAG_COLORS[tag.tag as TeacherTag]} animate-fadeIn`}
           >
             {formatTagName(tag.tag)}
             {isAdmin && (
@@ -144,12 +166,15 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
 
       {isAdmin && (
         <div className="flex items-center gap-2">
-          <Select value={selectedTag} onValueChange={setSelectedTag}>
+          <Select
+            value={selectedTag}
+            onValueChange={(value) => setSelectedTag(value as TeacherTag)}
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select a tag" />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(TAG_COLORS).map((tag) => (
+              {(Object.keys(TAG_COLORS) as TeacherTag[]).map((tag) => (
                 <SelectItem key={tag} value={tag}>
                   <div className="flex items-center gap-2">
                     <Tag className="h-3 w-3" />
