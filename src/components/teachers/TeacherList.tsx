@@ -147,20 +147,19 @@ export function TeacherList() {
           onDeleteTeacher={handleDelete}
         />
 
-        {isFormOpen && (
-          <TeacherForm
-            teacher={editingTeacher}
-            onClose={() => {
-              setIsFormOpen(false);
-              setEditingTeacher(null);
-            }}
-            onSuccess={() => {
-              setIsFormOpen(false);
-              setEditingTeacher(null);
-              refetch();
-            }}
-          />
-        )}
+        <TeacherForm
+          teacher={editingTeacher}
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingTeacher(null);
+          }}
+          onSuccess={() => {
+            setIsFormOpen(false);
+            setEditingTeacher(null);
+            refetch();
+          }}
+          open={isFormOpen}
+        />
 
         <TeacherDetailsDialog
           teacher={selectedTeacher}
