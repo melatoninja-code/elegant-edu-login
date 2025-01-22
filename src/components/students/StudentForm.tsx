@@ -69,8 +69,18 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
       
       if (userError) throw userError;
 
+      // Ensure all required fields are present
       const studentData = {
-        ...values,
+        name: values.name,
+        email: values.email,
+        student_id: values.student_id,
+        gender: values.gender,
+        date_of_birth: values.date_of_birth,
+        address: values.address,
+        phone_number: values.phone_number,
+        grade_level: values.grade_level,
+        class_section: values.class_section,
+        status: values.status,
         created_by: userData.user.id,
       };
 
