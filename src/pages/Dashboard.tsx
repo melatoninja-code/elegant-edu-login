@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import {
@@ -16,15 +16,29 @@ import {
 } from "lucide-react"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [userProfile, setUserProfile] = useState<{ email: string; role: string } | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         navigate('/')
+        return
+      }
+
+      // Fetch user profile data
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('email, role')
+        .eq('id', session.user.id)
+        .single()
+
+      if (!error && profileData) {
+        setUserProfile(profileData)
       }
     }
     checkAuth()
@@ -62,9 +76,24 @@ export default function Dashboard() {
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <main className="flex-1">
-          <div className="flex items-center gap-4 p-6 border-b">
-            <SidebarTrigger />
-            <h1 className="text-2xl font-bold">Dayah School System</h1>
+          <div className="flex items-center justify-between gap-4 p-6 border-b">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <h1 className="text-2xl font-bold">Dayah School System</h1>
+            </div>
+            {userProfile && (
+              <div className="flex items-center gap-3">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10">
+                    {userProfile.email.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{userProfile.email}</p>
+                  <p className="text-muted-foreground capitalize">{userProfile.role}</p>
+                </div>
+              </div>
+            )}
           </div>
           <div className="p-6">
             <div className="grid gap-6">
