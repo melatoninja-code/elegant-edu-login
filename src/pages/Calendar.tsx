@@ -73,9 +73,15 @@ export default function CalendarPage() {
                       localize: {
                         day: (n) => ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][n],
                         month: (n) => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][n],
+                        ordinalNumber: (n) => `${n}`,
+                        era: (era) => ['BC', 'AD'][era],
+                        quarter: (quarter) => [`Q1`, `Q2`, `Q3`, `Q4`][quarter],
+                        dayPeriod: (dayPeriod) => dayPeriod.toLowerCase(),
                       },
                       formatLong: {
-                        date: () => 'dd/MM/yyyy'
+                        date: () => 'dd/MM/yyyy',
+                        time: () => 'HH:mm',
+                        dateTime: () => 'dd/MM/yyyy HH:mm'
                       }
                     }}
                     className={cn(
