@@ -37,6 +37,7 @@ export default function Bookings() {
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [teacherId, setTeacherId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [classrooms, setClassrooms] = useState<Array<{ id: string; name: string; room_number: string }>>([]);
 
@@ -80,6 +81,8 @@ export default function Bookings() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          setUserId(user.id); // Store the user ID
+          
           const { data: profile } = await supabase
             .from('profiles')
             .select('role')
@@ -158,7 +161,7 @@ export default function Bookings() {
   });
 
   const onSubmit = async (values: z.infer<typeof bookingFormSchema>) => {
-    if (!teacherId) return;
+    if (!teacherId || !userId) return;
 
     const { error } = await supabase
       .from('room_bookings')
@@ -169,6 +172,7 @@ export default function Bookings() {
         end_time: values.end_time,
         purpose: values.purpose,
         status: 'pending',
+        created_by: userId // Add the created_by field with the current user's ID
       });
 
     if (error) {
