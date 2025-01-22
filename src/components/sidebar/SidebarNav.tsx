@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Users, BookOpen, Calendar, Bell, Wallet, MessageSquare, UserCheck, GraduationCap, Home, School } from "lucide-react"
+import { Users, BookOpen, Calendar, Bell, Wallet, MessageSquare, UserCheck, GraduationCap, Home, School, BookmarkCheck } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -50,6 +50,12 @@ const menuItems = [
     icon: School,
     path: "/classrooms",
     description: "Manage school classrooms",
+  },
+  {
+    title: "Bookings",
+    icon: BookmarkCheck,
+    path: "/bookings",
+    description: "Room booking management",
   },
   {
     title: "Calendar",

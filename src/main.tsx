@@ -12,8 +12,8 @@ import Dashboard from './pages/Dashboard';
 import Teachers from './pages/Teachers';
 import Classrooms from './pages/Classrooms';
 import Calendar from './pages/Calendar';
+import Bookings from './pages/Bookings';
 
-// Create a wrapper component to handle auth state
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,6 +76,10 @@ const router = createBrowserRouter([
   {
     path: "/calendar",
     element: <Calendar />,
+  },
+  {
+    path: "/bookings",
+    element: <Bookings />,
   },
 ]);
 
