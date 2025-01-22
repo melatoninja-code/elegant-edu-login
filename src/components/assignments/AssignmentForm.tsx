@@ -43,7 +43,7 @@ export function AssignmentForm() {
     queryFn: async () => {
       let query = supabase
         .from("students")
-        .select("id, name, count", { count: "exact" })
+        .select("id, name", { count: "exact" })
         .eq("status", "active");
 
       // Apply search filter if query exists
