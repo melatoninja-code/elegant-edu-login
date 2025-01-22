@@ -34,6 +34,16 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
+      // Get the teacher record for the current user
+      const { data: teacherData, error: teacherError } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("auth_id", user.id)
+        .single();
+
+      if (teacherError) throw new Error("Failed to get teacher record");
+      if (!teacherData) throw new Error("No teacher record found");
+
       // Check if group name already exists
       const { data: existingGroups } = await supabase
         .from("teacher_groups")
@@ -54,6 +64,7 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         name: data.name,
         type: data.type,
         created_by: user.id,
+        teacher_id: teacherData.id, // Add the teacher_id field
       });
 
       if (error) throw error;
