@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Student } from "@/types/student";
 import {
   Dialog,
@@ -65,23 +65,64 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: student?.name || "",
-      email: student?.email || "",
-      student_id: student?.student_id || "",
-      gender: student?.gender || "",
-      date_of_birth: student?.date_of_birth ? format(new Date(student.date_of_birth), "dd/MM/yyyy") : "",
-      address: student?.address || "",
-      phone_number: student?.phone_number || "",
-      grade_level: student?.grade_level || 1,
-      class_section: student?.class_section || "",
-      status: student?.status || "active",
-      dorm_room: student?.dorm_room || "",
-      parent_name: student?.parent_name || "",
-      parent_phone: student?.parent_phone || "",
-      emergency_contact_1_phone: student?.emergency_contact_1_phone || "",
-      emergency_contact_2_phone: student?.emergency_contact_2_phone || "",
+      name: "",
+      email: "",
+      student_id: "",
+      gender: "",
+      date_of_birth: "",
+      address: "",
+      phone_number: "",
+      grade_level: 1,
+      class_section: "",
+      status: "active",
+      dorm_room: "",
+      parent_name: "",
+      parent_phone: "",
+      emergency_contact_1_phone: "",
+      emergency_contact_2_phone: "",
     },
   });
+
+  // Reset form with student data when student prop changes
+  useEffect(() => {
+    if (student) {
+      form.reset({
+        name: student.name,
+        email: student.email || "",
+        student_id: student.student_id,
+        gender: student.gender,
+        date_of_birth: student.date_of_birth ? format(new Date(student.date_of_birth), "dd/MM/yyyy") : "",
+        address: student.address,
+        phone_number: student.phone_number || "",
+        grade_level: student.grade_level,
+        class_section: student.class_section || "",
+        status: student.status,
+        dorm_room: student.dorm_room || "",
+        parent_name: student.parent_name || "",
+        parent_phone: student.parent_phone || "",
+        emergency_contact_1_phone: student.emergency_contact_1_phone || "",
+        emergency_contact_2_phone: student.emergency_contact_2_phone || "",
+      });
+    } else {
+      form.reset({
+        name: "",
+        email: "",
+        student_id: "",
+        gender: "",
+        date_of_birth: "",
+        address: "",
+        phone_number: "",
+        grade_level: 1,
+        class_section: "",
+        status: "active",
+        dorm_room: "",
+        parent_name: "",
+        parent_phone: "",
+        emergency_contact_1_phone: "",
+        emergency_contact_2_phone: "",
+      });
+    }
+  }, [student, form]);
 
   async function onSubmit(values: StudentFormValues) {
     try {
