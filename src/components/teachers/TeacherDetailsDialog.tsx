@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Teacher } from "./types";
 import { Mail, Phone, MapPin, School, Home, User2, Key } from "lucide-react";
+import { TeacherTags } from "./TeacherTags";
 
 interface TeacherDetailsDialogProps {
   teacher: Teacher | null;
@@ -43,6 +44,8 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetai
               </div>
             </div>
           </div>
+
+          <TeacherTags teacherId={teacher.id} isAdmin={isAdmin} />
 
           {isAdmin && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-2 border border-border/50">

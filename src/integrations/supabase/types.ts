@@ -142,6 +142,16 @@ export type Database = {
         | "junior_teacher"
         | "substitute_teacher"
         | "intern"
+        | "math_teacher"
+        | "science_teacher"
+        | "english_teacher"
+        | "history_teacher"
+        | "art_teacher"
+        | "music_teacher"
+        | "pe_teacher"
+        | "homeroom_teacher"
+        | "curriculum_coordinator"
+        | "student_counselor"
       user_role: "admin" | "user"
     }
     CompositeTypes: {
