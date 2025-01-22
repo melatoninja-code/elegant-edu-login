@@ -38,7 +38,16 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         throw new Error("No authenticated user");
       }
 
-      // Get the teacher record for the current user
+      // First check if user is admin
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      const isAdmin = profileData?.role === "admin";
+
+      // Get the teacher record for the current user if not admin
       const { data: teacherData, error: teacherError } = await supabase
         .from("teachers")
         .select("id")
@@ -50,17 +59,21 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         throw new Error("Failed to get teacher record");
       }
 
-      if (!teacherData) {
+      if (!teacherData && !isAdmin) {
         throw new Error("No teacher record found for your account. Please contact an administrator.");
       }
 
+      // If user is admin and no teacher record, they might be creating a group for another teacher
+      // For now, we'll use their own teacher record if they have one, or throw an error
+      // You might want to add a teacher selector for admins in the future
+      
       // Create the group
       const { error: insertError } = await supabase
         .from("teacher_groups")
         .insert({
           name: data.name,
           type: data.type,
-          teacher_id: teacherData.id,
+          teacher_id: teacherData?.id, // This will be null for admins without teacher records
           created_by: user.id
         });
 
