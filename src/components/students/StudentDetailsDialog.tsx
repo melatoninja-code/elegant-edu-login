@@ -1,10 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Student } from "@/types/student";
 import { format } from "date-fns";
 import { 
-  X, 
   Mail, 
   Phone, 
   MapPin, 
@@ -45,14 +43,6 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
           <DialogTitle className="text-2xl font-bold">Student Profile</DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-0"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         <div className="space-y-8 py-4">
           {/* Personal Information Section */}
