@@ -2,25 +2,21 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Student } from "@/types/student";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PersonalInfoSection } from "./form-sections/PersonalInfoSection";
+import { ContactInfoSection } from "./form-sections/ContactInfoSection";
+import { ParentInfoSection } from "./form-sections/ParentInfoSection";
+import { AcademicInfoSection } from "./form-sections/AcademicInfoSection";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -54,7 +50,7 @@ const formSchema = z.object({
   }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+export type StudentFormValues = z.infer<typeof formSchema>;
 
 interface StudentFormProps {
   student?: Student | null;
@@ -67,7 +63,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<FormValues>({
+  const form = useForm<StudentFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: student?.name ?? "",
@@ -86,7 +82,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
     },
   });
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values: StudentFormValues) {
     try {
       setIsLoading(true);
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -96,21 +92,6 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
       const studentData = {
         ...values,
         created_by: userData.user.id,
-        // Ensure all required fields are included
-        name: values.name,
-        student_id: values.student_id,
-        gender: values.gender,
-        date_of_birth: values.date_of_birth,
-        address: values.address,
-        grade_level: values.grade_level,
-        status: values.status,
-        // Optional fields
-        email: values.email || null,
-        phone_number: values.phone_number || null,
-        class_section: values.class_section || null,
-        dorm_room: values.dorm_room || null,
-        parent_name: values.parent_name || null,
-        parent_phone: values.parent_phone || null,
       };
 
       const { error } = student
@@ -149,235 +130,12 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
           <DialogTitle>{student ? 'Edit' : 'Add New'} Student</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="student_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Student ID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="STU001" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Gender</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="date_of_birth"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="grade_level"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Grade Level</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(parseInt(value))} 
-                      defaultValue={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select grade" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((grade) => (
-                          <SelectItem key={grade} value={grade.toString()}>
-                            Grade {grade}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Home Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Main St, City, Country" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="dorm_room"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dorm Room Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="A-101" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Student Phone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+1234567890" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-lg font-medium">Parent Information</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="parent_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Parent Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Parent's full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent_phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Parent Phone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="+1234567890" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email (Optional)</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="student@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="class_section"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Class Section (Optional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="A" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="graduated">Graduated</SelectItem>
-                      <SelectItem value="suspended">Suspended</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <PersonalInfoSection form={form} />
+            <ContactInfoSection form={form} />
+            <ParentInfoSection form={form} />
+            <AcademicInfoSection form={form} />
+            
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (student ? "Updating..." : "Adding...") : (student ? "Update" : "Add") + " Student"}
             </Button>
