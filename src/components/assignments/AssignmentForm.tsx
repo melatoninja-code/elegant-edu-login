@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Student } from "@/types/student";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -43,7 +43,7 @@ export function AssignmentForm() {
     queryFn: async () => {
       let query = supabase
         .from("students")
-        .select("id, name", { count: "exact" })
+        .select("*", { count: "exact" })
         .eq("status", "active");
 
       // Apply search filter if query exists
@@ -51,11 +51,13 @@ export function AssignmentForm() {
         query = query.ilike("name", `%${searchQuery}%`);
       }
 
-      // Get total count
+      // Get total count first
       const { count } = await query;
+      const totalCount = count || 0;
 
-      // Apply pagination
+      // Then get paginated data
       const { data, error } = await query
+        .select("id, name")
         .order("name")
         .range(
           currentPage * STUDENTS_PER_PAGE,
@@ -66,7 +68,7 @@ export function AssignmentForm() {
 
       return {
         students: data,
-        totalCount: count || 0,
+        totalCount,
       };
     },
   });
