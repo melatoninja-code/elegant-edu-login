@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, School, CalendarDays, BookOpen } from "lucide-react";
+import { LayoutDashboard, Users, GraduationCap, School, CalendarDays, BookOpen, UserPlus } from "lucide-react";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarMenu } from "@/components/ui/sidebar";
 
@@ -20,6 +20,12 @@ const items = [
     path: "/students",
     icon: GraduationCap,
     description: "Manage Students",
+  },
+  {
+    title: "Assignments",
+    path: "/assignments",
+    icon: UserPlus,
+    description: "Assign Students to Teachers",
   },
   {
     title: "Classrooms",
