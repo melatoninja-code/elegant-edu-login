@@ -39,6 +39,24 @@ export function TeacherPersonalInfoFields({ form }: TeacherPersonalInfoFieldsPro
 
       <FormField
         control={form.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="font-medium">Email</FormLabel>
+            <FormControl>
+              <Input 
+                type="email" 
+                {...field} 
+                className="border-primary/20 focus-visible:ring-primary" 
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="gender"
         render={({ field }) => (
           <FormItem>

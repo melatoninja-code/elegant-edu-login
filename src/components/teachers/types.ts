@@ -20,4 +20,5 @@ export type FormValues = {
   dorm_room?: string;
   address: string;
   phone_number: string;
+  email?: string;
 };

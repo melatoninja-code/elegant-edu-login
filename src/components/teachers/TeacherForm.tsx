@@ -20,6 +20,7 @@ const formSchema = z.object({
   dorm_room: z.string().optional(),
   address: z.string().min(5, "Address must be at least 5 characters"),
   phone_number: z.string().min(10, "Phone number must be at least 10 characters"),
+  email: z.string().email("Invalid email address").optional(),
 });
 
 interface TeacherFormProps {
@@ -32,6 +33,7 @@ interface TeacherFormProps {
     address: string;
     phone_number: string;
     profile_picture_url?: string | null;
+    email?: string | null;
   } | null;
   onClose: () => void;
   onSuccess: () => void;
@@ -62,6 +64,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
       studies: teacher?.studies || "",
       address: teacher?.address || "",
       phone_number: teacher?.phone_number || "",
+      email: teacher?.email || "",
     },
   });
 
@@ -84,6 +87,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
         dorm_room: values.dorm_room || null,
         address: values.address,
         phone_number: values.phone_number,
+        email: values.email || null,
         created_by: userId,
         profile_picture_url: profilePictureUrl,
       };
