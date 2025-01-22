@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -61,9 +60,7 @@ const LoginForm = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {authError && (
-        <Alert variant="destructive">
-          <AlertDescription className="text-red-500">{authError}</AlertDescription>
-        </Alert>
+        <p className="text-red-500 text-sm mb-4">{authError}</p>
       )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
