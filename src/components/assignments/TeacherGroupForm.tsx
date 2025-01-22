@@ -39,17 +39,17 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         .from("teachers")
         .select("id")
         .eq("auth_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (teacherError) throw new Error("Failed to get teacher record");
-      if (!teacherData) throw new Error("No teacher record found");
+      if (!teacherData) throw new Error("No teacher record found for your account");
 
       // Check if group name already exists
       const { data: existingGroups } = await supabase
         .from("teacher_groups")
         .select("id")
         .eq("name", data.name)
-        .single();
+        .maybeSingle();
 
       if (existingGroups) {
         toast({
@@ -64,7 +64,7 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         name: data.name,
         type: data.type,
         created_by: user.id,
-        teacher_id: teacherData.id, // Add the teacher_id field
+        teacher_id: teacherData.id,
       });
 
       if (error) throw error;
