@@ -1,4 +1,6 @@
 import { Home, Users, GraduationCap, School, CalendarDays } from "lucide-react";
+import { SidebarNavItem } from "./SidebarNavItem";
+import { SidebarMenu } from "@/components/ui/sidebar";
 
 export const items = [
   {
@@ -27,3 +29,19 @@ export const items = [
     icon: CalendarDays,
   },
 ] as const;
+
+export function SidebarNav() {
+  return (
+    <SidebarMenu>
+      {items.map((item) => (
+        <SidebarNavItem
+          key={item.href}
+          icon={item.icon}
+          title={item.title}
+          path={item.href}
+          description={`Go to ${item.title}`}
+        />
+      ))}
+    </SidebarMenu>
+  );
+}

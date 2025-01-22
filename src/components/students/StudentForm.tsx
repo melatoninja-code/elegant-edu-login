@@ -90,6 +90,18 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
       const submissionData = {
         ...values,
         created_by: userId,
+        // Ensure all required fields are present
+        name: values.name,
+        student_id: values.student_id,
+        gender: values.gender,
+        date_of_birth: values.date_of_birth,
+        address: values.address,
+        grade_level: values.grade_level,
+        // Optional fields
+        email: values.email || null,
+        phone_number: values.phone_number || null,
+        class_section: values.class_section || null,
+        status: values.status,
       };
 
       if (student?.id) {
