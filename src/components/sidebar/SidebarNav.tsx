@@ -2,7 +2,7 @@ import { Home, Users, GraduationCap, School, CalendarDays } from "lucide-react";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarMenu } from "@/components/ui/sidebar";
 
-export const items = [
+const items = [
   {
     title: "Dashboard",
     href: "/",
@@ -30,7 +30,7 @@ export const items = [
   },
 ] as const;
 
-export function SidebarNav() {
+export default function SidebarNav() {
   return (
     <SidebarMenu>
       {items.map((item) => (
