@@ -144,6 +144,68 @@ export type Database = {
           },
         ]
       }
+      students: {
+        Row: {
+          address: string
+          class_section: string | null
+          created_at: string
+          created_by: string
+          date_of_birth: string
+          email: string | null
+          enrollment_date: string
+          gender: string
+          grade_level: number
+          id: string
+          name: string
+          phone_number: string | null
+          status: Database["public"]["Enums"]["student_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          class_section?: string | null
+          created_at?: string
+          created_by: string
+          date_of_birth: string
+          email?: string | null
+          enrollment_date?: string
+          gender: string
+          grade_level: number
+          id?: string
+          name: string
+          phone_number?: string | null
+          status?: Database["public"]["Enums"]["student_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          class_section?: string | null
+          created_at?: string
+          created_by?: string
+          date_of_birth?: string
+          email?: string | null
+          enrollment_date?: string
+          gender?: string
+          grade_level?: number
+          id?: string
+          name?: string
+          phone_number?: string | null
+          status?: Database["public"]["Enums"]["student_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_tags: {
         Row: {
           created_at: string
@@ -264,6 +326,7 @@ export type Database = {
         | "music_room"
         | "art_studio"
         | "gymnasium"
+      student_status: "active" | "inactive" | "graduated" | "suspended"
       teacher_tag:
         | "head_teacher"
         | "senior_teacher"
