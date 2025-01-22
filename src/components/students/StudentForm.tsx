@@ -144,7 +144,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{student ? 'Edit' : 'Add New'} Student</DialogTitle>
         </DialogHeader>
