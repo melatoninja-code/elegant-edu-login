@@ -1,52 +1,11 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Tag, Tags, Plus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-
-type TeacherTag = 
-  | "head_teacher"
-  | "senior_teacher"
-  | "junior_teacher"
-  | "substitute_teacher"
-  | "intern"
-  | "math_teacher"
-  | "science_teacher"
-  | "english_teacher"
-  | "history_teacher"
-  | "art_teacher"
-  | "music_teacher"
-  | "pe_teacher"
-  | "homeroom_teacher"
-  | "curriculum_coordinator"
-  | "student_counselor";
-
-const TAG_COLORS: { [key in TeacherTag]: string } = {
-  head_teacher: "bg-purple-100 text-purple-800 hover:bg-purple-200",
-  senior_teacher: "bg-blue-100 text-blue-800 hover:bg-blue-200",
-  junior_teacher: "bg-green-100 text-green-800 hover:bg-green-200",
-  substitute_teacher: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-  intern: "bg-gray-100 text-gray-800 hover:bg-gray-200",
-  math_teacher: "bg-red-100 text-red-800 hover:bg-red-200",
-  science_teacher: "bg-indigo-100 text-indigo-800 hover:bg-indigo-200",
-  english_teacher: "bg-pink-100 text-pink-800 hover:bg-pink-200",
-  history_teacher: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  art_teacher: "bg-teal-100 text-teal-800 hover:bg-teal-200",
-  music_teacher: "bg-cyan-100 text-cyan-800 hover:bg-cyan-200",
-  pe_teacher: "bg-lime-100 text-lime-800 hover:bg-lime-200",
-  homeroom_teacher: "bg-amber-100 text-amber-800 hover:bg-amber-200",
-  curriculum_coordinator: "bg-violet-100 text-violet-800 hover:bg-violet-200",
-  student_counselor: "bg-rose-100 text-rose-800 hover:bg-rose-200",
-};
 
 interface TeacherTagsProps {
   teacherId: string;
@@ -54,7 +13,7 @@ interface TeacherTagsProps {
 }
 
 export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
-  const [selectedTag, setSelectedTag] = useState<TeacherTag | "">("");
+  const [newTag, setNewTag] = useState("");
   const { toast } = useToast();
 
   const { data: tags, refetch: refetchTags } = useQuery({
@@ -71,10 +30,9 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
   });
 
   const handleAddTag = async () => {
-    if (!selectedTag) return;
+    if (!newTag.trim()) return;
 
     try {
-      // Get the current user's ID
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) {
         throw new Error("No authenticated user found");
@@ -82,7 +40,7 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
 
       const { error } = await supabase.from("teacher_tags").insert({
         teacher_id: teacherId,
-        tag: selectedTag,
+        tag: newTag.trim(),
         created_by: session.user.id,
       });
 
@@ -93,7 +51,7 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
         description: "Tag added successfully",
       });
 
-      setSelectedTag("");
+      setNewTag("");
       refetchTags();
     } catch (error: any) {
       toast({
@@ -128,11 +86,22 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
     }
   };
 
-  const formatTagName = (tag: string) =>
-    tag
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  const getRandomColor = (tag: string) => {
+    const colors = [
+      "bg-red-100 text-red-800 hover:bg-red-200",
+      "bg-blue-100 text-blue-800 hover:bg-blue-200",
+      "bg-green-100 text-green-800 hover:bg-green-200",
+      "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+      "bg-purple-100 text-purple-800 hover:bg-purple-200",
+      "bg-pink-100 text-pink-800 hover:bg-pink-200",
+      "bg-indigo-100 text-indigo-800 hover:bg-indigo-200",
+      "bg-gray-100 text-gray-800 hover:bg-gray-200",
+    ];
+    
+    // Use the tag string to generate a consistent index
+    const index = tag.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
+  };
 
   return (
     <div className="space-y-4">
@@ -146,9 +115,9 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
           <Badge
             key={tag.id}
             variant="secondary"
-            className={`${TAG_COLORS[tag.tag as TeacherTag]} animate-fadeIn`}
+            className={`${getRandomColor(tag.tag)} animate-fadeIn`}
           >
-            {formatTagName(tag.tag)}
+            {tag.tag}
             {isAdmin && (
               <button
                 onClick={() => handleRemoveTag(tag.id)}
@@ -166,37 +135,17 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
 
       {isAdmin && (
         <div className="flex items-center gap-2">
-          <Select
-            value={selectedTag}
-            onValueChange={(value) => setSelectedTag(value as TeacherTag)}
-          >
-            <SelectTrigger className="w-[200px] bg-background border-input">
-              <SelectValue placeholder="Select a tag" />
-            </SelectTrigger>
-            <SelectContent 
-              className="bg-background border border-border shadow-md z-50"
-              position="popper"
-              sideOffset={4}
-            >
-              {(Object.keys(TAG_COLORS) as TeacherTag[]).map((tag) => (
-                <SelectItem 
-                  key={tag} 
-                  value={tag}
-                  className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
-                >
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-3 w-3" />
-                    <span>{formatTagName(tag)}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Input
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            placeholder="Enter a new tag"
+            className="w-[200px]"
+          />
           <Button
             variant="outline"
             size="sm"
             onClick={handleAddTag}
-            disabled={!selectedTag}
+            disabled={!newTag.trim()}
             className="h-10"
           >
             <Plus className="h-4 w-4 mr-1" />

@@ -35,21 +35,21 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
-          tag: Database["public"]["Enums"]["teacher_tag"]
+          tag: string
           teacher_id: string | null
         }
         Insert: {
           created_at?: string
           created_by: string
           id?: string
-          tag: Database["public"]["Enums"]["teacher_tag"]
+          tag: string
           teacher_id?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string
           id?: string
-          tag?: Database["public"]["Enums"]["teacher_tag"]
+          tag?: string
           teacher_id?: string | null
         }
         Relationships: [
