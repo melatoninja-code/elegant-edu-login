@@ -84,7 +84,10 @@ export default function Bookings() {
             console.log('Teacher tags:', teacherTags);
             
             if (teacherTags) {
-              const hasTag = teacherTags.some(tag => tag.tag === 'Teacher');
+              // Case-insensitive check for the 'teacher' tag
+              const hasTag = teacherTags.some(tag => 
+                tag.tag.toLowerCase() === 'teacher'
+              );
               console.log('Has Teacher tag:', hasTag);
               setHasTeacherTag(hasTag);
             }
@@ -185,10 +188,6 @@ export default function Bookings() {
       });
     }
   };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   if (userRole === 'user' && !teacherId) {
     return (

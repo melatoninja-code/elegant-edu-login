@@ -38,9 +38,26 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
         throw new Error("No authenticated user found");
       }
 
+      // Convert tag to lowercase before saving
+      const normalizedTag = newTag.trim().toLowerCase();
+
+      // Check if tag already exists (case-insensitive)
+      const existingTag = tags?.find(
+        (tag) => tag.tag.toLowerCase() === normalizedTag
+      );
+
+      if (existingTag) {
+        toast({
+          title: "Warning",
+          description: "This tag already exists",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase.from("teacher_tags").insert({
         teacher_id: teacherId,
-        tag: newTag.trim(),
+        tag: normalizedTag,
         created_by: session.user.id,
       });
 
@@ -98,8 +115,8 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
       "bg-gray-100 text-gray-800 hover:bg-gray-200",
     ];
     
-    // Use the tag string to generate a consistent index
-    const index = tag.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    // Use the lowercase tag string to generate a consistent index
+    const index = tag.toLowerCase().split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
     return colors[index];
   };
 
