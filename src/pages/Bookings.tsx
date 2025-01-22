@@ -10,6 +10,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -368,9 +369,48 @@ export default function Bookings() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Start Time</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
+                      <div className="flex gap-2">
+                        <Select
+                          onValueChange={(hour) => {
+                            const [, minute] = field.value.split(':');
+                            field.onChange(`${hour}:${minute || '00'}`);
+                          }}
+                          value={field.value.split(':')[0] || ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-[110px]">
+                              <SelectValue placeholder="Hour" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => (
+                              <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                                {i.toString().padStart(2, '0')}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          onValueChange={(minute) => {
+                            const [hour] = field.value.split(':');
+                            field.onChange(`${hour || '00'}:${minute}`);
+                          }}
+                          value={field.value.split(':')[1] || ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-[110px]">
+                              <SelectValue placeholder="Minute" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
+                              <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
+                                {minute.toString().padStart(2, '0')}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -424,9 +464,48 @@ export default function Bookings() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>End Time</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
+                      <div className="flex gap-2">
+                        <Select
+                          onValueChange={(hour) => {
+                            const [, minute] = field.value.split(':');
+                            field.onChange(`${hour}:${minute || '00'}`);
+                          }}
+                          value={field.value.split(':')[0] || ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-[110px]">
+                              <SelectValue placeholder="Hour" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => (
+                              <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                                {i.toString().padStart(2, '0')}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          onValueChange={(minute) => {
+                            const [hour] = field.value.split(':');
+                            field.onChange(`${hour || '00'}:${minute}`);
+                          }}
+                          value={field.value.split(':')[1] || ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-[110px]">
+                              <SelectValue placeholder="Minute" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
+                              <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
+                                {minute.toString().padStart(2, '0')}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
