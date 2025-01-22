@@ -157,19 +157,26 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
         dorm_room: values.dorm_room,
         parent_name: values.parent_name,
         parent_phone: values.parent_phone,
+        emergency_contact_1_name: values.emergency_contact_1_name,
         emergency_contact_1_phone: values.emergency_contact_1_phone,
+        emergency_contact_2_name: values.emergency_contact_2_name,
         emergency_contact_2_phone: values.emergency_contact_2_phone,
         created_by: userData.user.id,
       };
 
-      const { error } = student
-        ? await supabase
-            .from("students")
-            .update(studentData)
-            .eq("id", student.id)
-        : await supabase
-            .from("students")
-            .insert([studentData]);
+      let error;
+      if (student) {
+        const { error: updateError } = await supabase
+          .from("students")
+          .update(studentData)
+          .eq("id", student.id);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from("students")
+          .insert([studentData]);
+        error = insertError;
+      }
 
       if (error) throw error;
 
