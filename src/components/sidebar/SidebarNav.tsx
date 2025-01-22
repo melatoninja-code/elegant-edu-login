@@ -5,33 +5,39 @@ import { SidebarMenu } from "@/components/ui/sidebar";
 const items = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    path: "/dashboard",
     icon: LayoutDashboard,
+    description: "Go to Dashboard",
   },
   {
     title: "Teachers",
-    href: "/teachers",
+    path: "/teachers",
     icon: Users,
+    description: "Manage Teachers",
   },
   {
     title: "Students",
-    href: "/students",
+    path: "/students",
     icon: GraduationCap,
+    description: "Manage Students",
   },
   {
     title: "Classrooms",
-    href: "/classrooms",
+    path: "/classrooms",
     icon: School,
+    description: "Manage Classrooms",
   },
   {
     title: "Calendar",
-    href: "/calendar",
+    path: "/calendar",
     icon: CalendarDays,
+    description: "View Calendar",
   },
   {
     title: "Bookings",
-    href: "/bookings",
+    path: "/bookings",
     icon: BookOpen,
+    description: "Manage Bookings",
   },
 ] as const;
 
@@ -40,11 +46,11 @@ export default function SidebarNav() {
     <SidebarMenu>
       {items.map((item) => (
         <SidebarNavItem
-          key={item.href}
+          key={item.path}
           icon={item.icon}
           title={item.title}
-          path={item.href}
-          description={`Go to ${item.title}`}
+          path={item.path}
+          description={item.description}
         />
       ))}
     </SidebarMenu>
