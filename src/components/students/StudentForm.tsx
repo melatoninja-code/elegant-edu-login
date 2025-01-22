@@ -6,8 +6,13 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Student } from "@/types/student";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -40,9 +45,10 @@ interface StudentFormProps {
   student?: Student | null;
   onClose: () => void;
   onSuccess: () => void;
+  open: boolean;
 }
 
-export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
+export function StudentForm({ student, onClose, onSuccess, open }: StudentFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -114,11 +120,11 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{student ? 'Edit' : 'Add New'} Student</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{student ? 'Edit' : 'Add New'} Student</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Form fields will be added here */}
@@ -127,7 +133,7 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
             </Button>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

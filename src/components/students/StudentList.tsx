@@ -160,20 +160,19 @@ export function StudentList() {
           onPageChange={setCurrentPage}
         />
 
-        {isFormOpen && (
-          <StudentForm
-            student={editingStudent}
-            onClose={() => {
-              setIsFormOpen(false);
-              setEditingStudent(null);
-            }}
-            onSuccess={() => {
-              setIsFormOpen(false);
-              setEditingStudent(null);
-              refetch();
-            }}
-          />
-        )}
+        <StudentForm
+          student={editingStudent}
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingStudent(null);
+          }}
+          onSuccess={() => {
+            setIsFormOpen(false);
+            setEditingStudent(null);
+            refetch();
+          }}
+          open={isFormOpen}
+        />
       </CardContent>
     </Card>
   );
