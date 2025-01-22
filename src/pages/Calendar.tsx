@@ -3,6 +3,14 @@ import { format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+
+// Example events - in a real app, these would come from your backend
+const events = {
+  "2024-04-15": { type: "meeting", title: "Teacher Meeting" },
+  "2024-04-20": { type: "event", title: "School Event" },
+  "2024-04-25": { type: "deadline", title: "Grade Submission" },
+}
 
 export default function CalendarPage() {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -20,6 +28,18 @@ export default function CalendarPage() {
   const handleDateChange = (newDate: Date | undefined) => {
     setDate(newDate)
     setKey(prev => prev + 1)
+  }
+
+  // Function to check if a date has an event
+  const hasEvent = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd')
+    return dateStr in events
+  }
+
+  // Function to get event details
+  const getEventDetails = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd')
+    return events[dateStr as keyof typeof events]
   }
 
   return (
@@ -42,7 +62,7 @@ export default function CalendarPage() {
                     mode="single"
                     selected={date}
                     onSelect={handleDateChange}
-                    className="rounded-md border"
+                    className="rounded-md border scale-110 transform origin-top"
                     classNames={{
                       months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                       month: "space-y-4",
@@ -52,16 +72,32 @@ export default function CalendarPage() {
                       nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
                       table: "w-full border-collapse space-y-1",
                       head_row: "flex",
-                      head_cell: "text-neutral-600 w-10 font-normal text-[0.8rem]",
+                      head_cell: "text-neutral-600 w-12 font-normal text-[0.8rem]",
                       row: "flex w-full mt-2",
-                      cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary-lighter",
-                      day: "h-10 w-10 p-0 font-normal hover:bg-primary-light rounded-full transition-colors",
+                      cell: cn(
+                        "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary-lighter",
+                        "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
+                      ),
+                      day: cn(
+                        "h-12 w-12 p-0 font-normal hover:bg-primary-light rounded-full transition-colors relative",
+                        "aria-selected:opacity-100"
+                      ),
                       day_selected: "bg-primary text-primary-foreground hover:bg-primary-dark hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full transition-colors",
                       day_today: "bg-neutral-light text-foreground rounded-full",
                       day_outside: "text-neutral opacity-50",
                       day_disabled: "text-neutral opacity-50",
                       day_range_middle: "aria-selected:bg-neutral-light aria-selected:text-foreground",
                       day_hidden: "invisible",
+                    }}
+                    components={{
+                      DayContent: ({ date: dayDate, ...props }) => (
+                        <div {...props} className="relative w-full h-full flex items-center justify-center">
+                          <span>{dayDate.getDate()}</span>
+                          {hasEvent(dayDate) && (
+                            <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
+                          )}
+                        </div>
+                      ),
                     }}
                   />
                 </div>
@@ -84,9 +120,16 @@ export default function CalendarPage() {
                     <div className="space-y-4">
                       <div className="rounded-lg border border-neutral-200 bg-white p-4">
                         <h3 className="mb-2 font-medium text-primary">Schedule</h3>
-                        <p className="text-sm text-neutral-600 md:text-base">
-                          No events scheduled for this date.
-                        </p>
+                        {hasEvent(date) ? (
+                          <div className="text-sm text-neutral-600 md:text-base">
+                            <p className="font-medium">{getEventDetails(date)?.title}</p>
+                            <p className="text-neutral">Type: {getEventDetails(date)?.type}</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-neutral-600 md:text-base">
+                            No events scheduled for this date.
+                          </p>
+                        )}
                       </div>
                       <div className="rounded-lg border border-neutral-200 bg-white p-4">
                         <h3 className="mb-2 font-medium text-primary">Notes</h3>
