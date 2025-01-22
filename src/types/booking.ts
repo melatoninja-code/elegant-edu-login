@@ -4,7 +4,7 @@ export interface Booking {
   teacher_id: string;
   start_time: string;
   end_time: string;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed';
   purpose: string;
   classroom: {
     name: string;
