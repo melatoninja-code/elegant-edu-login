@@ -281,6 +281,94 @@ export type Database = {
           },
         ]
       }
+      teacher_group_student_assignments: {
+        Row: {
+          created_at: string
+          created_by: string
+          group_id: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          group_id: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          group_id?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_group_student_assignments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_group_student_assignments_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_group_student_assignments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          teacher_id: string
+          type: Database["public"]["Enums"]["group_type"] | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          teacher_id: string
+          type?: Database["public"]["Enums"]["group_type"] | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          teacher_id?: string
+          type?: Database["public"]["Enums"]["group_type"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_groups_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_student_assignments: {
         Row: {
           created_at: string
@@ -447,6 +535,7 @@ export type Database = {
         | "music_room"
         | "art_studio"
         | "gymnasium"
+      group_type: "class" | "club" | "study_group" | "other"
       student_status: "active" | "inactive" | "graduated" | "suspended"
       teacher_tag:
         | "head_teacher"

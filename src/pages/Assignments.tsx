@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { TeacherAssignmentGrid } from "@/components/assignments/TeacherAssignmentGrid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssignmentForm } from "@/components/assignments/AssignmentForm";
+import { TeacherGroupForm } from "@/components/assignments/TeacherGroupForm";
 
 export default function Assignments() {
   return (
@@ -19,12 +20,16 @@ export default function Assignments() {
               <TabsList>
                 <TabsTrigger value="grid">Grid View</TabsTrigger>
                 <TabsTrigger value="form">Batch Assign</TabsTrigger>
+                <TabsTrigger value="groups">Create Group</TabsTrigger>
               </TabsList>
               <TabsContent value="grid">
                 <TeacherAssignmentGrid />
               </TabsContent>
               <TabsContent value="form">
                 <AssignmentForm />
+              </TabsContent>
+              <TabsContent value="groups">
+                <TeacherGroupForm />
               </TabsContent>
             </Tabs>
           </div>
