@@ -14,6 +14,7 @@ import Students from './pages/Students';
 import Classrooms from './pages/Classrooms';
 import Calendar from './pages/Calendar';
 import Bookings from './pages/Bookings';
+import Assignments from './pages/Assignments';
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
   {
     path: "/bookings",
     element: <Bookings />,
+  },
+  {
+    path: "/assignments",
+    element: <Assignments />,
   },
 ]);
 
