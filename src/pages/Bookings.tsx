@@ -50,6 +50,8 @@ export default function Bookings() {
     const fetchUserData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
+        console.log('Current user:', user);
+        
         if (user) {
           setUserId(user.id);
           
@@ -58,6 +60,8 @@ export default function Bookings() {
             .select('role')
             .eq('id', user.id)
             .maybeSingle();
+          
+          console.log('User profile:', profile);
           
           if (profile) {
             setUserRole(profile.role);
@@ -68,6 +72,8 @@ export default function Bookings() {
             .select('id')
             .eq('auth_id', user.id)
             .maybeSingle();
+          
+          console.log('Teacher data:', teacher);
           
           if (teacherError) {
             console.error('Error fetching teacher:', teacherError);
@@ -83,8 +89,16 @@ export default function Bookings() {
               .select('tag')
               .eq('teacher_id', teacher.id);
             
+            console.log('Teacher tags:', teacherTags);
+            
+            if (tagsError) {
+              console.error('Error fetching teacher tags:', tagsError);
+            }
+            
             if (!tagsError && teacherTags) {
-              setHasTeacherTag(teacherTags.some(tag => tag.tag === 'Teacher'));
+              const hasTag = teacherTags.some(tag => tag.tag === 'Teacher');
+              console.log('Has Teacher tag:', hasTag);
+              setHasTeacherTag(hasTag);
             }
           }
         }
@@ -191,6 +205,13 @@ export default function Bookings() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  console.log('Current state:', {
+    userRole,
+    teacherId,
+    hasTeacherTag,
+    isAdmin: userRole === 'admin'
+  });
 
   if (userRole === 'user' && !teacherId) {
     return (
