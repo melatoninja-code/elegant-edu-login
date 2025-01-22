@@ -45,26 +45,44 @@ export function TeacherList() {
 
   const isAdmin = userRole === "admin";
 
-  // Then fetch teachers data
-  const { data: teachers, isLoading, error: teachersError, refetch } = useQuery({
-    queryKey: ["teachers", session?.user?.id],
+  // Fetch teachers and their tags
+  const { data: teachersWithTags, isLoading, error: teachersError, refetch } = useQuery({
+    queryKey: ["teachers", "tags", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) throw new Error("Not authenticated");
 
-      const { data, error } = await supabase
+      // First get all teachers
+      const { data: teachers, error: teachersError } = await supabase
         .from("teachers")
         .select("*");
       
-      if (error) throw error;
-      return data as Teacher[];
+      if (teachersError) throw teachersError;
+
+      // Then get all tags
+      const { data: tags, error: tagsError } = await supabase
+        .from("teacher_tags")
+        .select("*");
+
+      if (tagsError) throw tagsError;
+
+      // Combine teachers with their tags
+      return teachers.map(teacher => ({
+        ...teacher,
+        tags: tags.filter(tag => tag.teacher_id === teacher.id).map(t => t.tag)
+      }));
     },
     enabled: !!session?.user?.id,
   });
 
-  // Filter teachers based on search query
-  const filteredTeachers = teachers?.filter(teacher =>
-    teacher.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter teachers based on search query (name or tags)
+  const filteredTeachers = teachersWithTags?.filter(teacher => {
+    const searchLower = searchQuery.toLowerCase();
+    const nameMatch = teacher.name.toLowerCase().includes(searchLower);
+    const tagMatch = teacher.tags.some(tag => 
+      tag.toLowerCase().includes(searchLower)
+    );
+    return nameMatch || tagMatch;
+  });
 
   const handleDelete = async (id: string) => {
     if (!isAdmin) {
