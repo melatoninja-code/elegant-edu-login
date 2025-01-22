@@ -12,7 +12,8 @@ import {
   Users2,
   UserRound,
   BookOpen,
-  Heart
+  Heart,
+  AlertCircle
 } from "lucide-react";
 
 interface StudentDetailsDialogProps {
@@ -141,6 +142,42 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
                   {student.parent_phone && (
                     <span className="text-muted-foreground">({student.parent_phone})</span>
                   )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Emergency Contacts */}
+          <div className="grid gap-4 p-4 rounded-lg bg-neutral-light">
+            <div className="flex items-center gap-2 text-primary">
+              <AlertCircle className="h-5 w-5" />
+              <span className="font-semibold">Emergency Contacts</span>
+            </div>
+            <div className="grid gap-3 pl-7">
+              {(student.emergency_contact_1_name || student.emergency_contact_1_phone) && (
+                <div className="flex items-center gap-2">
+                  <Users2 className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    {student.emergency_contact_1_name && `${student.emergency_contact_1_name}`}
+                    {student.emergency_contact_1_phone && (
+                      <span className="text-muted-foreground ml-2">
+                        ({student.emergency_contact_1_phone})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )}
+              {(student.emergency_contact_2_name || student.emergency_contact_2_phone) && (
+                <div className="flex items-center gap-2">
+                  <Users2 className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    {student.emergency_contact_2_name && `${student.emergency_contact_2_name}`}
+                    {student.emergency_contact_2_phone && (
+                      <span className="text-muted-foreground ml-2">
+                        ({student.emergency_contact_2_phone})
+                      </span>
+                    )}
+                  </span>
                 </div>
               )}
             </div>

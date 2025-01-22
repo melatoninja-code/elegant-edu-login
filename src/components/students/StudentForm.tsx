@@ -45,7 +45,9 @@ const formSchema = z.object({
   dorm_room: z.string().optional().nullable(),
   parent_name: z.string().optional().nullable(),
   parent_phone: z.string().optional().nullable(),
+  emergency_contact_1_name: z.string().optional().nullable(),
   emergency_contact_1_phone: z.string().optional().nullable(),
+  emergency_contact_2_name: z.string().optional().nullable(),
   emergency_contact_2_phone: z.string().optional().nullable(),
 });
 
@@ -78,7 +80,9 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
       dorm_room: "",
       parent_name: "",
       parent_phone: "",
+      emergency_contact_1_name: "",
       emergency_contact_1_phone: "",
+      emergency_contact_2_name: "",
       emergency_contact_2_phone: "",
     },
   });
@@ -100,7 +104,9 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
         dorm_room: student.dorm_room || "",
         parent_name: student.parent_name || "",
         parent_phone: student.parent_phone || "",
+        emergency_contact_1_name: student.emergency_contact_1_name || "",
         emergency_contact_1_phone: student.emergency_contact_1_phone || "",
+        emergency_contact_2_name: student.emergency_contact_2_name || "",
         emergency_contact_2_phone: student.emergency_contact_2_phone || "",
       });
     } else {
@@ -118,7 +124,9 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
         dorm_room: "",
         parent_name: "",
         parent_phone: "",
+        emergency_contact_1_name: "",
         emergency_contact_1_phone: "",
+        emergency_contact_2_name: "",
         emergency_contact_2_phone: "",
       });
     }
