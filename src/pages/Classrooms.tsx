@@ -53,8 +53,8 @@ export default function Classrooms() {
       if (error) throw error
 
       toast({
-        title: "Classroom deleted",
-        description: "The classroom has been deleted successfully.",
+        title: "Success",
+        description: "Classroom has been deleted successfully.",
       })
       refetch()
     } catch (error) {
@@ -136,7 +136,10 @@ export default function Classrooms() {
               <DialogHeader>
                 <DialogTitle>Create New Classroom</DialogTitle>
               </DialogHeader>
-              <ClassroomForm />
+              <ClassroomForm onSuccess={() => {
+                setShowCreateDialog(false)
+                refetch()
+              }} />
             </DialogContent>
           </Dialog>
         </main>

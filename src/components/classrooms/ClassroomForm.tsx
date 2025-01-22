@@ -26,7 +26,11 @@ const classroomFormSchema = z.object({
   description: z.string().optional(),
 })
 
-export function ClassroomForm() {
+interface ClassroomFormProps {
+  onSuccess?: () => void
+}
+
+export function ClassroomForm({ onSuccess }: ClassroomFormProps) {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -63,10 +67,11 @@ export function ClassroomForm() {
       if (error) throw error
 
       toast({
-        title: "Classroom created",
-        description: "The classroom has been created successfully.",
+        title: "Success",
+        description: "Classroom has been created successfully.",
       })
       form.reset()
+      onSuccess?.()
     } catch (error) {
       toast({
         variant: "destructive",
