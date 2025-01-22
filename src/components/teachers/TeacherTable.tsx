@@ -10,6 +10,7 @@ import { Loader2, CheckCircle } from "lucide-react";
 import { Teacher } from "./types";
 import { TeacherActions } from "./TeacherActions";
 import { useState } from "react";
+import { TeacherDetailsDialog } from "./TeacherDetailsDialog";
 
 interface TeacherTableProps {
   teachers: Teacher[] | null;
@@ -28,6 +29,8 @@ export function TeacherTable({
   onEditTeacher,
   onDeleteTeacher,
 }: TeacherTableProps) {
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -46,66 +49,74 @@ export function TeacherTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border border-primary/20">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-primary/5 hover:bg-primary/10">
-            <TableHead className="w-[200px] font-semibold">Name</TableHead>
-            <TableHead className="hidden md:table-cell font-semibold">Gender</TableHead>
-            <TableHead className="hidden md:table-cell font-semibold">Studies</TableHead>
-            <TableHead className="hidden lg:table-cell font-semibold">Dorm Room</TableHead>
-            <TableHead className="hidden lg:table-cell font-semibold">Address</TableHead>
-            <TableHead className="hidden lg:table-cell font-semibold">Phone</TableHead>
-            {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {teachers.map((teacher, index) => (
-            <TableRow 
-              key={teacher.id}
-              className="animate-fadeIn"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <TableCell
-                className="font-medium cursor-pointer hover:text-primary transition-colors"
-                onClick={() => onSelectTeacher(teacher)}
-              >
-                <div className="flex items-center gap-2">
-                  {teacher.auth_id && (
-                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  )}
-                  <span>{teacher.name}</span>
-                </div>
-              </TableCell>
-              <TableCell className="hidden md:table-cell capitalize">
-                {teacher.gender}
-              </TableCell>
-              <TableCell className="hidden md:table-cell">
-                {teacher.studies}
-              </TableCell>
-              <TableCell className="hidden lg:table-cell">
-                {teacher.dorm_room || "-"}
-              </TableCell>
-              <TableCell className="hidden lg:table-cell">
-                {teacher.address}
-              </TableCell>
-              <TableCell className="hidden lg:table-cell">
-                {teacher.phone_number}
-              </TableCell>
-              {isAdmin && (
-                <TableCell>
-                  <TeacherActions
-                    teacher={teacher}
-                    onEdit={() => onEditTeacher(teacher)}
-                    onDelete={() => onDeleteTeacher(teacher.id)}
-                    isAdmin={isAdmin}
-                  />
-                </TableCell>
-              )}
+    <>
+      <div className="overflow-x-auto rounded-md border border-primary/20">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-primary/5 hover:bg-primary/10">
+              <TableHead className="w-[200px] font-semibold">Name</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Gender</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Studies</TableHead>
+              <TableHead className="hidden lg:table-cell font-semibold">Dorm Room</TableHead>
+              <TableHead className="hidden lg:table-cell font-semibold">Address</TableHead>
+              <TableHead className="hidden lg:table-cell font-semibold">Phone</TableHead>
+              {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {teachers.map((teacher, index) => (
+              <TableRow 
+                key={teacher.id}
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <TableCell
+                  className="font-medium cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => setSelectedTeacher(teacher)}
+                >
+                  <div className="flex items-center gap-2">
+                    {teacher.auth_id && (
+                      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    )}
+                    <span>{teacher.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell capitalize">
+                  {teacher.gender}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {teacher.studies}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  {teacher.dorm_room || "-"}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  {teacher.address}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  {teacher.phone_number}
+                </TableCell>
+                {isAdmin && (
+                  <TableCell>
+                    <TeacherActions
+                      teacher={teacher}
+                      onEdit={() => onEditTeacher(teacher)}
+                      onDelete={() => onDeleteTeacher(teacher.id)}
+                      isAdmin={isAdmin}
+                    />
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <TeacherDetailsDialog
+        teacher={selectedTeacher}
+        onClose={() => setSelectedTeacher(null)}
+        isAdmin={isAdmin}
+      />
+    </>
   );
 }
