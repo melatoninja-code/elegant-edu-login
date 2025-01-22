@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Teacher } from "./types";
-import { Mail, Phone, MapPin, School, Home, User2 } from "lucide-react";
+import { Mail, Phone, MapPin, School, Home, User2, Key } from "lucide-react";
 
 interface TeacherDetailsDialogProps {
   teacher: Teacher | null;
@@ -44,18 +44,25 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetai
             </div>
           </div>
 
-          {isAdmin && teacher.account_email && teacher.account_password && (
+          {isAdmin && (teacher.account_email || teacher.account_password) && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-2 border border-border/50">
-              <h3 className="font-medium text-sm text-muted-foreground">Account Credentials</h3>
+              <h3 className="font-medium text-sm text-muted-foreground flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                Account Credentials
+              </h3>
               <div className="grid gap-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Email:</span>
-                  <span>{teacher.account_email}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Password:</span>
-                  <span>{teacher.account_password}</span>
-                </div>
+                {teacher.account_email && (
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Email:</span>
+                    <span>{teacher.account_email}</span>
+                  </div>
+                )}
+                {teacher.account_password && (
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Password:</span>
+                    <span>{teacher.account_password}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
