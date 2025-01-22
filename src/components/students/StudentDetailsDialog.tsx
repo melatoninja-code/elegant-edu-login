@@ -132,7 +132,7 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
             <div className="grid gap-3 pl-7">
               <div className="flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                <span>Date of Birth: {format(new Date(student.date_of_birth), "PPP")}</span>
+                <span>Date of Birth: {format(new Date(student.date_of_birth), "dd/MM/yyyy")}</span>
               </div>
               {student.parent_name && (
                 <div className="flex items-center gap-2">
