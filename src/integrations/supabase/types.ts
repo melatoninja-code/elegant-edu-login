@@ -250,7 +250,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      booking_status: "pending" | "approved" | "rejected" | "cancelled"
+      booking_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "cancelled"
+        | "completed"
       classroom_type:
         | "lecture_hall"
         | "laboratory"

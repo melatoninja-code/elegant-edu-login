@@ -50,7 +50,13 @@ export function ClassroomForm() {
       if (!userData.user) throw new Error("Not authenticated")
 
       const { error } = await supabase.from("classrooms").insert({
-        ...values,
+        name: values.name,
+        room_number: values.room_number,
+        capacity: values.capacity,
+        type: values.type,
+        floor: values.floor,
+        building: values.building,
+        description: values.description || null,
         created_by: userData.user.id,
       })
 
