@@ -62,7 +62,7 @@ const LoginForm = () => {
     <form onSubmit={handleSubmit} className="space-y-6">
       {authError && (
         <Alert variant="destructive">
-          <AlertDescription>{authError}</AlertDescription>
+          <AlertDescription className="text-red-500">{authError}</AlertDescription>
         </Alert>
       )}
       <div className="space-y-2">
