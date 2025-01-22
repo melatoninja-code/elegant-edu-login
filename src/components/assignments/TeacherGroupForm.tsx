@@ -31,53 +31,53 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
   const onSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true);
+      
+      // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user");
+      if (!user) {
+        throw new Error("No authenticated user");
+      }
 
       // Get the teacher record for the current user
       const { data: teacherData, error: teacherError } = await supabase
         .from("teachers")
         .select("id")
         .eq("auth_id", user.id)
-        .maybeSingle();
+        .single();
 
-      if (teacherError) throw new Error("Failed to get teacher record");
-      if (!teacherData) throw new Error("No teacher record found for your account");
-
-      // Check if group name already exists
-      const { data: existingGroups } = await supabase
-        .from("teacher_groups")
-        .select("id")
-        .eq("name", data.name)
-        .maybeSingle();
-
-      if (existingGroups) {
-        toast({
-          title: "Error",
-          description: "A group with this name already exists",
-          variant: "destructive",
-        });
-        return;
+      if (teacherError) {
+        console.error("Teacher fetch error:", teacherError);
+        throw new Error("Failed to get teacher record");
       }
 
-      const { error } = await supabase.from("teacher_groups").insert({
-        name: data.name,
-        type: data.type,
-        created_by: user.id,
-        teacher_id: teacherData.id,
-      });
+      if (!teacherData) {
+        throw new Error("No teacher record found for your account");
+      }
 
-      if (error) throw error;
+      // Create the group
+      const { error: insertError } = await supabase
+        .from("teacher_groups")
+        .insert({
+          name: data.name,
+          type: data.type,
+          teacher_id: teacherData.id,
+          created_by: user.id
+        });
+
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw insertError;
+      }
 
       toast({
         title: "Success",
         description: "Group created successfully",
       });
 
-      // Reset form and trigger refetch
       reset();
       await onSuccess();
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to create group",
