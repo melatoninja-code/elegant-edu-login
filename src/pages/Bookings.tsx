@@ -18,6 +18,7 @@ export default function Bookings() {
   const [teacherId, setTeacherId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasTeacherTag, setHasTeacherTag] = useState<boolean>(false);
   const [classrooms, setClassrooms] = useState<Array<{ id: string; name: string; room_number: string }>>([]);
 
   // Fetch classrooms
@@ -70,16 +71,21 @@ export default function Bookings() {
           
           if (teacherError) {
             console.error('Error fetching teacher:', teacherError);
-            toast({
-              variant: "destructive",
-              title: "Error fetching teacher data",
-              description: "Please try again later or contact support if the problem persists.",
-            });
             return;
           }
           
           if (teacher) {
             setTeacherId(teacher.id);
+            
+            // Check for Teacher tag
+            const { data: teacherTags, error: tagsError } = await supabase
+              .from('teacher_tags')
+              .select('tag')
+              .eq('teacher_id', teacher.id);
+            
+            if (!tagsError && teacherTags) {
+              setHasTeacherTag(teacherTags.some(tag => tag.tag === 'Teacher'));
+            }
           }
         }
       } catch (error) {
@@ -126,7 +132,7 @@ export default function Bookings() {
 
       return data as Booking[];
     },
-    enabled: Boolean(userRole && (userRole === 'admin' || teacherId)),
+    enabled: Boolean(userRole && (userRole === 'admin' || (teacherId && hasTeacherTag))),
   });
 
   const handleSubmit = async (values: BookingFormValues) => {
@@ -140,11 +146,6 @@ export default function Bookings() {
     }
 
     try {
-      console.log('Creating booking with values:', {
-        ...values,
-        created_by: userId
-      });
-
       const startDateTime = new Date(values.start_date);
       const [startHours, startMinutes] = values.start_time.split(':');
       startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
@@ -200,6 +201,22 @@ export default function Bookings() {
             <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
               <h2 className="text-lg font-semibold text-destructive">Access Restricted</h2>
               <p className="mt-2">You need to be registered as a teacher to access the booking system. Please contact an administrator.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasTeacherTag && userRole !== 'admin') {
+    return (
+      <div className="flex h-screen bg-background">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <div className="p-6">
+            <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+              <h2 className="text-lg font-semibold text-destructive">Access Restricted</h2>
+              <p className="mt-2">You need to have the "Teacher" tag to access the booking system. Please contact an administrator to assign you the correct tag.</p>
             </div>
           </div>
         </div>
