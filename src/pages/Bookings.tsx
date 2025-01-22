@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 interface Booking {
   id: string;
@@ -20,12 +26,55 @@ interface Booking {
   };
 }
 
+const bookingFormSchema = z.object({
+  classroom_id: z.string().min(1, "Please select a classroom"),
+  start_time: z.string().min(1, "Please select a start time"),
+  end_time: z.string().min(1, "Please select an end time"),
+  purpose: z.string().min(1, "Please provide a purpose for the booking"),
+});
+
 export default function Bookings() {
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [teacherId, setTeacherId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [classrooms, setClassrooms] = useState<Array<{ id: string; name: string; room_number: string }>>([]);
 
-  // Fetch user role and teacher ID on component mount
+  const form = useForm<z.infer<typeof bookingFormSchema>>({
+    resolver: zodResolver(bookingFormSchema),
+    defaultValues: {
+      classroom_id: "",
+      start_time: "",
+      end_time: "",
+      purpose: "",
+    },
+  });
+
+  // Fetch classrooms
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      const { data, error } = await supabase
+        .from('classrooms')
+        .select('id, name, room_number')
+        .eq('is_available', true);
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error fetching classrooms",
+          description: error.message,
+        });
+        return;
+      }
+
+      if (data) {
+        setClassrooms(data);
+      }
+    };
+
+    fetchClassrooms();
+  }, [toast]);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -75,7 +124,7 @@ export default function Bookings() {
   }, [toast]);
 
   // Fetch bookings
-  const { data: bookings, isLoading } = useQuery({
+  const { data: bookings, isLoading, refetch } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
       const query = supabase
@@ -108,11 +157,43 @@ export default function Bookings() {
     enabled: Boolean(userRole && (userRole === 'admin' || teacherId)),
   });
 
+  const onSubmit = async (values: z.infer<typeof bookingFormSchema>) => {
+    if (!teacherId) return;
+
+    const { error } = await supabase
+      .from('room_bookings')
+      .insert({
+        classroom_id: values.classroom_id,
+        teacher_id: teacherId,
+        start_time: values.start_time,
+        end_time: values.end_time,
+        purpose: values.purpose,
+        status: 'pending',
+      });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error creating booking",
+        description: error.message,
+      });
+      return;
+    }
+
+    toast({
+      title: "Booking created",
+      description: "Your booking request has been submitted for approval.",
+    });
+
+    setIsDialogOpen(false);
+    form.reset();
+    refetch();
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  // Show message if user is a teacher but no teacher record is found
   if (userRole === 'user' && !teacherId) {
     return (
       <div className="flex h-screen bg-background">
@@ -135,7 +216,7 @@ export default function Bookings() {
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between p-6">
           <h1 className="text-2xl font-semibold">Room Bookings</h1>
-          <Button>
+          <Button onClick={() => setIsDialogOpen(true)}>
             <Calendar className="mr-2 h-4 w-4" />
             New Booking
           </Button>
@@ -181,6 +262,83 @@ export default function Bookings() {
           )}
         </div>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Booking</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="classroom_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Classroom</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <option value="">Select a classroom</option>
+                        {classrooms.map((classroom) => (
+                          <option key={classroom.id} value={classroom.id}>
+                            {classroom.name} ({classroom.room_number})
+                          </option>
+                        ))}
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="start_time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Time</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="end_time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Time</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="purpose"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Purpose</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter the purpose of booking" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Create Booking</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
