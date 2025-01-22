@@ -1,12 +1,12 @@
-import { Home, Users, GraduationCap, School, CalendarDays } from "lucide-react";
+import { Home, Users, GraduationCap, School, CalendarDays, LayoutDashboard } from "lucide-react";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarMenu } from "@/components/ui/sidebar";
 
 const items = [
   {
     title: "Dashboard",
-    href: "/",
-    icon: Home,
+    href: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
     title: "Teachers",
@@ -22,6 +22,11 @@ const items = [
     title: "Classrooms",
     href: "/classrooms",
     icon: School,
+  },
+  {
+    title: "Calendar",
+    href: "/calendar",
+    icon: CalendarDays,
   },
   {
     title: "Bookings",
