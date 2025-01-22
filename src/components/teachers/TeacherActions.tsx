@@ -107,6 +107,9 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
       
       setIsDialogOpen(false);
       setIsSuccessDialogOpen(true);
+
+      // Force a refresh of the teacher data
+      window.location.reload();
     } catch (error: any) {
       console.error("Error creating teacher account:", error);
       toast({
