@@ -64,7 +64,20 @@ export function ClassroomForm({ onSuccess }: ClassroomFormProps) {
         created_by: userData.user.id,
       })
 
-      if (error) throw error
+      if (error) {
+        // Check specifically for the unique constraint violation
+        if (error.code === "23505" && error.message?.includes("classrooms_room_number_key")) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: `Room number ${values.room_number} already exists. Please use a different room number.`,
+          })
+          // Focus the room_number field for better UX
+          form.setFocus("room_number")
+          return
+        }
+        throw error
+      }
 
       toast({
         title: "Success",
