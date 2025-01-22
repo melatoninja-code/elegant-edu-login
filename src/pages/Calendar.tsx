@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { AppSidebar } from "@/components/AppSidebar"
@@ -6,6 +6,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function CalendarPage() {
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [key, setKey] = useState(0) // Add key to force clean remount when needed
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Cleanup any potential leftover DOM elements
+      const calendar = document.querySelector('.rdp')
+      if (calendar && calendar.parentNode) {
+        calendar.parentNode.removeChild(calendar)
+      }
+    }
+  }, [])
+
+  // Handle date change with proper cleanup
+  const handleDateChange = (newDate: Date | undefined) => {
+    setDate(newDate)
+    setKey(prev => prev + 1) // Force clean remount
+  }
 
   return (
     <div className="flex h-screen bg-neutral-light/50">
@@ -23,32 +41,34 @@ export default function CalendarPage() {
                 <CardTitle className="text-lg md:text-xl">Select a Date</CardTitle>
               </CardHeader>
               <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="mx-auto rounded-md border p-3"
-                  classNames={{
-                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                    month: "space-y-4",
-                    caption: "flex justify-center pt-1 relative items-center text-sm font-medium",
-                    caption_label: "text-sm font-medium",
-                    nav: "space-x-1 flex items-center",
-                    nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-opacity",
-                    table: "w-full border-collapse space-y-1",
-                    head_row: "flex",
-                    head_cell: "text-neutral-600 rounded-md w-8 sm:w-9 font-normal text-[0.8rem]",
-                    row: "flex w-full mt-2",
-                    cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary-lighter",
-                    day: "h-8 w-8 sm:h-9 sm:w-9 p-0 font-normal hover:bg-primary-light rounded-full transition-colors",
-                    day_selected: "bg-primary text-primary-foreground hover:bg-primary-dark hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full transition-colors",
-                    day_today: "bg-neutral-light text-foreground rounded-full",
-                    day_outside: "text-neutral opacity-50",
-                    day_disabled: "text-neutral opacity-50",
-                    day_range_middle: "aria-selected:bg-neutral-light aria-selected:text-foreground",
-                    day_hidden: "invisible",
-                  }}
-                />
+                <div key={key}> {/* Add key to force clean remount */}
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={handleDateChange}
+                    className="mx-auto rounded-md border p-3"
+                    classNames={{
+                      months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                      month: "space-y-4",
+                      caption: "flex justify-center pt-1 relative items-center text-sm font-medium",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-opacity",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex",
+                      head_cell: "text-neutral-600 rounded-md w-8 sm:w-9 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2",
+                      cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary-lighter",
+                      day: "h-8 w-8 sm:h-9 sm:w-9 p-0 font-normal hover:bg-primary-light rounded-full transition-colors",
+                      day_selected: "bg-primary text-primary-foreground hover:bg-primary-dark hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full transition-colors",
+                      day_today: "bg-neutral-light text-foreground rounded-full",
+                      day_outside: "text-neutral opacity-50",
+                      day_disabled: "text-neutral opacity-50",
+                      day_range_middle: "aria-selected:bg-neutral-light aria-selected:text-foreground",
+                      day_hidden: "invisible",
+                    }}
+                  />
+                </div>
               </CardContent>
             </Card>
 
