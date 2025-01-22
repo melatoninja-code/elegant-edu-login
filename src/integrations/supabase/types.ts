@@ -151,12 +151,15 @@ export type Database = {
           created_at: string
           created_by: string
           date_of_birth: string
+          dorm_room: string | null
           email: string | null
           enrollment_date: string
           gender: string
           grade_level: number
           id: string
           name: string
+          parent_name: string | null
+          parent_phone: string | null
           phone_number: string | null
           status: Database["public"]["Enums"]["student_status"]
           student_id: string
@@ -168,12 +171,15 @@ export type Database = {
           created_at?: string
           created_by: string
           date_of_birth: string
+          dorm_room?: string | null
           email?: string | null
           enrollment_date?: string
           gender: string
           grade_level: number
           id?: string
           name: string
+          parent_name?: string | null
+          parent_phone?: string | null
           phone_number?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           student_id: string
@@ -185,12 +191,15 @@ export type Database = {
           created_at?: string
           created_by?: string
           date_of_birth?: string
+          dorm_room?: string | null
           email?: string | null
           enrollment_date?: string
           gender?: string
           grade_level?: number
           id?: string
           name?: string
+          parent_name?: string | null
+          parent_phone?: string | null
           phone_number?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           student_id?: string
