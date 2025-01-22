@@ -55,13 +55,17 @@ export function TeacherGroupManagement() {
           )
         `);
 
+      // Only apply the teacher filter if a specific teacher is selected
       if (selectedTeacher) {
         query = query.eq("teacher_id", selectedTeacher);
       }
 
       const { data: groups, error: groupsError } = await query;
 
-      if (groupsError) throw groupsError;
+      if (groupsError) {
+        console.error("Error fetching groups:", groupsError);
+        throw groupsError;
+      }
 
       return groups.map((group) => ({
         id: group.id,
@@ -159,7 +163,10 @@ export function TeacherGroupManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Select value={selectedTeacher || 'all'} onValueChange={setSelectedTeacher}>
+        <Select 
+          value={selectedTeacher || undefined} 
+          onValueChange={(value) => setSelectedTeacher(value === "all" ? null : value)}
+        >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select a teacher" />
           </SelectTrigger>
