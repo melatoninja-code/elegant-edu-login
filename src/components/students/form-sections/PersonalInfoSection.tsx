@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { StudentFormValues } from "../StudentForm";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 
 interface PersonalInfoSectionProps {
   form: UseFormReturn<StudentFormValues>;
@@ -73,12 +73,11 @@ export function PersonalInfoSection({ form }: PersonalInfoSectionProps) {
             <FormLabel>Date of Birth</FormLabel>
             <FormControl>
               <Input 
-                type="date" 
+                type="text" 
+                placeholder="DD/MM/YYYY"
                 {...field}
-                value={field.value ? format(new Date(field.value), "yyyy-MM-dd") : ""}
                 onChange={(e) => {
-                  const date = e.target.value;
-                  field.onChange(date);
+                  field.onChange(e.target.value);
                 }}
               />
             </FormControl>

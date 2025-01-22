@@ -13,11 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 import { PersonalInfoSection } from "./form-sections/PersonalInfoSection";
 import { ContactInfoSection } from "./form-sections/ContactInfoSection";
 import { ParentInfoSection } from "./form-sections/ParentInfoSection";
 import { AcademicInfoSection } from "./form-sections/AcademicInfoSection";
+import { format, parse } from "date-fns";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -67,7 +67,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
       email: student?.email ?? "",
       student_id: student?.student_id ?? "",
       gender: student?.gender ?? "",
-      date_of_birth: student?.date_of_birth ?? "",
+      date_of_birth: student?.date_of_birth ? format(new Date(student.date_of_birth), "dd/MM/yyyy") : "",
       address: student?.address ?? "",
       phone_number: student?.phone_number ?? "",
       grade_level: student?.grade_level ?? 1,
@@ -86,12 +86,16 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
       
       if (userError) throw userError;
 
+      // Parse the date from dd/MM/yyyy format to yyyy-MM-dd for database storage
+      const parsedDate = parse(values.date_of_birth, "dd/MM/yyyy", new Date());
+      const formattedDate = format(parsedDate, "yyyy-MM-dd");
+
       const studentData = {
         name: values.name,
         email: values.email,
         student_id: values.student_id,
         gender: values.gender,
-        date_of_birth: values.date_of_birth,
+        date_of_birth: formattedDate,
         address: values.address,
         phone_number: values.phone_number,
         grade_level: values.grade_level,
@@ -135,16 +139,8 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <DialogHeader>
           <DialogTitle>{student ? 'Edit' : 'Add New'} Student</DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-0"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
