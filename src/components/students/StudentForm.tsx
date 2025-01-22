@@ -5,8 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Student } from "@/types/student";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -33,46 +34,63 @@ const formSchema = z.object({
   status: z.enum(["active", "inactive", "graduated", "suspended"]),
 });
 
-export function StudentForm() {
+type FormValues = z.infer<typeof formSchema>;
+
+interface StudentFormProps {
+  student?: Student | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      student_id: "",
-      gender: "",
-      date_of_birth: "",
-      address: "",
-      phone_number: "",
-      grade_level: 1,
-      class_section: "",
-      status: "active",
+      name: student?.name ?? "",
+      email: student?.email ?? "",
+      student_id: student?.student_id ?? "",
+      gender: student?.gender ?? "",
+      date_of_birth: student?.date_of_birth ?? "",
+      address: student?.address ?? "",
+      phone_number: student?.phone_number ?? "",
+      grade_level: student?.grade_level ?? 1,
+      class_section: student?.class_section ?? "",
+      status: student?.status ?? "active",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true);
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError) throw userError;
 
-      const { error } = await supabase.from("students").insert({
+      const studentData = {
         ...values,
         created_by: userData.user.id,
-      });
+      };
+
+      const { error } = student
+        ? await supabase
+            .from("students")
+            .update(studentData)
+            .eq("id", student.id)
+        : await supabase
+            .from("students")
+            .insert(studentData);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Student added successfully.",
+        description: `Student ${student ? 'updated' : 'added'} successfully.`,
       });
 
-      form.reset();
+      onSuccess();
     } catch (error) {
       console.error("Error:", error);
       toast({
@@ -88,14 +106,14 @@ export function StudentForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add New Student</CardTitle>
+        <CardTitle>{student ? 'Edit' : 'Add New'} Student</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Form fields will be added here */}
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Student"}
+              {isLoading ? (student ? "Updating..." : "Adding...") : (student ? "Update" : "Add") + " Student"}
             </Button>
           </form>
         </Form>
