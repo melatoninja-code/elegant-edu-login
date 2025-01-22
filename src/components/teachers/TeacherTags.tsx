@@ -173,12 +173,16 @@ export function TeacherTags({ teacherId, isAdmin }: TeacherTagsProps) {
             <SelectTrigger className="w-[200px] bg-background border-input">
               <SelectValue placeholder="Select a tag" />
             </SelectTrigger>
-            <SelectContent className="bg-popover border border-border shadow-md z-50">
+            <SelectContent 
+              className="bg-background border border-border shadow-md z-50"
+              position="popper"
+              sideOffset={4}
+            >
               {(Object.keys(TAG_COLORS) as TeacherTag[]).map((tag) => (
                 <SelectItem 
                   key={tag} 
                   value={tag}
-                  className="hover:bg-accent focus:bg-accent"
+                  className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
                 >
                   <div className="flex items-center gap-2">
                     <Tag className="h-3 w-3" />
