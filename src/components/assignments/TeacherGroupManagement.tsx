@@ -159,12 +159,12 @@ export function TeacherGroupManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Select value={selectedTeacher || ''} onValueChange={setSelectedTeacher}>
+        <Select value={selectedTeacher || 'all'} onValueChange={setSelectedTeacher}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select a teacher" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Teachers</SelectItem>
+            <SelectItem value="all">All Teachers</SelectItem>
             {teachers?.map((teacher) => (
               <SelectItem key={teacher.id} value={teacher.id}>
                 {teacher.name}
