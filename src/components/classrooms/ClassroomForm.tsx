@@ -19,9 +19,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const classroomFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   room_number: z.string().min(1, "Room number is required"),
-  capacity: z.string().min(1, "Capacity is required").transform(Number),
+  capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
   type: z.enum(["lecture_hall", "laboratory", "standard", "computer_lab", "music_room", "art_studio", "gymnasium"]),
-  floor: z.string().min(1, "Floor is required").transform(Number),
+  floor: z.coerce.number().min(0, "Floor must be 0 or greater"),
   building: z.string().min(1, "Building is required"),
   description: z.string().optional(),
 })
@@ -35,9 +35,9 @@ export function ClassroomForm() {
     defaultValues: {
       name: "",
       room_number: "",
-      capacity: "",
+      capacity: 0,
       type: "standard",
-      floor: "",
+      floor: 1,
       building: "Main Building",
       description: "",
     },
@@ -52,9 +52,9 @@ export function ClassroomForm() {
       const { error } = await supabase.from("classrooms").insert({
         name: values.name,
         room_number: values.room_number,
-        capacity: Number(values.capacity),
+        capacity: values.capacity,
         type: values.type,
-        floor: Number(values.floor),
+        floor: values.floor,
         building: values.building,
         description: values.description || null,
         created_by: userData.user.id,
@@ -114,7 +114,12 @@ export function ClassroomForm() {
             <FormItem>
               <FormLabel>Capacity</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Enter capacity" {...field} />
+                <Input 
+                  type="number" 
+                  placeholder="Enter capacity" 
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -153,7 +158,12 @@ export function ClassroomForm() {
             <FormItem>
               <FormLabel>Floor</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Enter floor number" {...field} />
+                <Input 
+                  type="number" 
+                  placeholder="Enter floor number" 
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

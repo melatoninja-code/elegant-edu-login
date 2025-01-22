@@ -4,15 +4,33 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ClassroomForm } from "@/components/classrooms/ClassroomForm"
 import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 
 export default function Classrooms() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const { toast } = useToast()
 
-  const { data: classrooms, isLoading } = useQuery({
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+      
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+      
+      return profile
+    },
+  })
+
+  const { data: classrooms, isLoading, refetch } = useQuery({
     queryKey: ["classrooms"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,6 +43,31 @@ export default function Classrooms() {
     },
   })
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("classrooms")
+        .delete()
+        .eq("id", id)
+
+      if (error) throw error
+
+      toast({
+        title: "Classroom deleted",
+        description: "The classroom has been deleted successfully.",
+      })
+      refetch()
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete classroom. Please try again.",
+      })
+    }
+  }
+
+  const isAdmin = userProfile?.role === "admin"
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -35,10 +78,12 @@ export default function Classrooms() {
               <SidebarTrigger />
               <h1 className="text-2xl font-bold">Classrooms</h1>
             </div>
-            <Button onClick={() => setShowCreateDialog(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Classroom
-            </Button>
+            {isAdmin && (
+              <Button onClick={() => setShowCreateDialog(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                New Classroom
+              </Button>
+            )}
           </div>
           <div className="container mx-auto py-6 px-4 md:px-6">
             {isLoading ? (
@@ -47,8 +92,17 @@ export default function Classrooms() {
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {classrooms?.map((classroom) => (
                   <Card key={classroom.id}>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle>{classroom.name}</CardTitle>
+                      {isAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(classroom.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
