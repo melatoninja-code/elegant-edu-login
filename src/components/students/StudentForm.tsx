@@ -96,6 +96,21 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
       const studentData = {
         ...values,
         created_by: userData.user.id,
+        // Ensure all required fields are included
+        name: values.name,
+        student_id: values.student_id,
+        gender: values.gender,
+        date_of_birth: values.date_of_birth,
+        address: values.address,
+        grade_level: values.grade_level,
+        status: values.status,
+        // Optional fields
+        email: values.email || null,
+        phone_number: values.phone_number || null,
+        class_section: values.class_section || null,
+        dorm_room: values.dorm_room || null,
+        parent_name: values.parent_name || null,
+        parent_phone: values.parent_phone || null,
       };
 
       const { error } = student

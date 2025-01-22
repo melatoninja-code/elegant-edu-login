@@ -11,6 +11,9 @@ export type Student = {
   status: 'active' | 'inactive' | 'graduated' | 'suspended';
   grade_level: number;
   class_section: string | null;
+  dorm_room: string | null;
+  parent_name: string | null;
+  parent_phone: string | null;
   created_at: string;
   updated_at: string;
 };
