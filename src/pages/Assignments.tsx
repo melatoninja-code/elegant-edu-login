@@ -1,6 +1,7 @@
-import { useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { TeacherAssignmentGrid } from "@/components/assignments/TeacherAssignmentGrid";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssignmentForm } from "@/components/assignments/AssignmentForm";
 
 export default function Assignments() {
@@ -11,10 +12,21 @@ export default function Assignments() {
         <main className="flex-1 overflow-y-auto">
           <div className="flex items-center gap-4 p-6 border-b">
             <SidebarTrigger />
-            <h1 className="text-2xl font-bold">Assign Students to Teachers</h1>
+            <h1 className="text-2xl font-bold">Teacher Assignments</h1>
           </div>
           <div className="container mx-auto py-6 px-4 md:px-6">
-            <AssignmentForm />
+            <Tabs defaultValue="grid" className="space-y-6">
+              <TabsList>
+                <TabsTrigger value="grid">Grid View</TabsTrigger>
+                <TabsTrigger value="form">Batch Assign</TabsTrigger>
+              </TabsList>
+              <TabsContent value="grid">
+                <TeacherAssignmentGrid />
+              </TabsContent>
+              <TabsContent value="form">
+                <AssignmentForm />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
