@@ -15,6 +15,7 @@ import {
   Heart,
   AlertCircle
 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface StudentDetailsDialogProps {
   student: Student | null;
@@ -46,12 +47,17 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
           <DialogTitle className="text-2xl font-bold">Student Profile</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto space-y-6 py-4 px-1">
-          {/* Personal Information Section */}
           <div className="space-y-4">
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
-                <UserRound className="h-6 w-6 text-primary" />
-              </div>
+              <Avatar className="h-16 w-16">
+                <AvatarImage
+                  src={student.profile_picture_url || ''}
+                  alt={student.name}
+                />
+                <AvatarFallback>
+                  {student.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <div className="space-y-1">
                 <h2 className="text-2xl font-semibold">{student.name}</h2>
                 <div className="flex flex-wrap items-center gap-2">

@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Student } from "@/types/student";
 import {
   Dialog,
@@ -18,6 +18,8 @@ import { ContactInfoSection } from "./form-sections/ContactInfoSection";
 import { ParentInfoSection } from "./form-sections/ParentInfoSection";
 import { AcademicInfoSection } from "./form-sections/AcademicInfoSection";
 import { format, parse } from "date-fns";
+import { Camera } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -49,6 +51,7 @@ const formSchema = z.object({
   emergency_contact_1_phone: z.string().optional().nullable(),
   emergency_contact_2_name: z.string().optional().nullable(),
   emergency_contact_2_phone: z.string().optional().nullable(),
+  profile_picture_url: z.string().optional().nullable(),
 });
 
 export type StudentFormValues = z.infer<typeof formSchema>;
@@ -63,6 +66,8 @@ interface StudentFormProps {
 export function StudentForm({ student, onClose, onSuccess, open }: StudentFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(formSchema),
@@ -84,6 +89,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
       emergency_contact_1_phone: "",
       emergency_contact_2_name: "",
       emergency_contact_2_phone: "",
+      profile_picture_url: "",
     },
   });
 
@@ -108,6 +114,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
         emergency_contact_1_phone: student.emergency_contact_1_phone || "",
         emergency_contact_2_name: student.emergency_contact_2_name || "",
         emergency_contact_2_phone: student.emergency_contact_2_phone || "",
+        profile_picture_url: student.profile_picture_url || "",
       });
     } else {
       form.reset({
@@ -128,6 +135,7 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
         emergency_contact_1_phone: "",
         emergency_contact_2_name: "",
         emergency_contact_2_phone: "",
+        profile_picture_url: "",
       });
     }
   }, [student, form]);
@@ -198,6 +206,41 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
     }
   }
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !student?.id) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('studentId', student.id);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('upload-student-photo', {
+        body: formData,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
+      });
+
+      // Update the form with the new URL
+      form.setValue('profile_picture_url', data.url);
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -206,6 +249,38 @@ export function StudentForm({ student, onClose, onSuccess, open }: StudentFormPr
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {student && (
+              <div className="flex flex-col items-center gap-4">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage
+                    src={form.watch('profile_picture_url') || ''}
+                    alt={form.watch('name')}
+                  />
+                  <AvatarFallback>
+                    {form.watch('name')?.charAt(0)?.toUpperCase() || 'S'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    {isUploading ? "Uploading..." : "Change Photo"}
+                  </Button>
+                </div>
+              </div>
+            )}
             <PersonalInfoSection form={form} />
             <ContactInfoSection form={form} />
             <ParentInfoSection form={form} />

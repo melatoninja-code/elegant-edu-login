@@ -165,6 +165,7 @@ export type Database = {
           parent_name: string | null
           parent_phone: string | null
           phone_number: string | null
+          profile_picture_url: string | null
           status: Database["public"]["Enums"]["student_status"]
           student_id: string
           updated_at: string
@@ -189,6 +190,7 @@ export type Database = {
           parent_name?: string | null
           parent_phone?: string | null
           phone_number?: string | null
+          profile_picture_url?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           student_id: string
           updated_at?: string
@@ -213,6 +215,7 @@ export type Database = {
           parent_name?: string | null
           parent_phone?: string | null
           phone_number?: string | null
+          profile_picture_url?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           student_id?: string
           updated_at?: string
