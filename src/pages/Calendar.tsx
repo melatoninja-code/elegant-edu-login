@@ -58,7 +58,7 @@ export default function CalendarPage() {
               </CardHeader>
               <CardContent className={cn(
                 "pt-4",
-                isMobile ? "px-2" : "pt-6 px-4"
+                isMobile ? "px-2" : "px-6 py-6"
               )}>
                 <div key={key} className="flex justify-center">
                   <Calendar
@@ -66,26 +66,26 @@ export default function CalendarPage() {
                     selected={date}
                     onSelect={handleDateChange}
                     className={cn(
-                      "rounded-md border",
-                      isMobile ? "transform-none" : "scale-110 transform origin-top"
+                      "rounded-md border w-full max-w-[400px]",
+                      isMobile ? "transform-none" : "transform origin-top"
                     )}
                     classNames={{
                       months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                      month: "space-y-4",
+                      month: "space-y-4 w-full",
                       caption: "flex justify-center pt-1 relative items-center",
                       caption_label: "text-sm font-medium text-primary-dark",
                       nav: "space-x-1 flex items-center",
                       nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-opacity",
                       table: "w-full border-collapse space-y-1",
-                      head_row: "flex",
-                      head_cell: "text-neutral-600 w-10 md:w-12 font-normal text-[0.8rem]",
-                      row: "flex w-full mt-2",
+                      head_row: "flex justify-between w-full",
+                      head_cell: "text-neutral-600 w-9 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2 justify-between",
                       cell: cn(
                         "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary-lighter",
                         "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
                       ),
                       day: cn(
-                        "h-10 w-10 md:h-12 md:w-12 p-0 font-normal hover:bg-primary-light rounded-full transition-colors relative",
+                        "h-9 w-9 p-0 font-normal hover:bg-primary-light rounded-full transition-colors relative",
                         "aria-selected:opacity-100"
                       ),
                       day_selected: "bg-primary text-primary-foreground hover:bg-primary-dark hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full transition-colors",
