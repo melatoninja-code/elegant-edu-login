@@ -10,6 +10,7 @@ import Index from './pages/Index';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Teachers from './pages/Teachers';
+import Students from './pages/Students';
 import Classrooms from './pages/Classrooms';
 import Calendar from './pages/Calendar';
 import Bookings from './pages/Bookings';
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
   {
     path: "/teachers",
     element: <Teachers />,
+  },
+  {
+    path: "/students",
+    element: <Students />,
   },
   {
     path: "/classrooms",
