@@ -43,7 +43,7 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
         .from("teachers")
         .select("id")
         .eq("auth_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (teacherError) {
         console.error("Teacher fetch error:", teacherError);
@@ -51,7 +51,7 @@ export function TeacherGroupForm({ onSuccess }: TeacherGroupFormProps) {
       }
 
       if (!teacherData) {
-        throw new Error("No teacher record found for your account");
+        throw new Error("No teacher record found for your account. Please contact an administrator.");
       }
 
       // Create the group
