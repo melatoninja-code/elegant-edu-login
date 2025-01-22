@@ -3,22 +3,12 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Student } from "@/types/student";
-import { Upload, Download, File, Loader2 } from "lucide-react";
-import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { File, Download, Upload, Loader2 } from "lucide-react";
+import { StudentDocument } from "@/types/student-document";
 
 interface StudentDocumentsProps {
   student: Student;
-}
-
-interface StudentDocument {
-  id: string;
-  filename: string;
-  file_type: string;
-  file_size: number;
-  uploaded_at: string;
-  description: string | null;
-  file_path: string;
 }
 
 export function StudentDocuments({ student }: StudentDocumentsProps) {
@@ -32,12 +22,11 @@ export function StudentDocuments({ student }: StudentDocumentsProps) {
       const { data, error } = await supabase
         .from('student_documents')
         .select('*')
-        .eq('student_id', student.id)
-        .order('uploaded_at', { ascending: false });
+        .eq('student_id', student.id);
 
       if (error) throw error;
       return data as StudentDocument[];
-    }
+    },
   });
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,14 +73,13 @@ export function StudentDocuments({ student }: StudentDocumentsProps) {
       if (error) throw error;
 
       // Create a download link
-      const url = URL.createObjectURL(data);
-      const link = document.createElement('a');
-      link.href = url;
+      const link = window.document.createElement('a');
+      link.href = URL.createObjectURL(data);
       link.download = document.filename;
-      document.body.appendChild(link);
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      window.document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error('Download error:', error);
       toast({
@@ -102,42 +90,11 @@ export function StudentDocuments({ student }: StudentDocumentsProps) {
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   return (
     <div className="grid gap-4 p-4 rounded-lg bg-neutral-light">
-      <div className="flex items-center justify-between gap-2 text-primary">
-        <div className="flex items-center gap-2">
-          <File className="h-5 w-5 shrink-0" />
-          <span className="font-semibold">Documents</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-          >
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4 mr-2" />
-            )}
-            Upload Document
-          </Button>
-        </div>
+      <div className="flex items-center gap-2 text-primary">
+        <File className="h-5 w-5 shrink-0" />
+        <span className="font-semibold">Documents</span>
       </div>
 
       <div className="space-y-2">
@@ -172,6 +129,34 @@ export function StudentDocuments({ student }: StudentDocumentsProps) {
           ))
         )}
       </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleFileUpload}
+          disabled={isUploading}
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="h-10"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          {isUploading ? "Uploading..." : "Upload Document"}
+        </Button>
+      </div>
     </div>
   );
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
