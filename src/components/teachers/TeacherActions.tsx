@@ -20,7 +20,6 @@ import {
 interface TeacherActionsProps {
   onEdit: () => void;
   onDelete: () => void;
-  onAccountCreated?: (email: string, password: string) => void;
   teacher: {
     id: string;
     email?: string;
@@ -30,7 +29,7 @@ interface TeacherActionsProps {
   isAdmin: boolean;
 }
 
-export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, isAdmin }: TeacherActionsProps) {
+export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherActionsProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
@@ -86,7 +85,7 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
       const { error: updateError } = await supabase
         .from("teachers")
         .update({ 
-          auth_id: authData.user.id, 
+          auth_id: authData.user.id,
           email,
           account_email: email,
           account_password: password
@@ -100,10 +99,6 @@ export function TeacherActions({ onEdit, onDelete, onAccountCreated, teacher, is
         access_token: adminSession.access_token,
         refresh_token: adminSession.refresh_token,
       });
-
-      if (onAccountCreated) {
-        onAccountCreated(email, password);
-      }
       
       setIsDialogOpen(false);
       setIsSuccessDialogOpen(true);
