@@ -14,6 +14,8 @@ export type Student = {
   dorm_room: string | null;
   parent_name: string | null;
   parent_phone: string | null;
+  emergency_contact_1_phone: string | null;
+  emergency_contact_2_phone: string | null;
   created_at: string;
   updated_at: string;
 };

@@ -153,6 +153,8 @@ export type Database = {
           date_of_birth: string
           dorm_room: string | null
           email: string | null
+          emergency_contact_1_phone: string | null
+          emergency_contact_2_phone: string | null
           enrollment_date: string
           gender: string
           grade_level: number
@@ -173,6 +175,8 @@ export type Database = {
           date_of_birth: string
           dorm_room?: string | null
           email?: string | null
+          emergency_contact_1_phone?: string | null
+          emergency_contact_2_phone?: string | null
           enrollment_date?: string
           gender: string
           grade_level: number
@@ -193,6 +197,8 @@ export type Database = {
           date_of_birth?: string
           dorm_room?: string | null
           email?: string | null
+          emergency_contact_1_phone?: string | null
+          emergency_contact_2_phone?: string | null
           enrollment_date?: string
           gender?: string
           grade_level?: number

@@ -67,6 +67,37 @@ export function ContactInfoSection({ form }: ContactInfoSectionProps) {
           </FormItem>
         )}
       />
+
+      <div className="space-y-4 pt-4 border-t">
+        <h3 className="font-medium">Emergency Contacts</h3>
+        <FormField
+          control={form.control}
+          name="emergency_contact_1_phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Emergency Contact 1 Phone (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="+1234567890" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="emergency_contact_2_phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Emergency Contact 2 Phone (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="+1234567890" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 }
