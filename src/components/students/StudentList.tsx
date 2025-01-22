@@ -138,7 +138,10 @@ export function StudentList() {
     <Card className="animate-fadeIn shadow-lg border-primary/20">
       <StudentListHeader
         isAdmin={isAdmin}
-        onAddStudent={() => setIsFormOpen(true)}
+        onAddStudent={() => {
+          setEditingStudent(null);
+          setIsFormOpen(true);
+        }}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
