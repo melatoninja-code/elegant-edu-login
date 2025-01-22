@@ -57,11 +57,15 @@ export function AssignmentForm() {
     }
 
     try {
+      // Get the user ID first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user");
+
       const { error } = await supabase.from("teacher_student_assignments").insert(
         selectedStudents.map((studentId) => ({
           teacher_id: selectedTeacher,
           student_id: studentId,
-          created_by: (await supabase.auth.getUser()).data.user?.id,
+          created_by: user.id,
         }))
       );
 
