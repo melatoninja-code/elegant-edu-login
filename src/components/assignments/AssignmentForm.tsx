@@ -41,23 +41,25 @@ export function AssignmentForm() {
   const { data: studentsData, isLoading: isLoadingStudents } = useQuery({
     queryKey: ["students", currentPage, searchQuery],
     queryFn: async () => {
-      let query = supabase
+      let baseQuery = supabase
         .from("students")
-        .select("*", { count: "exact" })
+        .select("*", { count: "exact", head: true })
         .eq("status", "active");
 
       // Apply search filter if query exists
       if (searchQuery) {
-        query = query.ilike("name", `%${searchQuery}%`);
+        baseQuery = baseQuery.ilike("name", `%${searchQuery}%`);
       }
 
       // Get total count first
-      const { count } = await query;
+      const { count } = await baseQuery;
       const totalCount = count || 0;
 
-      // Then get paginated data
-      const { data, error } = await query
+      // Then get paginated data with a separate query
+      const { data, error } = await supabase
+        .from("students")
         .select("id, name")
+        .eq("status", "active")
         .order("name")
         .range(
           currentPage * STUDENTS_PER_PAGE,
