@@ -12,6 +12,8 @@ import { Student } from "@/types/student";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import { StudentDetailsDialog } from "./StudentDetailsDialog";
 
 interface StudentTableProps {
   students: Student[];
@@ -34,6 +36,8 @@ export function StudentTable({
   totalPages,
   onPageChange,
 }: StudentTableProps) {
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
   const getStatusColor = (status: Student["status"]) => {
     switch (status) {
       case "active":
@@ -61,27 +65,51 @@ export function StudentTable({
     );
   }
 
+  if (!students?.length) {
+    return (
+      <div className="text-center py-8 text-muted-foreground animate-fadeIn">
+        No students found.
+        {isAdmin && " Add one to get started."}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border">
+    <>
+      <div className="overflow-x-auto rounded-md border border-primary/20">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Student ID</TableHead>
-              <TableHead>Grade</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Enrollment Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-primary/5 hover:bg-primary/10">
+              <TableHead className="w-[200px] font-semibold">Name</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Student ID</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Grade</TableHead>
+              <TableHead className="hidden lg:table-cell font-semibold">Status</TableHead>
+              <TableHead className="hidden lg:table-cell font-semibold">Phone</TableHead>
+              {isAdmin && <TableHead className="w-[100px]">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell className="font-medium">{student.name}</TableCell>
-                <TableCell>{student.student_id}</TableCell>
-                <TableCell>Grade {student.grade_level}</TableCell>
+            {students.map((student, index) => (
+              <TableRow 
+                key={student.id}
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <TableCell>
+                  <button
+                    onClick={() => setSelectedStudent(student)}
+                    className="font-medium text-left hover:text-primary transition-colors"
+                  >
+                    {student.name}
+                  </button>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {student.student_id}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  Grade {student.grade_level}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
                   <Badge
                     variant="secondary"
                     className={`capitalize ${getStatusColor(student.status)}`}
@@ -89,20 +117,20 @@ export function StudentTable({
                     {student.status}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  {format(new Date(student.enrollment_date), "MMM d, yyyy")}
+                <TableCell className="hidden lg:table-cell">
+                  {student.phone_number || "-"}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => onEditStudent(student)}
-                      className="h-8 w-8 min-w-8 border-primary/20 hover:bg-primary/5"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    {isAdmin && (
+                {isAdmin && (
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => onEditStudent(student)}
+                        className="h-8 w-8 min-w-8 border-primary/20 hover:bg-primary/5"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="icon"
@@ -111,17 +139,16 @@ export function StudentTable({
                       >
                         <Trash className="h-4 w-4" />
                       </Button>
-                    )}
-                  </div>
-                </TableCell>
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 mt-4">
         <Button
           variant="outline"
           onClick={() => onPageChange(currentPage - 1)}
@@ -140,6 +167,11 @@ export function StudentTable({
           Next
         </Button>
       </div>
-    </div>
+
+      <StudentDetailsDialog
+        student={selectedStudent}
+        onClose={() => setSelectedStudent(null)}
+      />
+    </>
   );
 }
