@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 interface Booking {
   id: string;
