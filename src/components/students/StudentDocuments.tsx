@@ -6,6 +6,7 @@ import { Student } from "@/types/student";
 import { useQuery } from "@tanstack/react-query";
 import { File, Download, Upload, Loader2 } from "lucide-react";
 import { StudentDocument } from "@/types/student-document";
+import { format } from "date-fns";
 
 interface StudentDocumentsProps {
   student: Student;
