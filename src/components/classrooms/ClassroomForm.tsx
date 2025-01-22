@@ -52,9 +52,9 @@ export function ClassroomForm() {
       const { error } = await supabase.from("classrooms").insert({
         name: values.name,
         room_number: values.room_number,
-        capacity: values.capacity,
+        capacity: Number(values.capacity),
         type: values.type,
-        floor: values.floor,
+        floor: Number(values.floor),
         building: values.building,
         description: values.description || null,
         created_by: userData.user.id,
