@@ -36,6 +36,19 @@ export function TeacherGroupForm() {
     },
   });
 
+  // Check if group name exists for selected teacher
+  const checkGroupNameExists = async (teacherId: string, name: string) => {
+    const { data, error } = await supabase
+      .from("teacher_groups")
+      .select("id")
+      .eq("teacher_id", teacherId)
+      .ilike("name", name)
+      .maybeSingle();
+
+    if (error) throw error;
+    return !!data;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -51,6 +64,17 @@ export function TeacherGroupForm() {
     setIsSubmitting(true);
 
     try {
+      // Check if group name already exists for this teacher
+      const exists = await checkGroupNameExists(selectedTeacher, groupName);
+      if (exists) {
+        toast({
+          title: "Error",
+          description: "A group with this name already exists for this teacher",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
@@ -61,12 +85,7 @@ export function TeacherGroupForm() {
         created_by: user.id,
       });
 
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error("A group with this name already exists for this teacher");
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
