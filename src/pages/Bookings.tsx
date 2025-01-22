@@ -28,32 +28,51 @@ export default function Bookings() {
   // Fetch user role and teacher ID on component mount
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          setUserRole(profile.role);
-        }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
+          
+          if (profile) {
+            setUserRole(profile.role);
+          }
 
-        const { data: teacher } = await supabase
-          .from('teachers')
-          .select('id')
-          .eq('auth_id', user.id)
-          .single();
-        
-        if (teacher) {
-          setTeacherId(teacher.id);
+          const { data: teacher, error: teacherError } = await supabase
+            .from('teachers')
+            .select('id')
+            .eq('auth_id', user.id)
+            .maybeSingle();
+          
+          if (teacherError) {
+            console.error('Error fetching teacher:', teacherError);
+            toast({
+              variant: "destructive",
+              title: "Error fetching teacher data",
+              description: "Please try again later or contact support if the problem persists.",
+            });
+            return;
+          }
+          
+          if (teacher) {
+            setTeacherId(teacher.id);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching user data",
+          description: "Please try again later or contact support if the problem persists.",
+        });
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [toast]);
 
   // Fetch bookings
   const { data: bookings, isLoading } = useQuery({
@@ -91,6 +110,23 @@ export default function Bookings() {
 
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  // Show message if user is a teacher but no teacher record is found
+  if (userRole === 'user' && !teacherId) {
+    return (
+      <div className="flex h-screen bg-background">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <div className="p-6">
+            <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+              <h2 className="text-lg font-semibold text-destructive">Access Restricted</h2>
+              <p className="mt-2">You need to be registered as a teacher to access the booking system. Please contact an administrator.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
