@@ -70,6 +70,11 @@ export default function CalendarPage() {
                     selected={date}
                     onSelect={handleDateChange}
                     locale={{
+                      code: 'en-GB',
+                      formatDistance: (token, count, options) => {
+                        return `${count} ${token}${count !== 1 ? 's' : ''}`
+                      },
+                      formatRelative: (token) => token,
                       localize: {
                         day: (n) => ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][n],
                         month: (n) => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][n],
@@ -82,6 +87,32 @@ export default function CalendarPage() {
                         date: () => 'dd/MM/yyyy',
                         time: () => 'HH:mm',
                         dateTime: () => 'dd/MM/yyyy HH:mm'
+                      },
+                      match: {
+                        ordinalNumber: () => ({
+                          value: 0,
+                          rest: ''
+                        }),
+                        era: () => ({
+                          value: 0,
+                          rest: ''
+                        }),
+                        quarter: () => ({
+                          value: 1,
+                          rest: ''
+                        }),
+                        month: () => ({
+                          value: 0,
+                          rest: ''
+                        }),
+                        day: () => ({
+                          value: 0,
+                          rest: ''
+                        }),
+                        dayPeriod: () => ({
+                          value: 'am',
+                          rest: ''
+                        })
                       }
                     }}
                     className={cn(
