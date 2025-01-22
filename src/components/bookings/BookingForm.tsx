@@ -8,6 +8,7 @@ import { Calendar } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { format, isAfter, isBefore, addMinutes } from "date-fns";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -102,7 +103,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
       await onSubmit(values);
       toast({
         title: "Success",
-        description: "Booking created successfully.",
+        description: "Your booking request has been submitted for approval.",
       });
     } catch (error) {
       console.error('Error creating booking:', error);
