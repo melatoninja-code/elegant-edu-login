@@ -240,54 +240,59 @@ export default function Bookings() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between p-6">
-          <h1 className="text-2xl font-semibold">Room Bookings</h1>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            <Calendar className="mr-2 h-4 w-4" />
-            New Booking
-          </Button>
-        </div>
-        <div className="p-6">
-          {bookings?.length === 0 ? (
-            <p>No bookings found.</p>
-          ) : (
-            <div className="grid gap-4">
-              {bookings?.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="p-4 border rounded-lg shadow-sm"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium">
-                        {booking.classroom.name} ({booking.classroom.room_number})
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDateTime(booking.start_time)} - {formatDateTime(booking.end_time)}
-                      </p>
-                      <p className="mt-2">{booking.purpose}</p>
-                    </div>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        booking.status === "approved"
-                          ? "bg-green-100 text-green-800"
-                          : booking.status === "rejected"
-                          ? "bg-red-100 text-red-800"
-                          : booking.status === "cancelled"
-                          ? "bg-gray-100 text-gray-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
+    <SidebarProvider>
+      <div className="flex h-screen bg-background">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <h1 className="text-2xl font-bold">Room Bookings</h1>
             </div>
-          )}
+            <Button onClick={() => setIsDialogOpen(true)}>
+              <Calendar className="mr-2 h-4 w-4" />
+              New Booking
+            </Button>
+          </div>
+          <div className="p-6">
+            {bookings?.length === 0 ? (
+              <p>No bookings found.</p>
+            ) : (
+              <div className="grid gap-4">
+                {bookings?.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="p-4 border rounded-lg shadow-sm"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">
+                          {booking.classroom.name} ({booking.classroom.room_number})
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDateTime(booking.start_time)} - {formatDateTime(booking.end_time)}
+                        </p>
+                        <p className="mt-2">{booking.purpose}</p>
+                      </div>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          booking.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : booking.status === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : booking.status === "cancelled"
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {booking.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -531,6 +536,6 @@ export default function Bookings() {
           </Form>
         </DialogContent>
       </Dialog>
-    </div>
+    </SidebarProvider>
   );
 }
