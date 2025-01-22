@@ -8,6 +8,10 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -28,7 +32,13 @@ interface Booking {
 
 const bookingFormSchema = z.object({
   classroom_id: z.string().min(1, "Please select a classroom"),
+  start_date: z.date({
+    required_error: "Please select a start date",
+  }),
   start_time: z.string().min(1, "Please select a start time"),
+  end_date: z.date({
+    required_error: "Please select an end date",
+  }),
   end_time: z.string().min(1, "Please select an end time"),
   purpose: z.string().min(1, "Please provide a purpose for the booking"),
 });
@@ -45,7 +55,9 @@ export default function Bookings() {
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       classroom_id: "",
+      start_date: undefined,
       start_time: "",
+      end_date: undefined,
       end_time: "",
       purpose: "",
     },
@@ -161,29 +173,30 @@ export default function Bookings() {
   });
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+    return format(new Date(dateString), "dd/MM/yyyy HH:mm");
   };
 
   const onSubmit = async (values: z.infer<typeof bookingFormSchema>) => {
     if (!teacherId || !userId) return;
+
+    const startDateTime = new Date(values.start_date);
+    const [startHours, startMinutes] = values.start_time.split(':');
+    startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+
+    const endDateTime = new Date(values.end_date);
+    const [endHours, endMinutes] = values.end_time.split(':');
+    endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
 
     const { error } = await supabase
       .from('room_bookings')
       .insert({
         classroom_id: values.classroom_id,
         teacher_id: teacherId,
-        start_time: values.start_time,
-        end_time: values.end_time,
+        start_time: startDateTime.toISOString(),
+        end_time: endDateTime.toISOString(),
         purpose: values.purpose,
         status: 'pending',
-        created_by: userId // Add the created_by field with the current user's ID
+        created_by: userId
       });
 
     if (error) {
@@ -307,32 +320,118 @@ export default function Bookings() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="start_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Start Time</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="end_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>End Time</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="start_date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Start Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date()
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="start_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Time</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="end_date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>End Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < form.getValues("start_date")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="end_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Time</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name="purpose"
