@@ -46,17 +46,17 @@ export default function CalendarPage() {
     <div className="flex h-screen bg-neutral-light/50">
       <AppSidebar />
       <main className="flex-1 overflow-auto p-4 md:p-8">
-        <div className="container mx-auto max-w-7xl">
-          <h1 className="mb-6 text-2xl font-bold tracking-tight md:text-3xl">
+        <div className="container mx-auto max-w-4xl">
+          <h1 className="mb-8 text-2xl font-bold tracking-tight text-primary-dark md:text-3xl">
             Calendar
           </h1>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-            <Card className="h-fit bg-white shadow-md">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg md:text-xl">Select a Date</CardTitle>
+          <div className="space-y-8">
+            <Card className="bg-white shadow-md">
+              <CardHeader className="pb-3 border-b">
+                <CardTitle className="text-lg text-primary md:text-xl">Select a Date</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div key={key} className="flex justify-center">
                   <Calendar
                     mode="single"
@@ -67,9 +67,9 @@ export default function CalendarPage() {
                       months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                       month: "space-y-4",
                       caption: "flex justify-center pt-1 relative items-center",
-                      caption_label: "text-sm font-medium",
+                      caption_label: "text-sm font-medium text-primary-dark",
                       nav: "space-x-1 flex items-center",
-                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-opacity",
                       table: "w-full border-collapse space-y-1",
                       head_row: "flex",
                       head_cell: "text-neutral-600 w-12 font-normal text-[0.8rem]",
@@ -105,49 +105,41 @@ export default function CalendarPage() {
             </Card>
 
             {/* Date Information Display */}
-            <Card className="h-fit bg-white shadow-md">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg md:text-xl">Date Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {date ? (
-                  <div className="space-y-6">
-                    <div className="rounded-lg bg-primary-lighter p-4">
-                      <p className="text-base font-medium text-primary-dark md:text-lg">
-                        {format(date, 'PPPP')}
+            {date && (
+              <Card className="bg-white shadow-md overflow-hidden">
+                <CardHeader className="pb-3 border-b bg-primary-lighter">
+                  <CardTitle className="text-lg text-primary-dark md:text-xl">
+                    {format(date, 'PPPP')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  <div className="space-y-4">
+                    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+                      <h3 className="mb-2 font-medium text-primary">Schedule</h3>
+                      {hasEvent(date) ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="w-2 h-2 bg-primary rounded-full" />
+                            <p className="font-medium text-primary-dark">{getEventDetails(date)?.title}</p>
+                          </div>
+                          <p className="text-sm text-neutral pl-4">Type: {getEventDetails(date)?.type}</p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-neutral">
+                          No events scheduled for this date.
+                        </p>
+                      )}
+                    </div>
+                    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+                      <h3 className="mb-2 font-medium text-primary">Notes</h3>
+                      <p className="text-sm text-neutral">
+                        Click on a date to view or add notes.
                       </p>
                     </div>
-                    <div className="space-y-4">
-                      <div className="rounded-lg border border-neutral-200 bg-white p-4">
-                        <h3 className="mb-2 font-medium text-primary">Schedule</h3>
-                        {hasEvent(date) ? (
-                          <div className="text-sm text-neutral-600 md:text-base">
-                            <p className="font-medium">{getEventDetails(date)?.title}</p>
-                            <p className="text-neutral">Type: {getEventDetails(date)?.type}</p>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-neutral-600 md:text-base">
-                            No events scheduled for this date.
-                          </p>
-                        )}
-                      </div>
-                      <div className="rounded-lg border border-neutral-200 bg-white p-4">
-                        <h3 className="mb-2 font-medium text-primary">Notes</h3>
-                        <p className="text-sm text-neutral-600 md:text-base">
-                          Click on a date to view or add notes.
-                        </p>
-                      </div>
-                    </div>
                   </div>
-                ) : (
-                  <div className="rounded-lg border border-neutral-200 bg-white p-4">
-                    <p className="text-sm text-neutral-600 md:text-base">
-                      Please select a date to view information.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
