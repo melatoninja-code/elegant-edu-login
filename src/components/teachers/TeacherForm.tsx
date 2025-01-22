@@ -4,14 +4,18 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { X } from "lucide-react";
 import { TeacherProfilePicture } from "./TeacherProfilePicture";
 import { TeacherPersonalInfoFields } from "./TeacherPersonalInfoFields";
 import { TeacherContactInfoFields } from "./TeacherContactInfoFields";
 import { FormValues } from "./types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -37,9 +41,10 @@ interface TeacherFormProps {
   } | null;
   onClose: () => void;
   onSuccess: () => void;
+  open: boolean;
 }
 
-export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
+export function TeacherForm({ teacher, onClose, onSuccess, open }: TeacherFormProps) {
   const { toast } = useToast();
   const [userId, setUserId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -126,21 +131,11 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
   };
 
   return (
-    <Card className="w-full animate-fadeIn bg-white shadow-lg border-primary/20">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-2xl font-semibold text-primary-dark">
-          {teacher ? "Edit Teacher" : "Add Teacher"}
-        </CardTitle>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
-          onClick={onClose}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </CardHeader>
-      <CardContent className="pt-6">
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{teacher ? "Edit Teacher" : "Add Teacher"}</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <TeacherProfilePicture
@@ -176,7 +171,7 @@ export function TeacherForm({ teacher, onClose, onSuccess }: TeacherFormProps) {
             </div>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
