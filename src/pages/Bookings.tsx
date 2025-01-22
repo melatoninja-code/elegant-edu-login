@@ -130,11 +130,11 @@ export default function Bookings() {
   });
 
   const handleSubmit = async (values: BookingFormValues) => {
-    if (!teacherId || !userId) {
+    if (!userId) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "You must be logged in as a teacher to create bookings.",
+        description: "You must be logged in to create bookings.",
       });
       return;
     }
@@ -142,9 +142,8 @@ export default function Bookings() {
     try {
       console.log('Creating booking with values:', {
         ...values,
-        teacher_id: teacherId,
         created_by: userId
-      }); // Debug log
+      });
 
       const startDateTime = new Date(values.start_date);
       const [startHours, startMinutes] = values.start_time.split(':');
@@ -158,7 +157,7 @@ export default function Bookings() {
         .from('room_bookings')
         .insert({
           classroom_id: values.classroom_id,
-          teacher_id: teacherId,
+          teacher_id: values.teacher_id,
           start_time: startDateTime.toISOString(),
           end_time: endDateTime.toISOString(),
           purpose: values.purpose,
@@ -167,7 +166,7 @@ export default function Bookings() {
         });
 
       if (error) {
-        console.error('Error creating booking:', error); // Debug log
+        console.error('Error creating booking:', error);
         throw error;
       }
 
@@ -176,11 +175,10 @@ export default function Bookings() {
         description: "Your booking request has been submitted for approval.",
       });
 
-      // Invalidate and refetch bookings
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       setIsDialogOpen(false);
     } catch (error: any) {
-      console.error('Booking creation error:', error); // Debug log
+      console.error('Booking creation error:', error);
       toast({
         variant: "destructive",
         title: "Error creating booking",
@@ -235,7 +233,12 @@ export default function Bookings() {
           <DialogHeader>
             <DialogTitle>Create New Booking</DialogTitle>
           </DialogHeader>
-          <BookingForm classrooms={classrooms} onSubmit={handleSubmit} />
+          <BookingForm 
+            classrooms={classrooms} 
+            onSubmit={handleSubmit}
+            isAdmin={userRole === 'admin'}
+            defaultTeacherId={teacherId || undefined}
+          />
         </DialogContent>
       </Dialog>
     </SidebarProvider>

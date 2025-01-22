@@ -14,6 +14,7 @@ export interface Booking {
 
 export interface BookingFormValues {
   classroom_id: string;
+  teacher_id: string;
   start_date: Date;
   start_time: string;
   end_date: Date;

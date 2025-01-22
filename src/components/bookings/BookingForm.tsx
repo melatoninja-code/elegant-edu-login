@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils";
 import { format, isAfter, isBefore, addMinutes } from "date-fns";
 import { DialogFooter } from "@/components/ui/dialog";
 import { BookingFormValues } from "@/types/booking";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const bookingFormSchema = z.object({
   classroom_id: z.string().min(1, "Please select a classroom"),
+  teacher_id: z.string().min(1, "Please select a teacher"),
   start_date: z.date({
     required_error: "Please select a start date",
   }),
@@ -46,15 +48,46 @@ const bookingFormSchema = z.object({
 interface BookingFormProps {
   classrooms: Array<{ id: string; name: string; room_number: string }>;
   onSubmit: (values: z.infer<typeof bookingFormSchema>) => Promise<void>;
+  isAdmin?: boolean;
+  defaultTeacherId?: string;
 }
 
-export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
+export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeacherId }: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teachers, setTeachers] = useState<Array<{ id: string; name: string }>>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('id, name');
+      
+      if (error) {
+        console.error('Error fetching teachers:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load teachers list",
+        });
+        return;
+      }
+
+      if (data) {
+        setTeachers(data);
+      }
+    };
+
+    if (isAdmin) {
+      fetchTeachers();
+    }
+  }, [isAdmin, toast]);
+
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       classroom_id: "",
+      teacher_id: defaultTeacherId || "",
       start_date: undefined,
       start_time: "",
       end_date: undefined,
@@ -66,7 +99,6 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
   const handleSubmit = async (values: BookingFormValues) => {
     try {
       setIsSubmitting(true);
-      console.log('Submitting booking with values:', values); // Debug log
       await onSubmit(values);
       form.reset();
       toast({
@@ -74,7 +106,7 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
         description: "Your booking has been submitted successfully.",
       });
     } catch (error) {
-      console.error('Form submission error:', error); // Debug log
+      console.error('Form submission error:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -90,6 +122,36 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        {isAdmin && (
+          <FormField
+            control={form.control}
+            name="teacher_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teacher</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a teacher" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {teachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
+                        {teacher.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Select the teacher for this booking
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
         <FormField
           control={form.control}
           name="classroom_id"
@@ -335,6 +397,7 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
             </FormItem>
           )}
         />
+
         <DialogFooter>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Create Booking"}
