@@ -41,20 +41,20 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
 
   return (
     <Dialog open={!!student} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
           <DialogTitle className="text-2xl font-bold">Student Profile</DialogTitle>
         </DialogHeader>
-        <div className="space-y-8 py-4">
+        <div className="flex-1 overflow-y-auto space-y-6 py-4 px-1">
           {/* Personal Information Section */}
           <div className="space-y-4">
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="h-12 w-12 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                 <UserRound className="h-6 w-6 text-primary" />
               </div>
               <div className="space-y-1">
                 <h2 className="text-2xl font-semibold">{student.name}</h2>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className="capitalize">
                     {student.gender}
                   </Badge>
@@ -75,18 +75,18 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
           {/* Academic Information */}
           <div className="grid gap-4 p-4 rounded-lg bg-neutral-light">
             <div className="flex items-center gap-2 text-primary">
-              <GraduationCap className="h-5 w-5" />
+              <GraduationCap className="h-5 w-5 shrink-0" />
               <span className="font-semibold">Academic Information</span>
             </div>
             <div className="grid gap-3 pl-7">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <span>Student ID: {student.student_id}</span>
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="break-all">Student ID: {student.student_id}</span>
               </div>
               {student.class_section && (
                 <div className="flex items-center gap-2">
-                  <Users2 className="h-4 w-4 text-muted-foreground" />
-                  <span>Class Section: {student.class_section}</span>
+                  <Users2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span className="break-all">Class Section: {student.class_section}</span>
                 </div>
               )}
             </div>
@@ -95,29 +95,29 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
           {/* Contact Information */}
           <div className="grid gap-4 p-4 rounded-lg bg-neutral-light">
             <div className="flex items-center gap-2 text-primary">
-              <Phone className="h-5 w-5" />
+              <Phone className="h-5 w-5 shrink-0" />
               <span className="font-semibold">Contact Information</span>
             </div>
             <div className="grid gap-3 pl-7">
               {student.email && (
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{student.email}</span>
+                  <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span className="break-all">{student.email}</span>
                 </div>
               )}
               {student.phone_number && (
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <span>{student.phone_number}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{student.address}</span>
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground mt-1" />
+                <span className="break-words">{student.address}</span>
               </div>
               {student.dorm_room && (
                 <div className="flex items-center gap-2">
-                  <Home className="h-4 w-4 text-muted-foreground" />
+                  <Home className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <span>Room {student.dorm_room}</span>
                 </div>
               )}
@@ -127,18 +127,18 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
           {/* Personal Details */}
           <div className="grid gap-4 p-4 rounded-lg bg-neutral-light">
             <div className="flex items-center gap-2 text-primary">
-              <Heart className="h-5 w-5" />
+              <Heart className="h-5 w-5 shrink-0" />
               <span className="font-semibold">Personal Details</span>
             </div>
             <div className="grid gap-3 pl-7">
               <div className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span>Date of Birth: {format(new Date(student.date_of_birth), "dd/MM/yyyy")}</span>
               </div>
               {student.parent_name && (
                 <div className="flex items-center gap-2">
-                  <Users2 className="h-4 w-4 text-muted-foreground" />
-                  <span>Parent: {student.parent_name}</span>
+                  <Users2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span className="break-all">Parent: {student.parent_name}</span>
                   {student.parent_phone && (
                     <span className="text-muted-foreground">({student.parent_phone})</span>
                   )}
@@ -150,34 +150,44 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
           {/* Emergency Contacts */}
           <div className="grid gap-4 p-4 rounded-lg bg-neutral-light">
             <div className="flex items-center gap-2 text-primary">
-              <AlertCircle className="h-5 w-5" />
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <span className="font-semibold">Emergency Contacts</span>
             </div>
             <div className="grid gap-3 pl-7">
               {(student.emergency_contact_1_name || student.emergency_contact_1_phone) && (
-                <div className="flex items-center gap-2">
-                  <Users2 className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {student.emergency_contact_1_name && `${student.emergency_contact_1_name}`}
-                    {student.emergency_contact_1_phone && (
-                      <span className="text-muted-foreground ml-2">
-                        ({student.emergency_contact_1_phone})
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Users2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="font-medium">
+                      {student.emergency_contact_1_name}
+                    </span>
+                  </div>
+                  {student.emergency_contact_1_phone && (
+                    <div className="flex items-center gap-2 pl-6">
+                      <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="text-muted-foreground">
+                        {student.emergency_contact_1_phone}
                       </span>
-                    )}
-                  </span>
+                    </div>
+                  )}
                 </div>
               )}
               {(student.emergency_contact_2_name || student.emergency_contact_2_phone) && (
-                <div className="flex items-center gap-2">
-                  <Users2 className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {student.emergency_contact_2_name && `${student.emergency_contact_2_name}`}
-                    {student.emergency_contact_2_phone && (
-                      <span className="text-muted-foreground ml-2">
-                        ({student.emergency_contact_2_phone})
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Users2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="font-medium">
+                      {student.emergency_contact_2_name}
+                    </span>
+                  </div>
+                  {student.emergency_contact_2_phone && (
+                    <div className="flex items-center gap-2 pl-6">
+                      <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="text-muted-foreground">
+                        {student.emergency_contact_2_phone}
                       </span>
-                    )}
-                  </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
