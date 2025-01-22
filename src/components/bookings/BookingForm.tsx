@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
@@ -9,9 +9,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, addMinutes } from "date-fns";
 import { DialogFooter } from "@/components/ui/dialog";
 import { BookingFormValues } from "@/types/booking";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const bookingFormSchema = z.object({
   classroom_id: z.string().min(1, "Please select a classroom"),
@@ -23,15 +25,32 @@ const bookingFormSchema = z.object({
     required_error: "Please select an end date",
   }),
   end_time: z.string().min(1, "Please select an end time"),
-  purpose: z.string().min(1, "Please provide a purpose for the booking"),
+  purpose: z.string()
+    .min(1, "Please provide a purpose for the booking")
+    .max(500, "Purpose cannot exceed 500 characters"),
+}).refine((data) => {
+  const startDateTime = new Date(data.start_date);
+  const [startHours, startMinutes] = data.start_time.split(':');
+  startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+
+  const endDateTime = new Date(data.end_date);
+  const [endHours, endMinutes] = data.end_time.split(':');
+  endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+
+  return isAfter(endDateTime, startDateTime);
+}, {
+  message: "End time must be after start time",
+  path: ["end_time"],
 });
 
 interface BookingFormProps {
   classrooms: Array<{ id: string; name: string; room_number: string }>;
-  onSubmit: (values: z.infer<typeof bookingFormSchema>) => void;
+  onSubmit: (values: z.infer<typeof bookingFormSchema>) => Promise<void>;
 }
 
 export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
@@ -44,28 +63,54 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
     },
   });
 
+  const handleSubmit = async (values: BookingFormValues) => {
+    try {
+      setIsSubmitting(true);
+      await onSubmit(values);
+      form.reset();
+      toast({
+        title: "Success",
+        description: "Your booking has been submitted successfully.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit booking. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const startDate = form.watch("start_date");
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="classroom_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Classroom</FormLabel>
-              <FormControl>
-                <select
-                  {...field}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="">Select a classroom</option>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a classroom" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
                   {classrooms.map((classroom) => (
-                    <option key={classroom.id} value={classroom.id}>
+                    <SelectItem key={classroom.id} value={classroom.id}>
                       {classroom.name} ({classroom.room_number})
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-              </FormControl>
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Select the classroom you want to book
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -88,7 +133,7 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
                         )}
                       >
                         {field.value ? (
-                          format(field.value, "dd/MM/yyyy")
+                          format(field.value, "PPP")
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -102,12 +147,15 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
                       selected={field.value}
                       onSelect={field.onChange}
                       disabled={(date) =>
-                        date < new Date()
+                        isBefore(date, addMinutes(new Date(), -1))
                       }
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
+                <FormDescription>
+                  Select the start date for your booking
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -160,6 +208,9 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
+                <FormDescription>
+                  Select the start time for your booking
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -183,7 +234,7 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
                         )}
                       >
                         {field.value ? (
-                          format(field.value, "dd/MM/yyyy")
+                          format(field.value, "PPP")
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -197,12 +248,15 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
                       selected={field.value}
                       onSelect={field.onChange}
                       disabled={(date) =>
-                        date < form.getValues("start_date")
+                        isBefore(date, startDate || new Date())
                       }
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
+                <FormDescription>
+                  Select the end date for your booking
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -255,6 +309,9 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
+                <FormDescription>
+                  Select the end time for your booking
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -269,12 +326,17 @@ export function BookingForm({ classrooms, onSubmit }: BookingFormProps) {
               <FormControl>
                 <Input {...field} placeholder="Enter the purpose of booking" />
               </FormControl>
+              <FormDescription>
+                Briefly describe why you need the classroom
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <DialogFooter>
-          <Button type="submit">Create Booking</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Booking"}
+          </Button>
         </DialogFooter>
       </form>
     </Form>
