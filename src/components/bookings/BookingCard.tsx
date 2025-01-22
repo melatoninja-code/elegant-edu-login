@@ -85,8 +85,8 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
                 {format(new Date(booking.start_time), "PPP")} -{" "}
-                {format(new Date(booking.start_time), "p")} to{" "}
-                {format(new Date(booking.end_time), "p")}
+                {format(new Date(booking.start_time), "HH:mm")} to{" "}
+                {format(new Date(booking.end_time), "HH:mm")}
               </p>
             </div>
             <div className="flex items-center gap-2">
