@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
+import { StudentDocuments } from "./StudentDocuments";
+
 interface StudentDetailsDialogProps {
   student: Student | null;
   onClose: () => void;
@@ -198,6 +200,9 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
               )}
             </div>
           </div>
+          
+          {/* Add Documents Section */}
+          {student && <StudentDocuments student={student} />}
         </div>
       </DialogContent>
     </Dialog>
