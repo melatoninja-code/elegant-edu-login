@@ -6,16 +6,20 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError("");
+    
     if (!email || !password) {
       toast({
         title: "Error",
@@ -33,11 +37,11 @@ const LoginForm = () => {
       });
 
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
+        if (error.message.includes("Invalid login credentials")) {
+          setAuthError("Incorrect email or password. Please try again.");
+        } else {
+          setAuthError(error.message);
+        }
         return;
       }
 
@@ -61,6 +65,11 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {authError && (
+        <Alert variant="destructive">
+          <AlertDescription>{authError}</AlertDescription>
+        </Alert>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative">
