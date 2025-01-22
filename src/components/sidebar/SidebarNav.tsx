@@ -1,4 +1,4 @@
-import { Home, Users, GraduationCap, School, CalendarDays, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Users, GraduationCap, School, CalendarDays, BookOpen } from "lucide-react";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarMenu } from "@/components/ui/sidebar";
 
@@ -31,7 +31,7 @@ const items = [
   {
     title: "Bookings",
     href: "/bookings",
-    icon: CalendarDays,
+    icon: BookOpen,
   },
 ] as const;
 
