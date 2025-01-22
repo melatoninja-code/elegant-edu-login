@@ -8,8 +8,9 @@ import { Loader2, School, User, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const BATCH_SIZE = 100; // Process 100 assignments at a time
+const BATCH_SIZE = 100;
 
 export function AssignmentForm() {
   const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
@@ -19,40 +20,33 @@ export function AssignmentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Fetch teachers with their groups and students
-  const { data: teachersData, isLoading: isLoadingTeachers } = useQuery({
-    queryKey: ["teachersWithGroups"],
+  // Fetch teachers
+  const { data: teachers, isLoading: isLoadingTeachers } = useQuery({
+    queryKey: ["teachers"],
     queryFn: async () => {
-      const { data: teachers, error } = await supabase
+      const { data, error } = await supabase
         .from("teachers")
-        .select(`
-          id,
-          name,
-          teacher_groups (
-            id,
-            name,
-            type,
-            teacher_groups_students:teacher_group_student_assignments (
-              student:students (
-                id,
-                name
-              )
-            )
-          )
-        `)
+        .select("id, name")
         .order("name");
 
       if (error) throw error;
+      return data;
+    }
+  });
 
-      return teachers.map(teacher => ({
-        ...teacher,
-        teacher_groups: teacher.teacher_groups.map(group => ({
-          ...group,
-          students: group.teacher_groups_students
-            .map(assignment => assignment.student)
-            .filter((s): s is { id: string; name: string } => s !== null)
-        }))
-      }));
+  // Fetch groups for selected teacher
+  const { data: teacherGroups, isLoading: isLoadingGroups } = useQuery({
+    queryKey: ["teacherGroups", selectedTeacher],
+    enabled: !!selectedTeacher,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teacher_groups")
+        .select("id, name, type")
+        .eq("teacher_id", selectedTeacher)
+        .order("name");
+
+      if (error) throw error;
+      return data;
     }
   });
 
@@ -71,14 +65,20 @@ export function AssignmentForm() {
       if (error) throw error;
 
       // Filter out students already in the group
-      const selectedTeacherData = teachersData?.find(t => t.id === selectedTeacher);
-      const selectedGroupData = selectedTeacherData?.teacher_groups.find(g => g.id === selectedGroup);
-      const existingStudentIds = selectedGroupData?.students.map(s => s.id) || [];
+      const { data: existingAssignments } = await supabase
+        .from("teacher_group_student_assignments")
+        .select("student_id")
+        .eq("group_id", selectedGroup);
 
+      const existingStudentIds = existingAssignments?.map(a => a.student_id) || [];
       return students.filter(student => !existingStudentIds.includes(student.id));
     },
     enabled: !!selectedGroup
   });
+
+  const filteredStudents = availableStudents?.filter(student =>
+    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const processBatch = async (userId: string, batch: string[]) => {
     if (!selectedGroup) return;
@@ -147,111 +147,103 @@ export function AssignmentForm() {
 
   return (
     <div className="space-y-6">
-      <Input
-        type="search"
-        placeholder="Search teachers or groups..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="max-w-md"
-      />
+      <div className="grid gap-4 max-w-xl">
+        {/* Teacher Selection */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Select Teacher</label>
+          <Select value={selectedTeacher || ""} onValueChange={setSelectedTeacher}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a teacher" />
+            </SelectTrigger>
+            <SelectContent>
+              {teachers?.map((teacher) => (
+                <SelectItem key={teacher.id} value={teacher.id}>
+                  {teacher.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {teachersData?.map(teacher => (
-          <Card 
-            key={teacher.id}
-            className={`hover:shadow-lg transition-shadow ${
-              selectedTeacher === teacher.id ? 'ring-2 ring-primary' : ''
-            }`}
-            onClick={() => setSelectedTeacher(teacher.id)}
-          >
+        {/* Group Selection */}
+        {selectedTeacher && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Group</label>
+            <Select value={selectedGroup || ""} onValueChange={setSelectedGroup}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a group" />
+              </SelectTrigger>
+              <SelectContent>
+                {teacherGroups?.map((group) => (
+                  <SelectItem key={group.id} value={group.id}>
+                    {group.name} ({group.type})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Student Selection */}
+        {selectedGroup && (
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <School className="h-5 w-5 text-primary" />
-                {teacher.name}
+                <Users className="h-5 w-5 text-primary" />
+                Available Students
               </CardTitle>
+              <Input
+                type="search"
+                placeholder="Search students..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-4">
-                  {teacher.teacher_groups.map(group => (
-                    <div 
-                      key={group.id} 
-                      className={`space-y-2 p-2 rounded-md cursor-pointer hover:bg-accent ${
-                        selectedGroup === group.id ? 'bg-accent' : ''
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedGroup(group.id);
-                      }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{group.name}</span>
-                        </div>
-                        <Badge variant="secondary" className="capitalize">
-                          {group.type}
-                        </Badge>
-                      </div>
-                      <div className="pl-6">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          <span>{group.students.length} students</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              {isLoadingStudents ? (
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
-              </ScrollArea>
+              ) : (
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-2">
+                    {filteredStudents?.map(student => (
+                      <label
+                        key={student.id}
+                        className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedStudents.includes(student.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedStudents([...selectedStudents, student.id]);
+                            } else {
+                              setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                            }
+                          }}
+                          className="rounded border-gray-300"
+                        />
+                        <span>{student.name}</span>
+                      </label>
+                    ))}
+                    {filteredStudents?.length === 0 && (
+                      <div className="text-center text-muted-foreground py-4">
+                        No students available to assign
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
-
-      {selectedGroup && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Available Students</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoadingStudents ? (
-              <div className="flex items-center justify-center p-4">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : (
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-2">
-                  {availableStudents?.map(student => (
-                    <label
-                      key={student.id}
-                      className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedStudents.includes(student.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedStudents([...selectedStudents, student.id]);
-                          } else {
-                            setSelectedStudents(selectedStudents.filter(id => id !== student.id));
-                          }
-                        }}
-                        className="rounded border-gray-300"
-                      />
-                      <span>{student.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       <Button
         onClick={handleSubmit}
         disabled={isSubmitting || !selectedGroup || selectedStudents.length === 0}
-        className="w-full"
+        className="w-full max-w-xl"
       >
         {isSubmitting ? (
           <>
