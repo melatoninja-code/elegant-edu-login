@@ -161,11 +161,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                 <FormLabel>Classroom</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Select a classroom" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="bg-background z-50">
                     {classrooms.map((classroom) => (
                       <SelectItem key={classroom.id} value={classroom.id}>
                         {classroom.name} - {classroom.room_number}
@@ -186,11 +186,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                 <FormLabel>Teacher</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Select a teacher" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="bg-background z-50">
                     {teachers.map((teacher) => (
                       <SelectItem key={teacher.id} value={teacher.id}>
                         {teacher.name}
@@ -218,7 +218,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal bg-background",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -227,7 +227,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
@@ -268,7 +268,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal bg-background",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -277,7 +277,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
