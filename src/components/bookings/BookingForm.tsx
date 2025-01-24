@@ -15,6 +15,7 @@ import { BookingFormValues } from "@/types/booking";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 
 const bookingFormSchema = z.object({
   classroom_id: z.string().min(1, "Please select a classroom"),
@@ -45,18 +46,6 @@ const bookingFormSchema = z.object({
   path: ["end_time"],
 });
 
-const generateTimeOptions = () => {
-  const times = [];
-  for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const formattedHour = hour.toString().padStart(2, '0');
-      const formattedMinute = minute.toString().padStart(2, '0');
-      times.push(`${formattedHour}:${formattedMinute}`);
-    }
-  }
-  return times;
-};
-
 interface BookingFormProps {
   classrooms: Array<{ id: string; name: string; room_number: string }>;
   onSubmit: (values: z.infer<typeof bookingFormSchema>) => Promise<void>;
@@ -68,33 +57,31 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teachers, setTeachers] = useState<Array<{ id: string; name: string }>>([]);
   const { toast } = useToast();
-  const timeOptions = generateTimeOptions();
 
   useEffect(() => {
     const fetchTeachers = async () => {
-      const { data, error } = await supabase
-        .from('teachers')
-        .select('id, name');
-      
-      if (error) {
+      try {
+        const { data, error } = await supabase
+          .from('teachers')
+          .select('id, name');
+        
+        if (error) throw error;
+        
+        if (data) {
+          setTeachers(data);
+        }
+      } catch (error: any) {
         console.error('Error fetching teachers:', error);
         toast({
           variant: "destructive",
           title: "Error",
           description: "Failed to load teachers list",
         });
-        return;
-      }
-
-      if (data) {
-        setTeachers(data);
       }
     };
 
-    if (isAdmin) {
-      fetchTeachers();
-    }
-  }, [isAdmin, toast]);
+    fetchTeachers();
+  }, [toast]);
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -229,20 +216,13 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Start Time</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select start time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      {...field}
+                      className="w-full"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -293,20 +273,13 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>End Time</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select end time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      {...field}
+                      className="w-full"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
