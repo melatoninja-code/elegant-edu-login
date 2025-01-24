@@ -15,7 +15,13 @@ import { BookingFormValues } from "@/types/booking";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
+
+const timeOptions = Array.from({ length: 48 }, (_, i) => {
+  const hour = Math.floor(i / 2);
+  const minute = i % 2 === 0 ? '00' : '30';
+  const time = `${hour.toString().padStart(2, '0')}:${minute}`;
+  return { value: time, label: time };
+});
 
 const bookingFormSchema = z.object({
   classroom_id: z.string().min(1, "Please select a classroom"),
@@ -217,14 +223,20 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Start Time</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      step="300"
-                      {...field}
-                      className="w-full [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-time-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
-                    />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time.value} value={time.value}>
+                          {time.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -275,14 +287,20 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>End Time</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      step="300"
-                      {...field}
-                      className="w-full [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-time-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
-                    />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time.value} value={time.value}>
+                          {time.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
