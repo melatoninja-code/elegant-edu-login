@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -23,17 +24,26 @@ const timeOptions = Array.from({ length: 48 }, (_, i) => {
   return { value: time, label: time };
 });
 
+const validateTimeFormat = (time: string) => {
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  return timeRegex.test(time);
+};
+
 const bookingFormSchema = z.object({
   classroom_id: z.string().min(1, "Please select a classroom"),
   teacher_id: z.string().min(1, "Please select a teacher"),
   start_date: z.date({
     required_error: "Please select a start date",
   }),
-  start_time: z.string().min(1, "Please select a start time"),
+  start_time: z.string().refine((time) => validateTimeFormat(time), {
+    message: "Please enter a valid time in 24-hour format (HH:MM)",
+  }),
   end_date: z.date({
     required_error: "Please select an end date",
   }),
-  end_time: z.string().min(1, "Please select an end time"),
+  end_time: z.string().refine((time) => validateTimeFormat(time), {
+    message: "Please enter a valid time in 24-hour format (HH:MM)",
+  }),
   purpose: z.string()
     .min(1, "Please provide a purpose for the booking")
     .max(500, "Purpose cannot exceed 500 characters"),
@@ -122,6 +132,43 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
       setIsSubmitting(false);
     }
   };
+
+  const TimeInput = ({ field, label, placeholder }: { field: any; label: string; placeholder: string }) => (
+    <FormItem>
+      <FormLabel>{label}</FormLabel>
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <Input
+            type="text"
+            placeholder="HH:MM"
+            value={field.value}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === '' || validateTimeFormat(value)) {
+                field.onChange(value);
+              }
+            }}
+            className="w-full"
+          />
+        </div>
+        <Select onValueChange={field.onChange} value={field.value}>
+          <FormControl>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {timeOptions.map((time) => (
+              <SelectItem key={time.value} value={time.value}>
+                {time.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <FormMessage />
+    </FormItem>
+  );
 
   return (
     <Form {...form}>
@@ -221,24 +268,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="start_time"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Time</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select start time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem key={time.value} value={time.value}>
-                          {time.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+                <TimeInput
+                  field={field}
+                  label="Start Time"
+                  placeholder="Select start time"
+                />
               )}
             />
           </div>
@@ -285,24 +319,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="end_time"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Time</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select end time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem key={time.value} value={time.value}>
-                          {time.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+                <TimeInput
+                  field={field}
+                  label="End Time"
+                  placeholder="Select end time"
+                />
               )}
             />
           </div>
