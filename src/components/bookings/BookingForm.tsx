@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const validateTimeFormat = (time: string) => {
+  if (!time) return true; // Allow empty string during typing
   const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
   return timeRegex.test(time);
 };
@@ -42,12 +43,15 @@ const bookingFormSchema = z.object({
     .max(500, "Purpose cannot exceed 500 characters"),
 }).refine((data) => {
   const startDateTime = new Date(data.start_date);
-  const [startHours, startMinutes] = data.start_time.split(':');
-  startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+  const [startHours, startMinutes] = data.start_time.split(':').map(Number);
+  if (isNaN(startHours) || isNaN(startMinutes)) return true; // Allow partial input during typing
 
   const endDateTime = new Date(data.end_date);
-  const [endHours, endMinutes] = data.end_time.split(':');
-  endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+  const [endHours, endMinutes] = data.end_time.split(':').map(Number);
+  if (isNaN(endHours) || isNaN(endMinutes)) return true; // Allow partial input during typing
+
+  startDateTime.setHours(startHours, startMinutes);
+  endDateTime.setHours(endHours, endMinutes);
 
   return endDateTime > startDateTime;
 }, {
@@ -133,12 +137,10 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
         <Input
           type="text"
           placeholder="HH:MM"
-          value={field.value}
+          {...field}
           onChange={(e) => {
             const value = e.target.value;
-            if (value === '' || validateTimeFormat(value)) {
-              field.onChange(value);
-            }
+            field.onChange(value);
           }}
           className="w-full"
         />
