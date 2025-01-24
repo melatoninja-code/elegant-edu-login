@@ -63,7 +63,8 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
       try {
         const { data, error } = await supabase
           .from('teachers')
-          .select('id, name');
+          .select('id, name')
+          .order('name');
         
         if (error) throw error;
         
@@ -221,7 +222,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       type="time"
                       step="300"
                       {...field}
-                      className="w-full"
+                      className="w-full [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-time-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
                     />
                   </FormControl>
                   <FormMessage />
@@ -279,7 +280,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       type="time"
                       step="300"
                       {...field}
-                      className="w-full"
+                      className="w-full [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-time-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
                     />
                   </FormControl>
                   <FormMessage />
