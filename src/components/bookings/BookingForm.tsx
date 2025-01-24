@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -130,24 +130,18 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
     }
   };
 
-  const TimeInput = ({ field, label }: { field: any; label: string }) => (
-    <FormItem>
-      <FormLabel>{label}</FormLabel>
-      <FormControl>
-        <Input
-          type="text"
-          placeholder="HH:MM"
-          {...field}
-          onChange={(e) => {
-            const value = e.target.value;
-            field.onChange(value);
-          }}
-          className="w-full"
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  );
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        options.push(timeString);
+      }
+    }
+    return options;
+  };
+
+  const timeOptions = generateTimeOptions();
 
   return (
     <Form {...form}>
@@ -161,11 +155,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                 <FormLabel>Classroom</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-background">
+                    <SelectTrigger className="bg-background border-2">
                       <SelectValue placeholder="Select a classroom" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-background z-[100]">
+                  <SelectContent className="bg-background border-2 shadow-lg">
                     {classrooms.map((classroom) => (
                       <SelectItem key={classroom.id} value={classroom.id}>
                         {classroom.name} - {classroom.room_number}
@@ -186,11 +180,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                 <FormLabel>Teacher</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-background">
+                    <SelectTrigger className="bg-background border-2">
                       <SelectValue placeholder="Select a teacher" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-background z-[100]">
+                  <SelectContent className="bg-background border-2 shadow-lg">
                     {teachers.map((teacher) => (
                       <SelectItem key={teacher.id} value={teacher.id}>
                         {teacher.name}
@@ -218,7 +212,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal bg-background",
+                            "w-full pl-3 text-left font-normal bg-background border-2",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -228,14 +222,9 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent 
-                      className="w-auto p-0" 
+                      className="w-auto p-0 bg-background border-2 shadow-lg" 
                       align="start"
                       sideOffset={5}
-                      style={{ 
-                        backgroundColor: 'var(--background)',
-                        zIndex: 9999,
-                        position: 'relative'
-                      }}
                     >
                       <CalendarComponent
                         mode="single"
@@ -245,9 +234,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                           date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
                         initialFocus
-                        captionLayout="dropdown-buttons"
-                        fromYear={2024}
-                        toYear={2025}
+                        className="rounded-md"
                       />
                     </PopoverContent>
                   </Popover>
@@ -260,10 +247,27 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="start_time"
               render={({ field }) => (
-                <TimeInput
-                  field={field}
-                  label="Start Time"
-                />
+                <FormItem>
+                  <FormLabel>Start Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background border-2">
+                        <SelectValue placeholder="Select time">
+                          {field.value || "Select time"}
+                        </SelectValue>
+                        <Clock className="h-4 w-4 opacity-50" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-background border-2 shadow-lg h-[200px]">
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
             />
           </div>
@@ -281,7 +285,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal bg-background",
+                            "w-full pl-3 text-left font-normal bg-background border-2",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -291,14 +295,9 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent 
-                      className="w-auto p-0" 
+                      className="w-auto p-0 bg-background border-2 shadow-lg" 
                       align="start"
                       sideOffset={5}
-                      style={{ 
-                        backgroundColor: 'var(--background)',
-                        zIndex: 9999,
-                        position: 'relative'
-                      }}
                     >
                       <CalendarComponent
                         mode="single"
@@ -308,9 +307,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                           date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
                         initialFocus
-                        captionLayout="dropdown-buttons"
-                        fromYear={2024}
-                        toYear={2025}
+                        className="rounded-md"
                       />
                     </PopoverContent>
                   </Popover>
@@ -323,10 +320,27 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="end_time"
               render={({ field }) => (
-                <TimeInput
-                  field={field}
-                  label="End Time"
-                />
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background border-2">
+                        <SelectValue placeholder="Select time">
+                          {field.value || "Select time"}
+                        </SelectValue>
+                        <Clock className="h-4 w-4 opacity-50" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-background border-2 shadow-lg h-[200px]">
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
             />
           </div>
@@ -339,7 +353,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
             <FormItem>
               <FormLabel>Purpose</FormLabel>
               <FormControl>
-                <Textarea {...field} className="min-h-[100px]" />
+                <Textarea {...field} className="min-h-[100px] bg-background border-2" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -347,7 +361,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
         />
 
         <DialogFooter>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full sm:w-auto"
+          >
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </DialogFooter>
