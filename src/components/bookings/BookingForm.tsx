@@ -219,6 +219,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                   <FormControl>
                     <Input
                       type="time"
+                      step="300"
                       {...field}
                       className="w-full"
                     />
@@ -276,6 +277,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                   <FormControl>
                     <Input
                       type="time"
+                      step="300"
                       {...field}
                       className="w-full"
                     />
