@@ -30,6 +30,7 @@ export default function Bookings() {
         .eq('is_available', true);
       
       if (error) {
+        console.error('Error fetching classrooms:', error);
         toast({
           variant: "destructive",
           title: "Error fetching classrooms",
@@ -105,6 +106,8 @@ export default function Bookings() {
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
+      console.log('Fetching bookings with userRole:', userRole, 'teacherId:', teacherId, 'hasTeacherTag:', hasTeacherTag);
+      
       const query = supabase
         .from('room_bookings')
         .select(`
@@ -113,15 +116,13 @@ export default function Bookings() {
             name,
             room_number
           )
-        `);
-
-      if (userRole !== 'admin') {
-        query.eq('teacher_id', teacherId);
-      }
+        `)
+        .order('created_at', { ascending: false });
 
       const { data, error } = await query;
 
       if (error) {
+        console.error('Error fetching bookings:', error);
         toast({
           variant: "destructive",
           title: "Error fetching bookings",
@@ -130,6 +131,7 @@ export default function Bookings() {
         return [];
       }
 
+      console.log('Fetched bookings:', data);
       return data;
     },
     enabled: Boolean(userRole && (userRole === 'admin' || (teacherId && hasTeacherTag))),
