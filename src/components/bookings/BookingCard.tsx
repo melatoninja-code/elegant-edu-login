@@ -57,6 +57,21 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
     }
   });
 
+  // Get teacher information
+  const { data: teacherInfo } = useQuery({
+    queryKey: ["teacher", booking.teacher_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("name")
+        .eq("id", booking.teacher_id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const canDelete = userInfo?.role === "admin" || userInfo?.teacherId === booking.teacher_id;
 
   const handleDelete = async () => {
@@ -119,6 +134,11 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
                 {format(new Date(booking.start_time), "HH:mm")} to{" "}
                 {format(new Date(booking.end_time), "HH:mm")}
               </p>
+              {teacherInfo && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Teacher: {teacherInfo.name}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Badge
