@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface BookingCardProps {
   booking: Booking;
@@ -27,6 +28,36 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
+
+  // Get current user's role and teacher ID
+  const { data: userInfo } = useQuery({
+    queryKey: ["userInfo"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Get user role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      // Get teacher ID if exists
+      const { data: teacher } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("auth_id", user.id)
+        .single();
+
+      return {
+        role: profile?.role,
+        teacherId: teacher?.id
+      };
+    }
+  });
+
+  const canDelete = userInfo?.role === "admin" || userInfo?.teacherId === booking.teacher_id;
 
   const handleDelete = async () => {
     try {
@@ -96,14 +127,16 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
               >
                 {booking.status}
               </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
           <p className="text-sm text-muted-foreground">{booking.purpose}</p>
