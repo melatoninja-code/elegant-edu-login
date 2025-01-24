@@ -210,7 +210,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="start_date"
               render={({ field }) => (
-                <FormItem className="relative">
+                <FormItem className="flex flex-col">
                   <FormLabel>Start Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -228,9 +228,14 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent 
-                      className="w-auto p-0 bg-background" 
+                      className="w-auto p-0" 
                       align="start"
-                      style={{ zIndex: 9999 }}
+                      sideOffset={5}
+                      style={{ 
+                        backgroundColor: 'var(--background)',
+                        zIndex: 9999,
+                        position: 'relative'
+                      }}
                     >
                       <CalendarComponent
                         mode="single"
@@ -268,7 +273,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="end_date"
               render={({ field }) => (
-                <FormItem className="relative">
+                <FormItem className="flex flex-col">
                   <FormLabel>End Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -286,9 +291,14 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent 
-                      className="w-auto p-0 bg-background" 
+                      className="w-auto p-0" 
                       align="start"
-                      style={{ zIndex: 9999 }}
+                      sideOffset={5}
+                      style={{ 
+                        backgroundColor: 'var(--background)',
+                        zIndex: 9999,
+                        position: 'relative'
+                      }}
                     >
                       <CalendarComponent
                         mode="single"
