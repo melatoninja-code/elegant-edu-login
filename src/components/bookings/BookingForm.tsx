@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -10,7 +9,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { format, isAfter, isBefore, addMinutes } from "date-fns";
+import { format } from "date-fns";
 import { DialogFooter } from "@/components/ui/dialog";
 import { BookingFormValues } from "@/types/booking";
 import { useState, useEffect } from "react";
@@ -40,11 +39,23 @@ const bookingFormSchema = z.object({
   const [endHours, endMinutes] = data.end_time.split(':');
   endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
 
-  return isAfter(endDateTime, startDateTime);
+  return endDateTime > startDateTime;
 }, {
   message: "End time must be after start time",
   path: ["end_time"],
 });
+
+const generateTimeOptions = () => {
+  const times = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const formattedHour = hour.toString().padStart(2, '0');
+      const formattedMinute = minute.toString().padStart(2, '0');
+      times.push(`${formattedHour}:${formattedMinute}`);
+    }
+  }
+  return times;
+};
 
 interface BookingFormProps {
   classrooms: Array<{ id: string; name: string; room_number: string }>;
@@ -57,6 +68,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teachers, setTeachers] = useState<Array<{ id: string; name: string }>>([]);
   const { toast } = useToast();
+  const timeOptions = generateTimeOptions();
 
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -119,18 +131,20 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitHandler)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="classroom_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Classroom</FormLabel>
-              <FormControl>
+      <form onSubmit={form.handleSubmit(onSubmitHandler)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="classroom_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Classroom</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a classroom" />
-                  </SelectTrigger>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a classroom" />
+                    </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     {classrooms.map((classroom) => (
                       <SelectItem key={classroom.id} value={classroom.id}>
@@ -139,22 +153,23 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                     ))}
                   </SelectContent>
                 </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="teacher_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Teacher</FormLabel>
-              <FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="teacher_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teacher</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a teacher" />
-                  </SelectTrigger>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a teacher" />
+                    </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     {teachers.map((teacher) => (
                       <SelectItem key={teacher.id} value={teacher.id}>
@@ -163,91 +178,142 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                     ))}
                   </SelectContent>
                 </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="start_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Start Date</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline">
-                      {field.value ? format(field.value, 'PPP') : "Select a date"}
-                      <Calendar className="ml-2 h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="start_time"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Start Time</FormLabel>
-              <FormControl>
-                <Input type="time" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="end_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>End Date</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline">
-                      {field.value ? format(field.value, 'PPP') : "Select a date"}
-                      <Calendar className="ml-2 h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="end_time"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>End Time</FormLabel>
-              <FormControl>
-                <Input type="time" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="start_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? format(field.value, 'PPP') : "Select date"}
+                          <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Time</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="end_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? format(field.value, 'PPP') : "Select date"}
+                          <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="purpose"
@@ -255,12 +321,13 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
             <FormItem>
               <FormLabel>Purpose</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} className="min-h-[100px]" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <DialogFooter>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Submit"}
