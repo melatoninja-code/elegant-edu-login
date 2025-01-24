@@ -165,7 +165,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       <SelectValue placeholder="Select a classroom" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-background z-50">
+                  <SelectContent className="bg-background z-[100]">
                     {classrooms.map((classroom) => (
                       <SelectItem key={classroom.id} value={classroom.id}>
                         {classroom.name} - {classroom.room_number}
@@ -190,7 +190,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                       <SelectValue placeholder="Select a teacher" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-background z-50">
+                  <SelectContent className="bg-background z-[100]">
                     {teachers.map((teacher) => (
                       <SelectItem key={teacher.id} value={teacher.id}>
                         {teacher.name}
@@ -210,7 +210,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="start_date"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Start Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -227,7 +227,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+                    <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
@@ -235,6 +235,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         disabled={(date) =>
                           date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -260,7 +261,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
               control={form.control}
               name="end_date"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>End Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -277,7 +278,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+                    <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
@@ -285,6 +286,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         disabled={(date) =>
                           date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
