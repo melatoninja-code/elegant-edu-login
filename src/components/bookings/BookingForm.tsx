@@ -17,13 +17,6 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-const timeOptions = Array.from({ length: 48 }, (_, i) => {
-  const hour = Math.floor(i / 2);
-  const minute = i % 2 === 0 ? '00' : '30';
-  const time = `${hour.toString().padStart(2, '0')}:${minute}`;
-  return { value: time, label: time };
-});
-
 const validateTimeFormat = (time: string) => {
   const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
   return timeRegex.test(time);
@@ -133,39 +126,23 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
     }
   };
 
-  const TimeInput = ({ field, label, placeholder }: { field: any; label: string; placeholder: string }) => (
+  const TimeInput = ({ field, label }: { field: any; label: string }) => (
     <FormItem>
       <FormLabel>{label}</FormLabel>
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <Input
-            type="text"
-            placeholder="HH:MM"
-            value={field.value}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === '' || validateTimeFormat(value)) {
-                field.onChange(value);
-              }
-            }}
-            className="w-full"
-          />
-        </div>
-        <Select onValueChange={field.onChange} value={field.value}>
-          <FormControl>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-          </FormControl>
-          <SelectContent>
-            {timeOptions.map((time) => (
-              <SelectItem key={time.value} value={time.value}>
-                {time.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <FormControl>
+        <Input
+          type="text"
+          placeholder="HH:MM"
+          value={field.value}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '' || validateTimeFormat(value)) {
+              field.onChange(value);
+            }
+          }}
+          className="w-full"
+        />
+      </FormControl>
       <FormMessage />
     </FormItem>
   );
@@ -271,7 +248,6 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                 <TimeInput
                   field={field}
                   label="Start Time"
-                  placeholder="Select start time"
                 />
               )}
             />
@@ -322,7 +298,6 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                 <TimeInput
                   field={field}
                   label="End Time"
-                  placeholder="Select end time"
                 />
               )}
             />
