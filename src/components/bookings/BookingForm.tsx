@@ -227,7 +227,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
+                    <PopoverContent 
+                      className="w-auto p-0 bg-background" 
+                      align="start"
+                      style={{ zIndex: 9999 }}
+                    >
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
@@ -236,6 +240,9 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                           date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
                         initialFocus
+                        captionLayout="dropdown-buttons"
+                        fromYear={2024}
+                        toYear={2025}
                       />
                     </PopoverContent>
                   </Popover>
@@ -278,7 +285,11 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
+                    <PopoverContent 
+                      className="w-auto p-0 bg-background" 
+                      align="start"
+                      style={{ zIndex: 9999 }}
+                    >
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
@@ -287,6 +298,9 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
                           date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
                         initialFocus
+                        captionLayout="dropdown-buttons"
+                        fromYear={2024}
+                        toYear={2025}
                       />
                     </PopoverContent>
                   </Popover>
