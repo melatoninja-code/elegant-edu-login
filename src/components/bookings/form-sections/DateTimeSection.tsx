@@ -45,30 +45,28 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   side="bottom"
                   sideOffset={8}
                 >
-                  <div className="z-50">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value ?? null}
-                      onSelect={(date) => {
-                        if (date) {
-                          console.log("Start Date Selected:", date);
-                          form.setValue(field.name, date, { 
-                            shouldValidate: true, 
-                            shouldDirty: true,
-                            shouldTouch: true 
-                          });
-                          setTimeout(() => {
-                            form.trigger(field.name);
-                          }, 100);
-                        }
-                      }}
-                      disabled={(date) =>
-                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                  <CalendarComponent
+                    mode="single"
+                    selected={field.value ?? null}
+                    onSelect={(date) => {
+                      if (date) {
+                        console.log("Start Date Selected:", date);
+                        form.setValue(field.name, date, { 
+                          shouldValidate: true, 
+                          shouldDirty: true,
+                          shouldTouch: true 
+                        });
+                        setTimeout(() => {
+                          form.trigger(field.name);
+                        }, 100);
                       }
-                      initialFocus
-                      className="rounded-md border-0"
-                    />
-                  </div>
+                    }}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                    initialFocus
+                    className="rounded-md border-0"
+                  />
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -92,7 +90,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border rounded-md shadow-lg z-50"
+                  className="bg-white border rounded-md shadow-lg"
                   position="popper"
                 >
                   {timeOptions.map((time) => (
@@ -136,30 +134,28 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   side="bottom"
                   sideOffset={8}
                 >
-                  <div className="z-50">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value ?? null}
-                      onSelect={(date) => {
-                        if (date) {
-                          console.log("End Date Selected:", date);
-                          form.setValue(field.name, date, { 
-                            shouldValidate: true, 
-                            shouldDirty: true,
-                            shouldTouch: true 
-                          });
-                          setTimeout(() => {
-                            form.trigger(field.name);
-                          }, 100);
-                        }
-                      }}
-                      disabled={(date) =>
-                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                  <CalendarComponent
+                    mode="single"
+                    selected={field.value ?? null}
+                    onSelect={(date) => {
+                      if (date) {
+                        console.log("End Date Selected:", date);
+                        form.setValue(field.name, date, { 
+                          shouldValidate: true, 
+                          shouldDirty: true,
+                          shouldTouch: true 
+                        });
+                        setTimeout(() => {
+                          form.trigger(field.name);
+                        }, 100);
                       }
-                      initialFocus
-                      className="rounded-md border-0"
-                    />
-                  </div>
+                    }}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                    initialFocus
+                    className="rounded-md border-0"
+                  />
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -183,7 +179,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border rounded-md shadow-lg z-50"
+                  className="bg-white border rounded-md shadow-lg"
                   position="popper"
                 >
                   {timeOptions.map((time) => (
