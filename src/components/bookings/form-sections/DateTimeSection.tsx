@@ -47,10 +47,10 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                 >
                   <CalendarComponent
                     mode="single"
-                    selected={field.value}
+                    selected={field.value ?? null}
                     onSelect={(date) => {
                       console.log("Start Date Selected:", date);
-                      field.onChange(date);
+                      form.setValue("start_date", date, { shouldValidate: true, shouldDirty: true });
                       form.trigger("start_date");
                     }}
                     disabled={(date) =>
@@ -128,10 +128,10 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                 >
                   <CalendarComponent
                     mode="single"
-                    selected={field.value}
+                    selected={field.value ?? null}
                     onSelect={(date) => {
                       console.log("End Date Selected:", date);
-                      field.onChange(date);
+                      form.setValue("end_date", date, { shouldValidate: true, shouldDirty: true });
                       form.trigger("end_date");
                     }}
                     disabled={(date) =>
