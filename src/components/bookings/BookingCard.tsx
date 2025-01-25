@@ -29,46 +29,77 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
-  // Get current user's role and teacher ID
+  // Get current user's role and teacher ID with better error handling
   const { data: userInfo } = useQuery({
     queryKey: ["userInfo"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError) throw authError;
+        if (!user) throw new Error("Not authenticated");
 
-      // Get user role
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+        // Get user role
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
 
-      // Get teacher ID if exists
-      const { data: teacher } = await supabase
-        .from("teachers")
-        .select("id")
-        .eq("auth_id", user.id)
-        .single();
+        if (profileError) throw profileError;
+        if (!profile) throw new Error("Profile not found");
 
-      return {
-        role: profile?.role,
-        teacherId: teacher?.id
-      };
+        // Get teacher ID if exists
+        const { data: teacher, error: teacherError } = await supabase
+          .from("teachers")
+          .select("id")
+          .eq("auth_id", user.id)
+          .maybeSingle();
+
+        if (teacherError) {
+          console.error("Error fetching teacher:", teacherError);
+        }
+
+        return {
+          role: profile.role,
+          teacherId: teacher?.id
+        };
+      } catch (error: any) {
+        console.error("Error in userInfo query:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch user information",
+        });
+        return {
+          role: null,
+          teacherId: null
+        };
+      }
     }
   });
 
-  // Get teacher information
+  // Get teacher information with better error handling
   const { data: teacherInfo } = useQuery({
     queryKey: ["teacher", booking.teacher_id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("teachers")
-        .select("name")
-        .eq("id", booking.teacher_id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("teachers")
+          .select("name")
+          .eq("id", booking.teacher_id)
+          .maybeSingle();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } catch (error: any) {
+        console.error("Error fetching teacher info:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch teacher information",
+        });
+        return null;
+      }
     }
   });
 
