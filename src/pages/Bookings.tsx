@@ -66,11 +66,17 @@ export default function Bookings() {
             setUserRole(profile.role);
           }
 
-          const { data: teacher } = await supabase
+          // Use maybeSingle() instead of single() to handle cases where no teacher record exists
+          const { data: teacher, error: teacherError } = await supabase
             .from('teachers')
             .select('id')
             .eq('auth_id', user.id)
             .maybeSingle();
+          
+          if (teacherError) {
+            console.error('Error fetching teacher:', teacherError);
+            return;
+          }
           
           if (teacher) {
             setTeacherId(teacher.id);
