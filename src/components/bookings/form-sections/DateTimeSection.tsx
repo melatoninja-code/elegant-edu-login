@@ -40,53 +40,23 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-background border rounded-md shadow-md" 
+                  className="w-auto p-0" 
                   align="start"
+                  side="bottom"
+                  sideOffset={8}
                 >
-                  <CalendarComponent
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
-                    initialFocus
-                    className="rounded-md border"
-                    classNames={{
-                      months: "space-y-4",
-                      month: "space-y-4",
-                      caption: "flex justify-center pt-1 relative items-center",
-                      caption_label: "text-sm font-medium",
-                      nav: "space-x-1 flex items-center",
-                      nav_button: cn(
-                        "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                        "cursor-pointer"
-                      ),
-                      nav_button_previous: "absolute left-1",
-                      nav_button_next: "absolute right-1",
-                      table: "w-full border-collapse space-y-1",
-                      head_row: "flex",
-                      head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                      row: "flex w-full mt-2",
-                      cell: cn(
-                        "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-                        "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
-                      ),
-                      day: cn(
-                        "h-9 w-9 p-0 font-normal",
-                        "hover:bg-accent hover:text-accent-foreground",
-                        "focus:bg-accent focus:text-accent-foreground focus:rounded-md",
-                        "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
-                        "cursor-pointer rounded-md"
-                      ),
-                      day_selected: "bg-primary text-primary-foreground",
-                      day_today: "bg-accent text-accent-foreground",
-                      day_outside: "text-muted-foreground opacity-50",
-                      day_disabled: "text-muted-foreground opacity-50",
-                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                      day_hidden: "invisible",
-                    }}
-                  />
+                  <div className="bg-white border rounded-md shadow-lg">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
+                      initialFocus
+                      className="rounded-md"
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -109,7 +79,10 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="h-[200px]">
+                <SelectContent 
+                  className="bg-white border rounded-md shadow-lg"
+                  position="popper"
+                >
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
@@ -146,53 +119,23 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-background border rounded-md shadow-md" 
+                  className="w-auto p-0" 
                   align="start"
+                  side="bottom"
+                  sideOffset={8}
                 >
-                  <CalendarComponent
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
-                    initialFocus
-                    className="rounded-md border"
-                    classNames={{
-                      months: "space-y-4",
-                      month: "space-y-4",
-                      caption: "flex justify-center pt-1 relative items-center",
-                      caption_label: "text-sm font-medium",
-                      nav: "space-x-1 flex items-center",
-                      nav_button: cn(
-                        "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                        "cursor-pointer"
-                      ),
-                      nav_button_previous: "absolute left-1",
-                      nav_button_next: "absolute right-1",
-                      table: "w-full border-collapse space-y-1",
-                      head_row: "flex",
-                      head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                      row: "flex w-full mt-2",
-                      cell: cn(
-                        "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-                        "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
-                      ),
-                      day: cn(
-                        "h-9 w-9 p-0 font-normal",
-                        "hover:bg-accent hover:text-accent-foreground",
-                        "focus:bg-accent focus:text-accent-foreground focus:rounded-md",
-                        "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
-                        "cursor-pointer rounded-md"
-                      ),
-                      day_selected: "bg-primary text-primary-foreground",
-                      day_today: "bg-accent text-accent-foreground",
-                      day_outside: "text-muted-foreground opacity-50",
-                      day_disabled: "text-muted-foreground opacity-50",
-                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                      day_hidden: "invisible",
-                    }}
-                  />
+                  <div className="bg-white border rounded-md shadow-lg">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
+                      initialFocus
+                      className="rounded-md"
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -215,7 +158,10 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="h-[200px]">
+                <SelectContent 
+                  className="bg-white border rounded-md shadow-lg"
+                  position="popper"
+                >
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
