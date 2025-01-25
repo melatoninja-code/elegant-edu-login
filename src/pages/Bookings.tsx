@@ -24,23 +24,32 @@ export default function Bookings() {
 
   useEffect(() => {
     const fetchClassrooms = async () => {
-      const { data, error } = await supabase
-        .from('classrooms')
-        .select('id, name, room_number')
-        .eq('is_available', true);
-      
-      if (error) {
-        console.error('Error fetching classrooms:', error);
+      try {
+        const { data, error } = await supabase
+          .from('classrooms')
+          .select('id, name, room_number')
+          .eq('is_available', true);
+        
+        if (error) {
+          console.error('Error fetching classrooms:', error);
+          toast({
+            variant: "destructive",
+            title: "Error fetching classrooms",
+            description: error.message,
+          });
+          return;
+        }
+
+        if (data) {
+          setClassrooms(data);
+        }
+      } catch (error: any) {
+        console.error('Error in fetchClassrooms:', error);
         toast({
           variant: "destructive",
-          title: "Error fetching classrooms",
-          description: error.message,
+          title: "Error",
+          description: "Failed to fetch classrooms. Please try again.",
         });
-        return;
-      }
-
-      if (data) {
-        setClassrooms(data);
       }
     };
 
@@ -135,8 +144,8 @@ export default function Bookings() {
             setHasTeacherTag(hasTag);
           }
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } catch (error: any) {
+        console.error('Error in fetchUserData:', error);
         toast({
           variant: "destructive",
           title: "Error fetching user data",
@@ -155,31 +164,39 @@ export default function Bookings() {
     queryFn: async () => {
       console.log('Fetching bookings with userRole:', userRole, 'teacherId:', teacherId, 'hasTeacherTag:', hasTeacherTag);
       
-      const query = supabase
-        .from('room_bookings')
-        .select(`
-          *,
-          classroom:classrooms (
-            name,
-            room_number
-          )
-        `)
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('room_bookings')
+          .select(`
+            *,
+            classroom:classrooms (
+              name,
+              room_number
+            )
+          `)
+          .order('created_at', { ascending: false });
 
-      const { data, error } = await query;
+        if (error) {
+          console.error('Error fetching bookings:', error);
+          toast({
+            variant: "destructive",
+            title: "Error fetching bookings",
+            description: error.message,
+          });
+          return [];
+        }
 
-      if (error) {
-        console.error('Error fetching bookings:', error);
+        console.log('Fetched bookings:', data);
+        return data;
+      } catch (error: any) {
+        console.error('Error in bookings query:', error);
         toast({
           variant: "destructive",
-          title: "Error fetching bookings",
-          description: error.message,
+          title: "Error",
+          description: "Failed to fetch bookings. Please try again.",
         });
         return [];
       }
-
-      console.log('Fetched bookings:', data);
-      return data;
     },
     enabled: Boolean(userRole && (userRole === 'admin' || (teacherId && hasTeacherTag))),
   });
