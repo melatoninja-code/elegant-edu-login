@@ -53,45 +53,59 @@ export default function Bookings() {
         setIsLoadingUserData(true);
         const { data: { user } } = await supabase.auth.getUser();
         
-        if (user) {
-          setUserId(user.id);
-          
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .maybeSingle();
-          
-          if (profile) {
-            setUserRole(profile.role);
-          }
+        if (!user) {
+          console.log('No user found');
+          setIsLoadingUserData(false);
+          return;
+        }
 
-          // Use maybeSingle() instead of single() to handle cases where no teacher record exists
-          const { data: teacher, error: teacherError } = await supabase
-            .from('teachers')
-            .select('id')
-            .eq('auth_id', user.id)
-            .maybeSingle();
+        setUserId(user.id);
+        
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (profile) {
+          setUserRole(profile.role);
+        }
+
+        // Use maybeSingle() to handle cases where no teacher record exists
+        const { data: teacher, error: teacherError } = await supabase
+          .from('teachers')
+          .select('id')
+          .eq('auth_id', user.id)
+          .maybeSingle();
+        
+        if (teacherError) {
+          console.error('Error fetching teacher:', teacherError);
+          toast({
+            variant: "destructive",
+            title: "Error fetching teacher data",
+            description: "Failed to retrieve teacher information. Please try again.",
+          });
+          return;
+        }
+        
+        if (teacher) {
+          setTeacherId(teacher.id);
           
-          if (teacherError) {
-            console.error('Error fetching teacher:', teacherError);
+          const { data: teacherTags, error: tagsError } = await supabase
+            .from('teacher_tags')
+            .select('tag')
+            .eq('teacher_id', teacher.id);
+          
+          if (tagsError) {
+            console.error('Error fetching teacher tags:', tagsError);
             return;
           }
           
-          if (teacher) {
-            setTeacherId(teacher.id);
-            
-            const { data: teacherTags } = await supabase
-              .from('teacher_tags')
-              .select('tag')
-              .eq('teacher_id', teacher.id);
-            
-            if (teacherTags) {
-              const hasTag = teacherTags.some(tag => 
-                tag.tag.toLowerCase() === 'teacher'
-              );
-              setHasTeacherTag(hasTag);
-            }
+          if (teacherTags) {
+            const hasTag = teacherTags.some(tag => 
+              tag.tag.toLowerCase() === 'teacher'
+            );
+            setHasTeacherTag(hasTag);
           }
         }
       } catch (error) {
