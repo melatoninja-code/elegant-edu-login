@@ -40,25 +40,32 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border rounded-md shadow-lg z-50" 
+                  className="w-auto p-0 bg-white border rounded-md shadow-lg" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
                 >
-                  <CalendarComponent
-                    mode="single"
-                    selected={field.value ?? null}
-                    onSelect={(date) => {
-                      console.log("Start Date Selected:", date);
-                      form.setValue("start_date", date, { shouldValidate: true, shouldDirty: true });
-                      form.trigger("start_date");
-                    }}
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
-                    initialFocus
-                    className="rounded-md border-0"
-                  />
+                  <div className="z-50">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value ?? null}
+                      onSelect={(date) => {
+                        if (date) {
+                          console.log("Start Date Selected:", date);
+                          form.setValue("start_date", date, { 
+                            shouldValidate: true, 
+                            shouldDirty: true,
+                            shouldTouch: true 
+                          });
+                        }
+                      }}
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
+                      initialFocus
+                      className="rounded-md border-0"
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -121,25 +128,32 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border rounded-md shadow-lg z-50" 
+                  className="w-auto p-0 bg-white border rounded-md shadow-lg" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
                 >
-                  <CalendarComponent
-                    mode="single"
-                    selected={field.value ?? null}
-                    onSelect={(date) => {
-                      console.log("End Date Selected:", date);
-                      form.setValue("end_date", date, { shouldValidate: true, shouldDirty: true });
-                      form.trigger("end_date");
-                    }}
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
-                    initialFocus
-                    className="rounded-md border-0"
-                  />
+                  <div className="z-50">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value ?? null}
+                      onSelect={(date) => {
+                        if (date) {
+                          console.log("End Date Selected:", date);
+                          form.setValue("end_date", date, { 
+                            shouldValidate: true, 
+                            shouldDirty: true,
+                            shouldTouch: true 
+                          });
+                        }
+                      }}
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
+                      initialFocus
+                      className="rounded-md border-0"
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
               <FormMessage />
