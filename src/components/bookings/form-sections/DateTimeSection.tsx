@@ -30,7 +30,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full pl-3 text-left font-normal bg-white border-2",
+                        "w-full pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -40,10 +40,8 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border-2 shadow-lg" 
+                  className="w-auto p-0" 
                   align="start"
-                  side="bottom"
-                  sideOffset={5}
                 >
                   <CalendarComponent
                     mode="single"
@@ -54,6 +52,17 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     }
                     initialFocus
                     className="rounded-md border-0"
+                    classNames={{
+                      day: cn(
+                        "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        "cursor-pointer"
+                      ),
+                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      cell: cn(
+                        "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+                        "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
+                      ),
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -70,14 +79,14 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
               <FormLabel>Start Time</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-white border-2">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select time">
                       {field.value || "Select time"}
                     </SelectValue>
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-white border-2 shadow-lg h-[200px]">
+                <SelectContent className="h-[200px]">
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
@@ -104,7 +113,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full pl-3 text-left font-normal bg-white border-2",
+                        "w-full pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -114,10 +123,8 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border-2 shadow-lg" 
+                  className="w-auto p-0" 
                   align="start"
-                  side="bottom"
-                  sideOffset={5}
                 >
                   <CalendarComponent
                     mode="single"
@@ -128,6 +135,17 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     }
                     initialFocus
                     className="rounded-md border-0"
+                    classNames={{
+                      day: cn(
+                        "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        "cursor-pointer"
+                      ),
+                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      cell: cn(
+                        "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+                        "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
+                      ),
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -144,14 +162,14 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
               <FormLabel>End Time</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-white border-2">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select time">
                       {field.value || "Select time"}
                     </SelectValue>
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-white border-2 shadow-lg h-[200px]">
+                <SelectContent className="h-[200px]">
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
