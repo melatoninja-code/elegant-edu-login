@@ -40,7 +40,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border rounded-md shadow-lg" 
+                  className="w-auto p-0 bg-white border-2 rounded-md shadow-lg z-50" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
@@ -82,7 +82,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
               <FormLabel>Start Time</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select time">
                       {field.value || "Select time"}
                     </SelectValue>
@@ -90,7 +90,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border rounded-md shadow-lg"
+                  className="bg-white border-2 rounded-md shadow-lg z-50"
                   position="popper"
                 >
                   {timeOptions.map((time) => (
@@ -129,7 +129,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border rounded-md shadow-lg" 
+                  className="w-auto p-0 bg-white border-2 rounded-md shadow-lg z-50" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
@@ -171,7 +171,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
               <FormLabel>End Time</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select time">
                       {field.value || "Select time"}
                     </SelectValue>
@@ -179,7 +179,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border rounded-md shadow-lg"
+                  className="bg-white border-2 rounded-md shadow-lg z-50"
                   position="popper"
                 >
                   {timeOptions.map((time) => (
