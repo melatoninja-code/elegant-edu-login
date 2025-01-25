@@ -40,7 +40,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0" 
+                  className="w-auto p-0 bg-background border rounded-md shadow-md" 
                   align="start"
                 >
                   <CalendarComponent
@@ -51,17 +51,40 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                       date < new Date(new Date().setHours(0, 0, 0, 0))
                     }
                     initialFocus
-                    className="rounded-md border-0"
+                    className="rounded-md border"
                     classNames={{
-                      day: cn(
-                        "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      months: "space-y-4",
+                      month: "space-y-4",
+                      caption: "flex justify-center pt-1 relative items-center",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: cn(
+                        "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
                         "cursor-pointer"
                       ),
-                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex",
+                      head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2",
                       cell: cn(
                         "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
                         "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
                       ),
+                      day: cn(
+                        "h-9 w-9 p-0 font-normal",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        "focus:bg-accent focus:text-accent-foreground focus:rounded-md",
+                        "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
+                        "cursor-pointer rounded-md"
+                      ),
+                      day_selected: "bg-primary text-primary-foreground",
+                      day_today: "bg-accent text-accent-foreground",
+                      day_outside: "text-muted-foreground opacity-50",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                      day_hidden: "invisible",
                     }}
                   />
                 </PopoverContent>
@@ -123,7 +146,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0" 
+                  className="w-auto p-0 bg-background border rounded-md shadow-md" 
                   align="start"
                 >
                   <CalendarComponent
@@ -134,17 +157,40 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                       date < new Date(new Date().setHours(0, 0, 0, 0))
                     }
                     initialFocus
-                    className="rounded-md border-0"
+                    className="rounded-md border"
                     classNames={{
-                      day: cn(
-                        "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      months: "space-y-4",
+                      month: "space-y-4",
+                      caption: "flex justify-center pt-1 relative items-center",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: cn(
+                        "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
                         "cursor-pointer"
                       ),
-                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex",
+                      head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2",
                       cell: cn(
                         "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
                         "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
                       ),
+                      day: cn(
+                        "h-9 w-9 p-0 font-normal",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        "focus:bg-accent focus:text-accent-foreground focus:rounded-md",
+                        "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
+                        "cursor-pointer rounded-md"
+                      ),
+                      day_selected: "bg-primary text-primary-foreground",
+                      day_today: "bg-accent text-accent-foreground",
+                      day_outside: "text-muted-foreground opacity-50",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                      day_hidden: "invisible",
                     }}
                   />
                 </PopoverContent>
