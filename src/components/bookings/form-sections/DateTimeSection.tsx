@@ -25,7 +25,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
     });
     
     if (fieldName === "start_date") {
-      // If end date is not set or is before start date, update it
       const endDate = form.getValues("end_date");
       if (!endDate || endDate < date) {
         form.setValue("end_date", date, {
@@ -38,7 +37,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -61,7 +60,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     </Button>
                   </FormControl>
                 </DialogTrigger>
-                <DialogContent className="p-0 bg-white">
+                <DialogContent className="p-0 max-w-fit bg-white">
                   <CalendarComponent
                     mode="single"
                     selected={field.value}
@@ -93,7 +92,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-white border rounded-md shadow-lg">
+                <SelectContent className="bg-white border rounded-md shadow-lg max-h-[300px]">
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
@@ -129,7 +128,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     </Button>
                   </FormControl>
                 </DialogTrigger>
-                <DialogContent className="p-0 bg-white">
+                <DialogContent className="p-0 max-w-fit bg-white">
                   <CalendarComponent
                     mode="single"
                     selected={field.value}
@@ -163,7 +162,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-white border rounded-md shadow-lg">
+                <SelectContent className="bg-white border rounded-md shadow-lg max-h-[300px]">
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
