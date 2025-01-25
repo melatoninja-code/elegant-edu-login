@@ -52,11 +52,14 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                       onSelect={(date) => {
                         if (date) {
                           console.log("Start Date Selected:", date);
-                          form.setValue("start_date", date, { 
+                          form.setValue(field.name, date, { 
                             shouldValidate: true, 
                             shouldDirty: true,
                             shouldTouch: true 
                           });
+                          setTimeout(() => {
+                            form.trigger(field.name);
+                          }, 100);
                         }
                       }}
                       disabled={(date) =>
@@ -140,11 +143,14 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                       onSelect={(date) => {
                         if (date) {
                           console.log("End Date Selected:", date);
-                          form.setValue("end_date", date, { 
+                          form.setValue(field.name, date, { 
                             shouldValidate: true, 
                             shouldDirty: true,
                             shouldTouch: true 
                           });
+                          setTimeout(() => {
+                            form.trigger(field.name);
+                          }, 100);
                         }
                       }}
                       disabled={(date) =>
