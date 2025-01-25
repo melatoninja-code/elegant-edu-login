@@ -1,14 +1,13 @@
-import { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { UseFormReturn } from "react-hook-form";
 import { BookingFormValues } from "@/types/booking";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 interface DateTimeSectionProps {
   form: UseFormReturn<BookingFormValues>;
@@ -16,9 +15,6 @@ interface DateTimeSectionProps {
 }
 
 export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
-  const [isStartDateOpen, setIsStartDateOpen] = useState(false);
-  const [isEndDateOpen, setIsEndDateOpen] = useState(false);
-
   const handleDateSelect = (date: Date | undefined, fieldName: "start_date" | "end_date") => {
     if (!date) return;
     
@@ -29,7 +25,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
     });
     
     if (fieldName === "start_date") {
-      setIsStartDateOpen(false);
       // If end date is not set or is before start date, update it
       const endDate = form.getValues("end_date");
       if (!endDate || endDate < date) {
@@ -39,8 +34,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
           shouldTouch: true
         });
       }
-    } else {
-      setIsEndDateOpen(false);
     }
   };
 
@@ -53,8 +46,8 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Start Date</FormLabel>
-              <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
-                <PopoverTrigger asChild>
+              <Dialog>
+                <DialogTrigger asChild>
                   <FormControl>
                     <Button
                       variant="outline"
@@ -67,26 +60,19 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                       <Calendar className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
-                </PopoverTrigger>
-                <PopoverContent 
-                  className="w-auto p-0" 
-                  align="start"
-                  side="bottom"
-                  sideOffset={8}
-                >
-                  <div className="bg-white border rounded-md shadow-lg p-2">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => handleDateSelect(date, "start_date")}
-                      disabled={(date) =>
-                        date < new Date(new Date().setHours(0, 0, 0, 0))
-                      }
-                      initialFocus
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
+                </DialogTrigger>
+                <DialogContent className="p-0 bg-white">
+                  <CalendarComponent
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => handleDateSelect(date, "start_date")}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                    initialFocus
+                  />
+                </DialogContent>
+              </Dialog>
               <FormMessage />
             </FormItem>
           )}
@@ -107,10 +93,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent 
-                  className="bg-white border rounded-md shadow-lg"
-                  position="popper"
-                >
+                <SelectContent className="bg-white border rounded-md shadow-lg">
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
@@ -131,8 +114,8 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>End Date</FormLabel>
-              <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
-                <PopoverTrigger asChild>
+              <Dialog>
+                <DialogTrigger asChild>
                   <FormControl>
                     <Button
                       variant="outline"
@@ -145,28 +128,21 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                       <Calendar className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
-                </PopoverTrigger>
-                <PopoverContent 
-                  className="w-auto p-0" 
-                  align="start"
-                  side="bottom"
-                  sideOffset={8}
-                >
-                  <div className="bg-white border rounded-md shadow-lg p-2">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => handleDateSelect(date, "end_date")}
-                      disabled={(date) => {
-                        const startDate = form.getValues("start_date");
-                        return date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                               (startDate && date < startDate);
-                      }}
-                      initialFocus
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
+                </DialogTrigger>
+                <DialogContent className="p-0 bg-white">
+                  <CalendarComponent
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => handleDateSelect(date, "end_date")}
+                    disabled={(date) => {
+                      const startDate = form.getValues("start_date");
+                      return date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                             (startDate && date < startDate);
+                    }}
+                    initialFocus
+                  />
+                </DialogContent>
+              </Dialog>
               <FormMessage />
             </FormItem>
           )}
@@ -187,10 +163,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                     <Clock className="h-4 w-4 opacity-50" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent 
-                  className="bg-white border rounded-md shadow-lg"
-                  position="popper"
-                >
+                <SelectContent className="bg-white border rounded-md shadow-lg">
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}
