@@ -40,10 +40,12 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border-2 rounded-md shadow-lg z-50" 
+                  className="w-auto p-0 bg-white border-2 rounded-md shadow-lg" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
+                  style={{ zIndex: 9999 }}
+                  forceMount
                 >
                   <CalendarComponent
                     mode="single"
@@ -90,8 +92,10 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border-2 rounded-md shadow-lg z-50"
+                  className="bg-white border-2 rounded-md shadow-lg"
                   position="popper"
+                  style={{ zIndex: 9999 }}
+                  forceMount
                 >
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
@@ -129,10 +133,12 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0 bg-white border-2 rounded-md shadow-lg z-50" 
+                  className="w-auto p-0 bg-white border-2 rounded-md shadow-lg" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
+                  style={{ zIndex: 9999 }}
+                  forceMount
                 >
                   <CalendarComponent
                     mode="single"
@@ -179,8 +185,10 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border-2 rounded-md shadow-lg z-50"
+                  className="bg-white border-2 rounded-md shadow-lg"
                   position="popper"
+                  style={{ zIndex: 9999 }}
+                  forceMount
                 >
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
