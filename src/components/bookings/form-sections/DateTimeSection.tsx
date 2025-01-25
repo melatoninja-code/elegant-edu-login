@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock } from "lucide-react";
@@ -15,6 +16,9 @@ interface DateTimeSectionProps {
 }
 
 export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
+  const [isStartDatePopoverOpen, setIsStartDatePopoverOpen] = useState(false);
+  const [isEndDatePopoverOpen, setIsEndDatePopoverOpen] = useState(false);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
@@ -24,7 +28,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Start Date</FormLabel>
-              <Popover>
+              <Popover open={isStartDatePopoverOpen} onOpenChange={setIsStartDatePopoverOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -45,7 +49,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   side="bottom"
                   sideOffset={8}
                   style={{ zIndex: 9999 }}
-                  forceMount
                 >
                   <CalendarComponent
                     mode="single"
@@ -61,6 +64,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                         setTimeout(() => {
                           form.trigger(field.name);
                         }, 100);
+                        setIsStartDatePopoverOpen(false);
                       }
                     }}
                     disabled={(date) =>
@@ -116,7 +120,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>End Date</FormLabel>
-              <Popover>
+              <Popover open={isEndDatePopoverOpen} onOpenChange={setIsEndDatePopoverOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -137,7 +141,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   side="bottom"
                   sideOffset={8}
                   style={{ zIndex: 9999 }}
-                  forceMount
                 >
                   <CalendarComponent
                     mode="single"
@@ -153,6 +156,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                         setTimeout(() => {
                           form.trigger(field.name);
                         }, 100);
+                        setIsEndDatePopoverOpen(false);
                       }
                     }}
                     disabled={(date) =>
