@@ -95,7 +95,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   className="bg-white border-2 rounded-md shadow-lg"
                   position="popper"
                   style={{ zIndex: 9999 }}
-                  forceMount
                 >
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
@@ -188,7 +187,6 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   className="bg-white border-2 rounded-md shadow-lg"
                   position="popper"
                   style={{ zIndex: 9999 }}
-                  forceMount
                 >
                   {timeOptions.map((time) => (
                     <SelectItem key={time} value={time}>
