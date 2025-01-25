@@ -51,8 +51,18 @@ export default function Bookings() {
     const fetchUserData = async () => {
       try {
         setIsLoadingUserData(true);
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
+        if (userError) {
+          console.error('Error fetching user:', userError);
+          toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "Failed to fetch user data. Please try logging in again.",
+          });
+          return;
+        }
+
         if (!user) {
           console.log('No user found');
           setIsLoadingUserData(false);
@@ -61,17 +71,28 @@ export default function Bookings() {
 
         setUserId(user.id);
         
-        const { data: profile } = await supabase
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .maybeSingle();
         
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch user profile.",
+          });
+          return;
+        }
+
         if (profile) {
           setUserRole(profile.role);
         }
 
-        // Use maybeSingle() to handle cases where no teacher record exists
+        // Fetch teacher data if it exists
         const { data: teacher, error: teacherError } = await supabase
           .from('teachers')
           .select('id')
@@ -83,7 +104,7 @@ export default function Bookings() {
           toast({
             variant: "destructive",
             title: "Error fetching teacher data",
-            description: "Failed to retrieve teacher information. Please try again.",
+            description: "Failed to retrieve teacher information.",
           });
           return;
         }
@@ -91,6 +112,7 @@ export default function Bookings() {
         if (teacher) {
           setTeacherId(teacher.id);
           
+          // Fetch teacher tags
           const { data: teacherTags, error: tagsError } = await supabase
             .from('teacher_tags')
             .select('tag')
@@ -98,6 +120,11 @@ export default function Bookings() {
           
           if (tagsError) {
             console.error('Error fetching teacher tags:', tagsError);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to fetch teacher tags.",
+            });
             return;
           }
           
