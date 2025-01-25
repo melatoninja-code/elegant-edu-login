@@ -40,23 +40,25 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0" 
+                  className="w-auto p-0 bg-white border rounded-md shadow-lg z-50" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
                 >
-                  <div className="bg-white border rounded-md shadow-lg">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date < new Date(new Date().setHours(0, 0, 0, 0))
-                      }
-                      initialFocus
-                      className="rounded-md"
-                    />
-                  </div>
+                  <CalendarComponent
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => {
+                      console.log("Start Date Selected:", date);
+                      field.onChange(date);
+                      form.trigger("start_date");
+                    }}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                    initialFocus
+                    className="rounded-md border-0"
+                  />
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -80,7 +82,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border rounded-md shadow-lg"
+                  className="bg-white border rounded-md shadow-lg z-50"
                   position="popper"
                 >
                   {timeOptions.map((time) => (
@@ -119,23 +121,25 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent 
-                  className="w-auto p-0" 
+                  className="w-auto p-0 bg-white border rounded-md shadow-lg z-50" 
                   align="start"
                   side="bottom"
                   sideOffset={8}
                 >
-                  <div className="bg-white border rounded-md shadow-lg">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date < new Date(new Date().setHours(0, 0, 0, 0))
-                      }
-                      initialFocus
-                      className="rounded-md"
-                    />
-                  </div>
+                  <CalendarComponent
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => {
+                      console.log("End Date Selected:", date);
+                      field.onChange(date);
+                      form.trigger("end_date");
+                    }}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                    initialFocus
+                    className="rounded-md border-0"
+                  />
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -159,7 +163,7 @@ export function DateTimeSection({ form, timeOptions }: DateTimeSectionProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent 
-                  className="bg-white border rounded-md shadow-lg"
+                  className="bg-white border rounded-md shadow-lg z-50"
                   position="popper"
                 >
                   {timeOptions.map((time) => (
