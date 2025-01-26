@@ -207,7 +207,7 @@ export default function Bookings() {
       }
     },
     enabled: Boolean(userRole && (userRole === 'admin' || (teacherId && hasTeacherTag))),
-    refetchInterval: 60000,
+    refetchInterval: 60000, // Refetch every minute to keep data fresh
   });
 
   const handleSubmit = async (values: BookingFormValues) => {

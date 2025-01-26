@@ -100,7 +100,9 @@ export default function CalendarPage() {
           teacher:teachers (
             name
           )
-        `);
+        `)
+        .gte('end_time', new Date().toISOString()) // Only show current and future bookings
+        .order('start_time', { ascending: true });
 
       if (error) throw error;
       return data || [];
