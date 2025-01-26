@@ -1,9 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Teacher } from "./types";
-import { Mail, Phone, MapPin, School, Home, User2, Key } from "lucide-react";
+import { Mail, Phone, MapPin, School, Home, User2 } from "lucide-react";
 import { TeacherTags } from "./TeacherTags";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TeacherDetailsDialogProps {
   teacher: Teacher | null;
@@ -12,6 +15,8 @@ interface TeacherDetailsDialogProps {
 }
 
 export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetailsDialogProps) {
+  const { toast } = useToast();
+  
   if (!teacher) return null;
 
   const initials = teacher.name
@@ -19,6 +24,37 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetai
     .map((n) => n[0])
     .join("")
     .toUpperCase();
+
+  const handleSetPassword = async () => {
+    if (!teacher.auth_id) {
+      toast({
+        title: "Error",
+        description: "This teacher does not have an account linked.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newPassword = prompt("Enter a new password for this teacher:");
+    if (!newPassword) return;
+
+    const { error } = await supabase.auth.admin.updateUserById(teacher.auth_id, {
+      password: newPassword,
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Password updated successfully.",
+      });
+    }
+  };
 
   return (
     <Dialog open={!!teacher} onOpenChange={() => onClose()}>
@@ -47,22 +83,15 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetai
 
           <TeacherTags teacherId={teacher.id} isAdmin={isAdmin} />
 
-          {isAdmin && (
-            <div className="p-4 bg-muted/50 rounded-lg space-y-2 border border-border/50">
-              <h3 className="font-medium text-sm text-muted-foreground flex items-center gap-2">
-                <Key className="h-4 w-4" />
-                Account Credentials
-              </h3>
-              <div className="grid gap-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Email:</span>
-                  <span>{teacher.account_email || "No account email set"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Password:</span>
-                  <span>{teacher.account_password || "No account password set"}</span>
-                </div>
-              </div>
+          {isAdmin && teacher.auth_id && (
+            <div className="flex justify-end">
+              <Button 
+                variant="outline" 
+                onClick={handleSetPassword}
+                className="text-sm"
+              >
+                Set Password
+              </Button>
             </div>
           )}
 
