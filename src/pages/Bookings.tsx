@@ -304,7 +304,7 @@ export default function Bookings() {
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
           <BookingHeader onNewBooking={() => setIsDialogOpen(true)} />
           <main className="flex-1 overflow-auto">
-            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-[1400px] mx-auto p-4 sm:px-6 lg:px-8 py-6 sm:py-8">
               {isLoadingBookings ? (
                 <div className="space-y-4">
                   <Skeleton className="h-24 w-full" />

@@ -10,7 +10,7 @@ export function BookingHeader({ onNewBooking }: BookingHeaderProps) {
   return (
     <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:h-16 gap-4 sm:gap-0">
           <div className="flex items-center gap-4">
             <SidebarTrigger className="flex-shrink-0" />
             <div>
@@ -20,7 +20,7 @@ export function BookingHeader({ onNewBooking }: BookingHeaderProps) {
           </div>
           <Button 
             onClick={onNewBooking}
-            className="bg-primary hover:bg-primary-dark transition-colors shadow-sm"
+            className="w-full sm:w-auto bg-primary hover:bg-primary-dark transition-colors shadow-sm"
           >
             <Calendar className="mr-2 h-4 w-4" />
             New Booking
