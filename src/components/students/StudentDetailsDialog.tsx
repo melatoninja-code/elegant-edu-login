@@ -16,7 +16,6 @@ import {
   AlertCircle
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
 import { StudentDocuments } from "./StudentDocuments";
 
 interface StudentDetailsDialogProps {
@@ -45,38 +44,40 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
   return (
     <Dialog open={!!student} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
-          <DialogTitle className="text-2xl font-bold">Student Profile</DialogTitle>
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold">Student Profile</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto space-y-6 py-4 px-1">
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage
-                  src={student.profile_picture_url || ''}
-                  alt={student.name}
-                />
-                <AvatarFallback>
-                  {student.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <h2 className="text-2xl font-semibold">{student.name}</h2>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="capitalize">
-                    {student.gender}
-                  </Badge>
-                  <Badge variant="outline">
-                    Grade {student.grade_level}
-                  </Badge>
-                  <Badge
-                    variant="secondary"
-                    className={`capitalize ${getStatusColor(student.status)}`}
-                  >
-                    {student.status}
-                  </Badge>
-                </div>
+          {/* Header Section with Avatar and Basic Info */}
+          <div className="flex items-start gap-6 bg-neutral-light/50 p-6 rounded-lg">
+            <Avatar className="h-24 w-24 border-4 border-white shadow-md">
+              <AvatarImage src={student.profile_picture_url || ""} alt={student.name} />
+              <AvatarFallback className="text-xl bg-primary-light text-primary-dark">
+                {student.name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-primary-dark">{student.name}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="capitalize bg-white">
+                  {student.gender}
+                </Badge>
+                <Badge variant="outline" className="bg-white">
+                  Grade {student.grade_level}
+                </Badge>
+                <Badge
+                  variant="secondary"
+                  className={`capitalize ${getStatusColor(student.status)}`}
+                >
+                  {student.status}
+                </Badge>
               </div>
+              {student.email && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  <span>{student.email}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -201,7 +202,7 @@ export function StudentDetailsDialog({ student, onClose }: StudentDetailsDialogP
             </div>
           </div>
           
-          {/* Add Documents Section */}
+          {/* Documents Section */}
           {student && <StudentDocuments student={student} />}
         </div>
       </DialogContent>
