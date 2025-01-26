@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Booking } from "@/types/booking";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -22,11 +22,13 @@ import { useQuery } from "@tanstack/react-query";
 interface BookingCardProps {
   booking: Booking;
   onDelete?: () => void;
+  onStatusChange?: () => void;
 }
 
-export function BookingCard({ booking, onDelete }: BookingCardProps) {
+export function BookingCard({ booking, onDelete, onStatusChange }: BookingCardProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
   // Get current user's role and teacher ID with better error handling
@@ -78,32 +80,42 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
     }
   });
 
-  // Get teacher information with better error handling
-  const { data: teacherInfo } = useQuery({
-    queryKey: ["teacher", booking.teacher_id],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("teachers")
-          .select("name")
-          .eq("id", booking.teacher_id)
-          .maybeSingle();
-
-        if (error) throw error;
-        return data;
-      } catch (error: any) {
-        console.error("Error fetching teacher info:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to fetch teacher information",
-        });
-        return null;
-      }
+  const handleStatusUpdate = async (newStatus: 'approved' | 'rejected') => {
+    if (!userInfo?.role === 'admin') {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Only administrators can approve or reject bookings.",
+      });
+      return;
     }
-  });
 
-  const canDelete = userInfo?.role === "admin" || userInfo?.teacherId === booking.teacher_id;
+    try {
+      setIsUpdating(true);
+      const { error } = await supabase
+        .from('room_bookings')
+        .update({ status: newStatus })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Booking ${newStatus} successfully`,
+      });
+
+      onStatusChange?.();
+    } catch (error: any) {
+      console.error('Error updating booking status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || `Failed to ${newStatus} booking`,
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -178,7 +190,29 @@ export function BookingCard({ booking, onDelete }: BookingCardProps) {
               >
                 {booking.status}
               </Badge>
-              {canDelete && (
+              {userInfo?.role === 'admin' && booking.status === 'pending' && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-100"
+                    onClick={() => handleStatusUpdate('approved')}
+                    disabled={isUpdating}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100"
+                    onClick={() => handleStatusUpdate('rejected')}
+                    disabled={isUpdating}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+              {userInfo?.role === 'admin' && (
                 <Button
                   variant="ghost"
                   size="icon"

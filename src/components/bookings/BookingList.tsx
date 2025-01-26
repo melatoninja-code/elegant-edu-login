@@ -14,7 +14,10 @@ export function BookingList({ bookings }: BookingListProps) {
   }
 
   const handleDelete = () => {
-    // Invalidate and refetch bookings
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
+  };
+
+  const handleStatusChange = () => {
     queryClient.invalidateQueries({ queryKey: ['bookings'] });
   };
 
@@ -25,6 +28,7 @@ export function BookingList({ bookings }: BookingListProps) {
           key={booking.id} 
           booking={booking} 
           onDelete={handleDelete}
+          onStatusChange={handleStatusChange}
         />
       ))}
     </div>
