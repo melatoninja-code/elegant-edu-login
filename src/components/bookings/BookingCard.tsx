@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Booking } from "@/types/booking";
 import { Button } from "@/components/ui/button";
-import { Trash2, Check, X } from "lucide-react";
+import { Trash2, Check, X, Pencil } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -18,6 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { BookingEditDialog } from "./BookingEditDialog";
 
 interface BookingCardProps {
   booking: Booking;
