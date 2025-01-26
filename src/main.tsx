@@ -5,7 +5,10 @@ import { useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from './integrations/supabase/client';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { Toaster } from "@/components/ui/toaster";
 import './index.css';
+
+// Import all pages
 import Index from './pages/Index';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
@@ -41,19 +44,15 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     return <div>Loading...</div>;
   }
 
-  // Protect routes that require authentication
-  if (!session && window.location.pathname !== '/' && window.location.pathname !== '/signup') {
-    return <Navigate to="/" replace />;
-  }
-
-  // Only wrap authenticated routes with SidebarProvider
-  if (session && window.location.pathname !== '/' && window.location.pathname !== '/signup') {
-    return <SidebarProvider>{children}</SidebarProvider>;
-  }
-
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <Toaster />
+    </>
+  );
 }
 
+// Create router with auth protection
 const router = createBrowserRouter([
   {
     path: "/",
@@ -65,33 +64,106 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Dashboard />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/teachers",
-    element: <Teachers />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Teachers />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/students",
-    element: <Students />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Students />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/classrooms",
-    element: <Classrooms />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Classrooms />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/calendar",
-    element: <Calendar />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Calendar />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/bookings",
-    element: <Bookings />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Bookings />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/assignments",
-    element: <Assignments />,
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Assignments />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
   },
 ]);
+
+// Protected Route component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 const queryClient = new QueryClient();
 
