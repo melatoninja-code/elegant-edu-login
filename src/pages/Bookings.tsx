@@ -186,7 +186,14 @@ export default function Bookings() {
           return [];
         }
 
-        console.log('Fetched bookings:', data);
+        // Log the fetched bookings to check their status
+        console.log('Fetched bookings:', data?.map(booking => ({
+          id: booking.id,
+          status: booking.status,
+          start_time: booking.start_time,
+          end_time: booking.end_time
+        })));
+        
         return data;
       } catch (error: any) {
         console.error('Error in bookings query:', error);
@@ -199,6 +206,8 @@ export default function Bookings() {
       }
     },
     enabled: Boolean(userRole && (userRole === 'admin' || (teacherId && hasTeacherTag))),
+    // Refresh the data every minute to see updates from the trigger
+    refetchInterval: 60000,
   });
 
   const handleSubmit = async (values: BookingFormValues) => {
