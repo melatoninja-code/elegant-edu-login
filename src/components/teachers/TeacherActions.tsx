@@ -133,6 +133,67 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
     }
   };
 
+  const handleDelete = async () => {
+    setIsLoading(true);
+    try {
+      // First, delete all teacher tags
+      const { error: tagsError } = await supabase
+        .from('teacher_tags')
+        .delete()
+        .eq('teacher_id', teacher.id);
+
+      if (tagsError) throw tagsError;
+
+      // Then, delete all teacher group assignments
+      const { error: groupAssignmentsError } = await supabase
+        .from('teacher_group_student_assignments')
+        .delete()
+        .eq('group_id', teacher.id);
+
+      if (groupAssignmentsError) throw groupAssignmentsError;
+
+      // Delete teacher groups
+      const { error: groupsError } = await supabase
+        .from('teacher_groups')
+        .delete()
+        .eq('teacher_id', teacher.id);
+
+      if (groupsError) throw groupsError;
+
+      // Delete teacher student assignments
+      const { error: studentAssignmentsError } = await supabase
+        .from('teacher_student_assignments')
+        .delete()
+        .eq('teacher_id', teacher.id);
+
+      if (studentAssignmentsError) throw studentAssignmentsError;
+
+      // Finally, delete the teacher
+      const { error: teacherError } = await supabase
+        .from('teachers')
+        .delete()
+        .eq('id', teacher.id);
+
+      if (teacherError) throw teacherError;
+
+      onDelete();
+      setIsDeleteDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Teacher deleted successfully",
+      });
+    } catch (error: any) {
+      console.error('Error deleting teacher:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete teacher",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center gap-1.5 sm:gap-2">
@@ -237,15 +298,13 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onDelete();
-                setIsDeleteDialogOpen(false);
-              }}
+              onClick={handleDelete}
               className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+              disabled={isLoading}
             >
-              Delete
+              {isLoading ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
