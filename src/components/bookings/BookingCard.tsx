@@ -80,8 +80,33 @@ export function BookingCard({ booking, onDelete, onStatusChange }: BookingCardPr
     }
   });
 
+  // Get teacher information with better error handling
+  const { data: teacherInfo } = useQuery({
+    queryKey: ["teacher", booking.teacher_id],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("teachers")
+          .select("name")
+          .eq("id", booking.teacher_id)
+          .maybeSingle();
+
+        if (error) throw error;
+        return data;
+      } catch (error: any) {
+        console.error("Error fetching teacher info:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch teacher information",
+        });
+        return null;
+      }
+    }
+  });
+
   const handleStatusUpdate = async (newStatus: 'approved' | 'rejected') => {
-    if (!userInfo?.role === 'admin') {
+    if (userInfo?.role !== 'admin') {
       toast({
         variant: "destructive",
         title: "Error",
