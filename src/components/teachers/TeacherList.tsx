@@ -45,35 +45,28 @@ export function TeacherList() {
 
   const isAdmin = userRole === "admin";
 
-  // Fetch teachers and their tags with proper auth data
+  // Fetch teachers and their tags
   const { data: teachersWithTags, isLoading, error: teachersError, refetch } = useQuery({
     queryKey: ["teachers", "tags", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) throw new Error("Not authenticated");
 
-      // Get teachers with their auth data
       const { data: teachers, error: teachersError } = await supabase
         .from("teachers")
-        .select(`
-          *,
-          users:auth_id (
-            email
-          )
-        `);
+        .select("*");
       
       if (teachersError) throw teachersError;
 
-      // Then get all tags
       const { data: tags, error: tagsError } = await supabase
         .from("teacher_tags")
         .select("*");
 
       if (tagsError) throw tagsError;
 
-      // Combine teachers with their tags and format the data
+      // Combine teachers with their tags
       return teachers?.map(teacher => ({
         ...teacher,
-        email: teacher.users?.email || teacher.account_email || null,
+        email: teacher.account_email || teacher.email,
         tags: tags.filter(tag => tag.teacher_id === teacher.id).map(t => t.tag)
       })) || [];
     },
