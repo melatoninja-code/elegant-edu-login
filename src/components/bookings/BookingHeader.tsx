@@ -8,12 +8,18 @@ interface BookingHeaderProps {
 
 export function BookingHeader({ onNewBooking }: BookingHeaderProps) {
   return (
-    <div className="flex items-center justify-between p-6 border-b">
+    <div className="flex items-center justify-between p-6 border-b bg-white shadow-sm">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
-        <h1 className="text-2xl font-bold">Room Bookings</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Room Bookings</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage your classroom reservations</p>
+        </div>
       </div>
-      <Button onClick={onNewBooking}>
+      <Button 
+        onClick={onNewBooking}
+        className="bg-primary hover:bg-primary-dark transition-colors"
+      >
         <Calendar className="mr-2 h-4 w-4" />
         New Booking
       </Button>
