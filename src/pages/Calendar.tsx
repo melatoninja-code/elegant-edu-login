@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingDialog } from "@/components/bookings/BookingDialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, CalendarDays } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BookingFormValues } from "@/types/booking";
 import { Badge } from "@/components/ui/badge";
@@ -193,31 +193,34 @@ export default function CalendarPage() {
     <SidebarProvider>
       <div className="flex h-screen w-full bg-neutral-light/50">
         <AppSidebar />
-        <main className="flex-1 overflow-auto p-2 md:p-6">
-          {/* Header section with title and new booking button */}
-          <div className="flex items-center justify-between gap-4 p-6 border-b">
+        <main className="flex-1 overflow-auto">
+          {/* Header section with improved styling */}
+          <div className="flex items-center justify-between gap-4 p-6 border-b bg-white shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <h1 className="text-2xl font-bold">Calendar</h1>
+              <div className="flex items-center gap-2">
+                <CalendarDays className="h-6 w-6 text-primary" />
+                <h1 className="text-2xl font-bold text-gray-800">Calendar</h1>
+              </div>
             </div>
             {(userInfo?.role === 'admin' || userInfo?.teacherId) && (
               <Button
                 onClick={() => setIsBookingDialogOpen(true)}
-                className="gap-2"
+                className="bg-primary hover:bg-primary-dark transition-colors shadow-md"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 mr-2" />
                 New Booking
               </Button>
             )}
           </div>
 
-          {/* Main content area with calendar and booking details */}
-          <div className="container mx-auto py-6">
+          {/* Main content area with improved grid layout */}
+          <div className="container mx-auto py-6 px-4">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Calendar card with booking indicators */}
+              {/* Calendar card with enhanced styling */}
               <Card className="bg-white shadow-md md:col-span-2">
                 <CardHeader className="pb-3 border-b">
-                  <CardTitle className="text-lg text-primary md:text-xl">
+                  <CardTitle className="text-lg text-primary-dark md:text-xl">
                     Room Bookings Calendar
                   </CardTitle>
                 </CardHeader>
@@ -231,7 +234,7 @@ export default function CalendarPage() {
                       selected={date}
                       onSelect={handleDateChange}
                       className={cn(
-                        "rounded-md border w-full max-w-[350px]",
+                        "rounded-md border shadow-sm w-full max-w-[350px]",
                         isMobile ? "transform-none" : "transform origin-top"
                       )}
                       components={{
@@ -241,9 +244,8 @@ export default function CalendarPage() {
                             className="relative w-full h-full flex items-center justify-center"
                           >
                             <span>{dayDate.getDate()}</span>
-                            {/* Booking indicator dot */}
                             {getBookingsForDate(dayDate).length > 0 && (
-                              <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
+                              <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                             )}
                           </div>
                         ),
@@ -253,10 +255,10 @@ export default function CalendarPage() {
                 </CardContent>
               </Card>
 
-              {/* Bookings details card for selected date */}
+              {/* Bookings details card with improved styling */}
               {date && (
                 <div className="space-y-4">
-                  <Card className="bg-white shadow-md">
+                  <Card className="bg-white shadow-md h-full">
                     <CardHeader className="pb-3 border-b bg-primary-lighter">
                       <CardTitle className="text-lg text-primary-dark md:text-xl">
                         {format(date, 'MMMM d, yyyy')}
@@ -268,10 +270,10 @@ export default function CalendarPage() {
                           getBookingsForDate(date).map((booking) => (
                             <div
                               key={booking.id}
-                              className="p-4 rounded-lg border border-neutral-200 space-y-2"
+                              className="p-4 rounded-lg border border-neutral-200 space-y-2 hover:border-primary/50 transition-colors"
                             >
                               <div className="flex items-center justify-between">
-                                <h3 className="font-medium">
+                                <h3 className="font-medium text-gray-800">
                                   {booking.classroom.name} ({booking.classroom.room_number})
                                 </h3>
                                 <Badge
@@ -286,19 +288,19 @@ export default function CalendarPage() {
                                   {booking.status}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-gray-600">
                                 {format(new Date(booking.start_time), 'HH:mm')} - {format(new Date(booking.end_time), 'HH:mm')}
                               </p>
                               {booking.teacher?.name && (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-gray-600">
                                   Teacher: {booking.teacher.name}
                                 </p>
                               )}
-                              <p className="text-sm">{booking.purpose}</p>
+                              <p className="text-sm text-gray-700">{booking.purpose}</p>
                             </div>
                           ))
                         ) : (
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-center text-gray-500 py-4">
                             No bookings for this date.
                           </p>
                         )}
@@ -312,7 +314,7 @@ export default function CalendarPage() {
         </main>
       </div>
 
-      {/* Booking dialog for creating new bookings */}
+      {/* Booking dialog */}
       <BookingDialog
         isOpen={isBookingDialogOpen}
         onOpenChange={setIsBookingDialogOpen}
