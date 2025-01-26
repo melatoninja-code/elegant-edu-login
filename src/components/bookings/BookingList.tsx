@@ -9,10 +9,6 @@ interface BookingListProps {
 export function BookingList({ bookings }: BookingListProps) {
   const queryClient = useQueryClient();
 
-  if (bookings?.length === 0) {
-    return <p>No bookings found.</p>;
-  }
-
   const handleDelete = () => {
     queryClient.invalidateQueries({ queryKey: ['bookings'] });
   };
@@ -21,8 +17,16 @@ export function BookingList({ bookings }: BookingListProps) {
     queryClient.invalidateQueries({ queryKey: ['bookings'] });
   };
 
+  if (bookings?.length === 0) {
+    return (
+      <div className="flex justify-center items-center p-6">
+        <p className="text-muted-foreground">No bookings found.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-4">
+    <div className="max-w-4xl mx-auto w-full p-6 space-y-4">
       {bookings?.map((booking) => (
         <BookingCard 
           key={booking.id} 

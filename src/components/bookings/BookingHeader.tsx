@@ -16,15 +16,13 @@ export function BookingHeader({ onNewBooking }: BookingHeaderProps) {
           <p className="text-sm text-gray-500">Manage your classroom reservations</p>
         </div>
       </div>
-      <div className="flex w-full md:w-auto mt-3 md:mt-0 md:ml-auto">
-        <Button 
-          onClick={onNewBooking}
-          className="w-full md:w-auto bg-primary hover:bg-primary-dark transition-colors ml-auto"
-        >
-          <Calendar className="mr-2 h-4 w-4" />
-          New Booking
-        </Button>
-      </div>
+      <Button 
+        onClick={onNewBooking}
+        className="w-full md:w-auto bg-primary hover:bg-primary-dark transition-colors mt-4 md:mt-0"
+      >
+        <Calendar className="mr-2 h-4 w-4" />
+        New Booking
+      </Button>
     </div>
   );
 }
