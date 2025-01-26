@@ -27,7 +27,7 @@ export function TeacherList() {
     },
   });
 
-  const { data: userRole, error: roleError } = useQuery({
+  const { data: userRole } = useQuery({
     queryKey: ["userRole", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
@@ -51,10 +51,15 @@ export function TeacherList() {
     queryFn: async () => {
       if (!session?.user?.id) throw new Error("Not authenticated");
 
-      // First get all teachers
+      // First get all teachers with their account info
       const { data: teachers, error: teachersError } = await supabase
         .from("teachers")
-        .select("*");
+        .select(`
+          *,
+          auth_id,
+          account_email,
+          account_password
+        `);
       
       if (teachersError) throw teachersError;
 
@@ -95,8 +100,56 @@ export function TeacherList() {
     }
 
     try {
-      const { error } = await supabase.from("teachers").delete().eq("id", id);
-      if (error) throw error;
+      // First, get all teacher groups
+      const { data: teacherGroups, error: groupsQueryError } = await supabase
+        .from("teacher_groups")
+        .select("id")
+        .eq("teacher_id", id);
+      
+      if (groupsQueryError) throw groupsQueryError;
+
+      // Delete all student assignments for these groups
+      if (teacherGroups && teacherGroups.length > 0) {
+        const groupIds = teacherGroups.map(g => g.id);
+        const { error: groupAssignmentsError } = await supabase
+          .from("teacher_group_student_assignments")
+          .delete()
+          .in("group_id", groupIds);
+
+        if (groupAssignmentsError) throw groupAssignmentsError;
+      }
+
+      // Delete teacher groups
+      const { error: groupsError } = await supabase
+        .from("teacher_groups")
+        .delete()
+        .eq("teacher_id", id);
+
+      if (groupsError) throw groupsError;
+
+      // Delete teacher student assignments
+      const { error: studentAssignmentsError } = await supabase
+        .from("teacher_student_assignments")
+        .delete()
+        .eq("teacher_id", id);
+
+      if (studentAssignmentsError) throw studentAssignmentsError;
+
+      // Delete teacher tags
+      const { error: tagsError } = await supabase
+        .from("teacher_tags")
+        .delete()
+        .eq("teacher_id", id);
+
+      if (tagsError) throw tagsError;
+
+      // Finally, delete the teacher
+      const { error: teacherError } = await supabase
+        .from("teachers")
+        .delete()
+        .eq("id", id);
+
+      if (teacherError) throw teacherError;
       
       toast({
         title: "Success",
@@ -112,13 +165,13 @@ export function TeacherList() {
     }
   };
 
-  if (roleError || teachersError) {
+  if (teachersError) {
     return (
       <Alert variant="destructive" className="animate-fadeIn">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          {roleError?.message || teachersError?.message || "An error occurred while loading data"}
+          {teachersError.message || "An error occurred while loading data"}
         </AlertDescription>
       </Alert>
     );
