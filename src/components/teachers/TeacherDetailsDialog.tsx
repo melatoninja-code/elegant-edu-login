@@ -60,69 +60,92 @@ export function TeacherDetailsDialog({ teacher, onClose, isAdmin }: TeacherDetai
     <Dialog open={!!teacher} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">Teacher Details</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold">Teacher Profile</DialogTitle>
         </DialogHeader>
-        <div className="space-y-6">
-          <div className="flex items-start gap-4">
-            <Avatar className="h-20 w-20">
+        <div className="space-y-8">
+          {/* Header Section with Avatar and Basic Info */}
+          <div className="flex items-start gap-6 bg-neutral-light/50 p-6 rounded-lg">
+            <Avatar className="h-24 w-24 border-4 border-white shadow-md">
               <AvatarImage src={teacher.profile_picture_url || ""} alt={teacher.name} />
-              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+              <AvatarFallback className="text-xl bg-primary-light text-primary-dark">
+                {initials}
+              </AvatarFallback>
             </Avatar>
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold">{teacher.name}</h2>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Badge variant="outline" className="capitalize">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-primary-dark">{teacher.name}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="capitalize bg-white">
                   {teacher.gender}
                 </Badge>
                 {teacher.dorm_room && (
-                  <Badge variant="outline">Room {teacher.dorm_room}</Badge>
+                  <Badge variant="outline" className="bg-white">
+                    Room {teacher.dorm_room}
+                  </Badge>
                 )}
+              </div>
+              {teacher.email && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  <span>{teacher.email}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="grid gap-6">
+            <h3 className="text-lg font-semibold text-primary-dark">Contact Information</h3>
+            <div className="grid gap-4 bg-white p-4 rounded-lg border border-border/10">
+              <div className="flex items-center gap-3">
+                <Phone className="h-5 w-5 text-primary" />
+                <span>{teacher.phone_number}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span>{teacher.address}</span>
+              </div>
+              {teacher.dorm_room && (
+                <div className="flex items-center gap-3">
+                  <Home className="h-5 w-5 text-primary" />
+                  <span>Room {teacher.dorm_room}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Academic Information */}
+          <div className="grid gap-6">
+            <h3 className="text-lg font-semibold text-primary-dark">Academic Information</h3>
+            <div className="grid gap-4 bg-white p-4 rounded-lg border border-border/10">
+              <div className="flex items-center gap-3">
+                <School className="h-5 w-5 text-primary" />
+                <span>{teacher.studies}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <User2 className="h-5 w-5 text-primary" />
+                <span className="capitalize">{teacher.gender}</span>
               </div>
             </div>
           </div>
 
-          <TeacherTags teacherId={teacher.id} isAdmin={isAdmin} />
+          {/* Tags Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-primary-dark">Specializations & Skills</h3>
+            <TeacherTags teacherId={teacher.id} isAdmin={isAdmin} />
+          </div>
 
+          {/* Admin Actions */}
           {isAdmin && teacher.auth_id && (
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4 border-t">
               <Button 
                 variant="outline" 
                 onClick={handleSetPassword}
-                className="text-sm"
+                className="bg-white hover:bg-primary-lighter text-primary-dark"
               >
                 Set Password
               </Button>
             </div>
           )}
-
-          <div className="grid gap-4">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <span>{teacher.email || "No email set"}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span>{teacher.phone_number}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{teacher.address}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <School className="h-4 w-4 text-muted-foreground" />
-              <span>{teacher.studies}</span>
-            </div>
-            {teacher.dorm_room && (
-              <div className="flex items-center gap-2">
-                <Home className="h-4 w-4 text-muted-foreground" />
-                <span>Room {teacher.dorm_room}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <User2 className="h-4 w-4 text-muted-foreground" />
-              <span className="capitalize">{teacher.gender}</span>
-            </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
