@@ -19,14 +19,16 @@ export function BookingList({ bookings }: BookingListProps) {
 
   if (bookings?.length === 0) {
     return (
-      <div className="flex justify-center items-center p-6">
-        <p className="text-muted-foreground">No bookings found.</p>
+      <div className="flex justify-center items-center min-h-[200px] bg-neutral-light/50 rounded-lg">
+        <p className="text-muted-foreground text-center px-4">
+          No bookings found. Create a new booking to get started.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto w-full p-6 space-y-4">
+    <div className="grid gap-4 animate-fadeIn">
       {bookings?.map((booking) => (
         <BookingCard 
           key={booking.id} 
