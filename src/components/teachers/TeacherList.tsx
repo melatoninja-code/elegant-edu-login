@@ -51,7 +51,7 @@ export function TeacherList() {
     queryFn: async () => {
       if (!session?.user?.id) throw new Error("Not authenticated");
 
-      // Get teachers with their auth data and account credentials
+      // Get teachers with their auth data
       const { data: teachers, error: teachersError } = await supabase
         .from("teachers")
         .select(`
@@ -73,9 +73,9 @@ export function TeacherList() {
       // Combine teachers with their tags and format the data
       return teachers?.map(teacher => ({
         ...teacher,
-        email: teacher.auth?.email || teacher.account_email || null,
+        email: teacher.auth?.email || null,
         tags: tags.filter(tag => tag.teacher_id === teacher.id).map(t => t.tag)
-      }));
+      })) || [];
     },
     enabled: !!session?.user?.id,
   });
