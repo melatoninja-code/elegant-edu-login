@@ -59,9 +59,16 @@ interface BookingFormProps {
   onSubmit: (values: z.infer<typeof bookingFormSchema>) => Promise<void>;
   isAdmin?: boolean;
   defaultTeacherId?: string;
+  defaultValues?: BookingFormValues;
 }
 
-export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeacherId }: BookingFormProps) {
+export function BookingForm({ 
+  classrooms, 
+  onSubmit, 
+  isAdmin = false, 
+  defaultTeacherId,
+  defaultValues 
+}: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teachers, setTeachers] = useState<Array<{ id: string; name: string }>>([]);
   const { toast } = useToast();
@@ -94,7 +101,7 @@ export function BookingForm({ classrooms, onSubmit, isAdmin = false, defaultTeac
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       classroom_id: "",
       teacher_id: defaultTeacherId || "",
       start_date: undefined,

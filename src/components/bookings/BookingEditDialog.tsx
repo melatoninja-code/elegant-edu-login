@@ -1,52 +1,86 @@
-import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { BookingForm } from "@/components/bookings/BookingForm";
+import { Booking, BookingFormValues } from "@/types/booking";
+import { format, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Booking } from "@/types/booking";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 
 interface BookingEditDialogProps {
   booking: Booking;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: () => void;
+  onUpdate?: () => void;
 }
 
 export function BookingEditDialog({ booking, isOpen, onClose, onUpdate }: BookingEditDialogProps) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    start_time: format(new Date(booking.start_time), "yyyy-MM-dd'T'HH:mm"),
-    end_time: format(new Date(booking.end_time), "yyyy-MM-dd'T'HH:mm"),
-    status: booking.status,
-    purpose: booking.purpose,
+
+  // Fetch classrooms for the form
+  const { data: classrooms = [] } = useQuery({
+    queryKey: ["classrooms"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("classrooms")
+        .select("id, name, room_number")
+        .eq("is_available", true);
+
+      if (error) throw error;
+      return data || [];
+    },
   });
 
-  const handleSave = async () => {
+  // Get current user's role
+  const { data: userRole } = useQuery({
+    queryKey: ["userRole"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      return profile?.role;
+    },
+  });
+
+  const handleSubmit = async (values: BookingFormValues) => {
     try {
-      setIsSubmitting(true);
+      const startDateTime = new Date(values.start_date);
+      const [startHours, startMinutes] = values.start_time.split(':');
+      startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+
+      const endDateTime = new Date(values.end_date);
+      const [endHours, endMinutes] = values.end_time.split(':');
+      endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+
       const { error } = await supabase
-        .from("room_bookings")
+        .from('room_bookings')
         .update({
-          start_time: new Date(formData.start_time).toISOString(),
-          end_time: new Date(formData.end_time).toISOString(),
-          status: formData.status,
-          purpose: formData.purpose,
+          classroom_id: values.classroom_id,
+          teacher_id: values.teacher_id,
+          start_time: startDateTime.toISOString(),
+          end_time: endDateTime.toISOString(),
+          purpose: values.purpose,
         })
-        .eq("id", booking.id);
+        .eq('id', booking.id);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Booking updated successfully.",
+        description: "Booking updated successfully",
       });
 
-      onUpdate();
+      onUpdate?.();
       onClose();
     } catch (error: any) {
       console.error('Error updating booking:', error);
@@ -55,72 +89,32 @@ export function BookingEditDialog({ booking, isOpen, onClose, onUpdate }: Bookin
         title: "Error",
         description: error.message || "Failed to update booking",
       });
-    } finally {
-      setIsSubmitting(false);
     }
+  };
+
+  // Convert booking data to form values
+  const defaultValues: BookingFormValues = {
+    classroom_id: booking.classroom_id,
+    teacher_id: booking.teacher_id,
+    start_date: parseISO(booking.start_time),
+    start_time: format(parseISO(booking.start_time), 'HH:mm'),
+    end_date: parseISO(booking.end_time),
+    end_time: format(parseISO(booking.end_time), 'HH:mm'),
+    purpose: booking.purpose,
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Booking</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <label htmlFor="start_time" className="text-sm font-medium">Start Time</label>
-            <Input
-              id="start_time"
-              type="datetime-local"
-              value={formData.start_time}
-              onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-            />
-          </div>
-          <div className="grid gap-2">
-            <label htmlFor="end_time" className="text-sm font-medium">End Time</label>
-            <Input
-              id="end_time"
-              type="datetime-local"
-              value={formData.end_time}
-              onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-            />
-          </div>
-          <div className="grid gap-2">
-            <label htmlFor="status" className="text-sm font-medium">Status</label>
-            <Select
-              value={formData.status}
-              onValueChange={(value) => setFormData({ ...formData, status: value as Booking['status'] })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <label htmlFor="purpose" className="text-sm font-medium">Purpose</label>
-            <Textarea
-              id="purpose"
-              value={formData.purpose}
-              onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-              className="min-h-[100px]"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save changes"}
-          </Button>
-        </DialogFooter>
+        <BookingForm
+          classrooms={classrooms}
+          onSubmit={handleSubmit}
+          isAdmin={userRole === 'admin'}
+          defaultValues={defaultValues}
+        />
       </DialogContent>
     </Dialog>
   );
