@@ -16,21 +16,24 @@ import { BookingFormValues } from "@/types/booking";
 import { Badge } from "@/components/ui/badge";
 
 export default function CalendarPage() {
+  // State management for calendar and booking dialog
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [key, setKey] = useState(0);
+  const [key, setKey] = useState(0); // Used to force re-render calendar
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  // Get current user's role and teacher ID
+  // Fetch current user's role and teacher ID
   const { data: userInfo } = useQuery({
     queryKey: ["userInfo"],
     queryFn: async () => {
       try {
+        // Get authenticated user
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError) throw authError;
         if (!user) throw new Error("Not authenticated");
 
+        // Get user profile with role
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -40,6 +43,7 @@ export default function CalendarPage() {
         if (profileError) throw profileError;
         if (!profile) throw new Error("Profile not found");
 
+        // Get teacher information if exists
         const { data: teacher, error: teacherError } = await supabase
           .from("teachers")
           .select("id")
@@ -62,7 +66,7 @@ export default function CalendarPage() {
     }
   });
 
-  // Fetch classrooms
+  // Fetch available classrooms
   const { data: classrooms = [] } = useQuery({
     queryKey: ["classrooms"],
     queryFn: async () => {
@@ -76,7 +80,7 @@ export default function CalendarPage() {
     }
   });
 
-  // Fetch bookings
+  // Fetch all bookings
   const { data: bookings = [] } = useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
@@ -98,12 +102,15 @@ export default function CalendarPage() {
     }
   });
 
+  // Handle date selection in calendar
   const handleDateChange = (newDate: Date | undefined) => {
     setDate(newDate);
     setKey(prev => prev + 1);
   };
 
+  // Handle booking creation
   const handleCreateBooking = async (values: BookingFormValues) => {
+    // Validate teacher permissions
     if (!userInfo?.teacherId) {
       toast({
         variant: "destructive",
@@ -113,6 +120,7 @@ export default function CalendarPage() {
       return;
     }
 
+    // Validate user authentication
     if (!userInfo?.userId) {
       toast({
         variant: "destructive",
@@ -123,6 +131,7 @@ export default function CalendarPage() {
     }
 
     try {
+      // Convert form dates and times to proper format
       const startDateTime = new Date(values.start_date);
       const [startHours, startMinutes] = values.start_time.split(':');
       startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
@@ -131,6 +140,7 @@ export default function CalendarPage() {
       const [endHours, endMinutes] = values.end_time.split(':');
       endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
 
+      // Create booking in database
       const { error } = await supabase
         .from('room_bookings')
         .insert({
@@ -160,6 +170,7 @@ export default function CalendarPage() {
     }
   };
 
+  // Helper function to get bookings for a specific date
   const getBookingsForDate = (date: Date) => {
     return bookings.filter(booking => {
       const bookingDate = new Date(booking.start_time);
@@ -176,6 +187,7 @@ export default function CalendarPage() {
       <div className="flex h-screen w-full bg-neutral-light/50">
         <AppSidebar />
         <main className="flex-1 overflow-auto p-2 md:p-6">
+          {/* Header section */}
           <div className="flex items-center justify-between gap-4 p-6 border-b">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
@@ -191,8 +203,11 @@ export default function CalendarPage() {
               </Button>
             )}
           </div>
+
+          {/* Main content */}
           <div className="container mx-auto py-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Calendar card */}
               <Card className="bg-white shadow-md md:col-span-2">
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="text-lg text-primary md:text-xl">
@@ -230,6 +245,7 @@ export default function CalendarPage() {
                 </CardContent>
               </Card>
 
+              {/* Bookings details card */}
               {date && (
                 <div className="space-y-4">
                   <Card className="bg-white shadow-md">
@@ -288,6 +304,7 @@ export default function CalendarPage() {
         </main>
       </div>
 
+      {/* Booking dialog */}
       <BookingDialog
         isOpen={isBookingDialogOpen}
         onOpenChange={setIsBookingDialogOpen}
