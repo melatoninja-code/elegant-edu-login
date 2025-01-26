@@ -19,7 +19,7 @@ export function BookingList({ bookings }: BookingListProps) {
 
   if (bookings?.length === 0) {
     return (
-      <div className="flex justify-center items-center min-h-[200px] bg-neutral-light/50 rounded-lg">
+      <div className="flex justify-center items-center min-h-[200px] bg-white rounded-lg border shadow-sm">
         <p className="text-muted-foreground text-center px-4">
           No bookings found. Create a new booking to get started.
         </p>
