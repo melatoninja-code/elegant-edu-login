@@ -174,7 +174,8 @@ export default function Bookings() {
               room_number
             )
           `)
-          .order('created_at', { ascending: false });
+          .gte('end_time', new Date().toISOString()) // Only show current and future bookings
+          .order('start_time', { ascending: true });  // Order by start time
 
         if (error) {
           console.error('Error fetching bookings:', error);
@@ -206,7 +207,6 @@ export default function Bookings() {
       }
     },
     enabled: Boolean(userRole && (userRole === 'admin' || (teacherId && hasTeacherTag))),
-    // Refresh the data every minute to see updates from the trigger
     refetchInterval: 60000,
   });
 
