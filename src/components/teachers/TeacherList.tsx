@@ -56,7 +56,7 @@ export function TeacherList() {
         .from("teachers")
         .select(`
           *,
-          auth:auth_id (
+          users:auth_id (
             email
           )
         `);
@@ -73,14 +73,13 @@ export function TeacherList() {
       // Combine teachers with their tags and format the data
       return teachers?.map(teacher => ({
         ...teacher,
-        email: teacher.auth?.email || null,
+        email: teacher.users?.email || teacher.account_email || null,
         tags: tags.filter(tag => tag.teacher_id === teacher.id).map(t => t.tag)
       })) || [];
     },
     enabled: !!session?.user?.id,
   });
 
-  // Filter teachers based on search query (name or tags)
   const filteredTeachers = teachersWithTags?.filter(teacher => {
     const searchLower = searchQuery.toLowerCase();
     const nameMatch = teacher.name.toLowerCase().includes(searchLower);
