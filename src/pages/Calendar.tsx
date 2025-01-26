@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BookingFormValues } from "@/types/booking";
+import { Badge } from "@/components/ui/badge";
 
 export default function CalendarPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -51,11 +52,12 @@ export default function CalendarPage() {
 
         return {
           role: profile.role,
-          teacherId: teacher?.id
+          teacherId: teacher?.id,
+          userId: user.id
         };
       } catch (error: any) {
         console.error("Error in userInfo query:", error);
-        return { role: null, teacherId: null };
+        return { role: null, teacherId: null, userId: null };
       }
     }
   });
@@ -111,6 +113,15 @@ export default function CalendarPage() {
       return;
     }
 
+    if (!userInfo?.userId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to create bookings.",
+      });
+      return;
+    }
+
     try {
       const startDateTime = new Date(values.start_date);
       const [startHours, startMinutes] = values.start_time.split(':');
@@ -128,7 +139,8 @@ export default function CalendarPage() {
           start_time: startDateTime.toISOString(),
           end_time: endDateTime.toISOString(),
           purpose: values.purpose,
-          status: 'pending'
+          status: 'pending',
+          created_by: userInfo.userId
         });
 
       if (error) throw error;
