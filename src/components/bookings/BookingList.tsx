@@ -1,6 +1,8 @@
 import { Booking } from "@/types/booking";
 import { BookingCard } from "./BookingCard";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BookingListProps {
   bookings: Booking[];
@@ -8,6 +10,27 @@ interface BookingListProps {
 
 export function BookingList({ bookings }: BookingListProps) {
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('room_bookings_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'room_bookings'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['bookings'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const handleDelete = () => {
     queryClient.invalidateQueries({ queryKey: ['bookings'] });

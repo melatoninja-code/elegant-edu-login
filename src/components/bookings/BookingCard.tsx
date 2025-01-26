@@ -29,6 +29,7 @@ export function BookingCard({ booking, onDelete, onStatusChange }: BookingCardPr
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Get current user's role and teacher ID with better error handling
@@ -80,7 +81,6 @@ export function BookingCard({ booking, onDelete, onStatusChange }: BookingCardPr
     }
   });
 
-  // Get teacher information with better error handling
   const { data: teacherInfo } = useQuery({
     queryKey: ["teacher", booking.teacher_id],
     queryFn: async () => {
@@ -238,20 +238,37 @@ export function BookingCard({ booking, onDelete, onStatusChange }: BookingCardPr
                 </>
               )}
               {userInfo?.role === 'admin' && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-100"
+                    onClick={() => setIsEditDialogOpen(true)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
               )}
             </div>
           </div>
           <p className="text-sm text-muted-foreground">{booking.purpose}</p>
         </div>
       </CardContent>
+
+      <BookingEditDialog
+        booking={booking}
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onUpdate={onStatusChange}
+      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
