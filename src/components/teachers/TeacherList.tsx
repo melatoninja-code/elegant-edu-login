@@ -6,6 +6,7 @@ import { TeacherForm } from "./TeacherForm";
 import { useToast } from "@/hooks/use-toast";
 import { TeacherListHeader } from "./TeacherListHeader";
 import { TeacherTable } from "./TeacherTable";
+import { TeacherDetailsDialog } from "./TeacherDetailsDialog";
 import { Teacher } from "./types";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -57,9 +58,7 @@ export function TeacherList() {
           *,
           auth:auth_id (
             email
-          ),
-          account_email,
-          account_password
+          )
         `);
       
       if (teachersError) throw teachersError;
@@ -72,7 +71,7 @@ export function TeacherList() {
       if (tagsError) throw tagsError;
 
       // Combine teachers with their tags and format the data
-      return teachers.map(teacher => ({
+      return teachers?.map(teacher => ({
         ...teacher,
         email: teacher.auth?.email || teacher.account_email || null,
         tags: tags.filter(tag => tag.teacher_id === teacher.id).map(t => t.tag)
