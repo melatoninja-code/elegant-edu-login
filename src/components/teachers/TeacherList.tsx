@@ -6,7 +6,6 @@ import { TeacherForm } from "./TeacherForm";
 import { useToast } from "@/hooks/use-toast";
 import { TeacherListHeader } from "./TeacherListHeader";
 import { TeacherTable } from "./TeacherTable";
-import { TeacherDetailsDialog } from "./TeacherDetailsDialog";
 import { Teacher } from "./types";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -45,18 +44,20 @@ export function TeacherList() {
 
   const isAdmin = userRole === "admin";
 
-  // Fetch teachers and their tags
+  // Fetch teachers and their tags with proper auth data
   const { data: teachersWithTags, isLoading, error: teachersError, refetch } = useQuery({
     queryKey: ["teachers", "tags", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) throw new Error("Not authenticated");
 
-      // First get all teachers with their account info
+      // Get teachers with their auth data and account credentials
       const { data: teachers, error: teachersError } = await supabase
         .from("teachers")
         .select(`
           *,
-          auth_id,
+          auth:auth_id (
+            email
+          ),
           account_email,
           account_password
         `);
@@ -70,9 +71,10 @@ export function TeacherList() {
 
       if (tagsError) throw tagsError;
 
-      // Combine teachers with their tags
+      // Combine teachers with their tags and format the data
       return teachers.map(teacher => ({
         ...teacher,
+        email: teacher.auth?.email || teacher.account_email || null,
         tags: tags.filter(tag => tag.teacher_id === teacher.id).map(t => t.tag)
       }));
     },
