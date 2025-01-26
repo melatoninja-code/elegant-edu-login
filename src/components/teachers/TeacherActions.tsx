@@ -136,21 +136,24 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      // First, delete all teacher tags
-      const { error: tagsError } = await supabase
-        .from('teacher_tags')
-        .delete()
+      // First, get all teacher groups
+      const { data: teacherGroups, error: groupsQueryError } = await supabase
+        .from('teacher_groups')
+        .select('id')
         .eq('teacher_id', teacher.id);
 
-      if (tagsError) throw tagsError;
+      if (groupsQueryError) throw groupsQueryError;
 
-      // Then, delete all teacher group assignments
-      const { error: groupAssignmentsError } = await supabase
-        .from('teacher_group_student_assignments')
-        .delete()
-        .eq('group_id', teacher.id);
+      // Delete all student assignments for these groups
+      if (teacherGroups && teacherGroups.length > 0) {
+        const groupIds = teacherGroups.map(g => g.id);
+        const { error: groupAssignmentsError } = await supabase
+          .from('teacher_group_student_assignments')
+          .delete()
+          .in('group_id', groupIds);
 
-      if (groupAssignmentsError) throw groupAssignmentsError;
+        if (groupAssignmentsError) throw groupAssignmentsError;
+      }
 
       // Delete teacher groups
       const { error: groupsError } = await supabase
@@ -167,6 +170,14 @@ export function TeacherActions({ onEdit, onDelete, teacher, isAdmin }: TeacherAc
         .eq('teacher_id', teacher.id);
 
       if (studentAssignmentsError) throw studentAssignmentsError;
+
+      // Delete teacher tags
+      const { error: tagsError } = await supabase
+        .from('teacher_tags')
+        .delete()
+        .eq('teacher_id', teacher.id);
+
+      if (tagsError) throw tagsError;
 
       // Finally, delete the teacher
       const { error: teacherError } = await supabase
