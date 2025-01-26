@@ -28,7 +28,7 @@ export function BookingList({ bookings }: BookingListProps) {
   }
 
   return (
-    <div className="grid gap-4 animate-fadeIn">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 animate-fadeIn">
       {bookings?.map((booking) => (
         <BookingCard 
           key={booking.id} 
