@@ -9,7 +9,7 @@ interface BookingHeaderProps {
 export function BookingHeader({ onNewBooking }: BookingHeaderProps) {
   return (
     <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1600px]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:h-16 gap-4 sm:gap-0">
           <div className="flex items-center gap-4">
             <SidebarTrigger className="flex-shrink-0" />
