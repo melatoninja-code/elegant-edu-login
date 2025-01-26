@@ -18,22 +18,22 @@ import { Badge } from "@/components/ui/badge";
 export default function CalendarPage() {
   // State management for calendar and booking dialog
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [key, setKey] = useState(0); // Used to force re-render calendar
+  const [key, setKey] = useState(0); // Used to force re-render calendar when date changes
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  // Fetch current user's role and teacher ID
+  // Fetch current user's role and teacher ID using React Query
   const { data: userInfo } = useQuery({
     queryKey: ["userInfo"],
     queryFn: async () => {
       try {
-        // Get authenticated user
+        // Get authenticated user from Supabase
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError) throw authError;
         if (!user) throw new Error("Not authenticated");
 
-        // Get user profile with role
+        // Get user profile with role information
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -43,7 +43,7 @@ export default function CalendarPage() {
         if (profileError) throw profileError;
         if (!profile) throw new Error("Profile not found");
 
-        // Get teacher information if exists
+        // Get teacher information if the user is a teacher
         const { data: teacher, error: teacherError } = await supabase
           .from("teachers")
           .select("id")
@@ -61,12 +61,17 @@ export default function CalendarPage() {
         };
       } catch (error: any) {
         console.error("Error in userInfo query:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch user information",
+        });
         return { role: null, teacherId: null, userId: null };
       }
     }
   });
 
-  // Fetch available classrooms
+  // Fetch available classrooms for booking
   const { data: classrooms = [] } = useQuery({
     queryKey: ["classrooms"],
     queryFn: async () => {
@@ -80,7 +85,7 @@ export default function CalendarPage() {
     }
   });
 
-  // Fetch all bookings
+  // Fetch all bookings with classroom and teacher details
   const { data: bookings = [] } = useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
@@ -105,10 +110,10 @@ export default function CalendarPage() {
   // Handle date selection in calendar
   const handleDateChange = (newDate: Date | undefined) => {
     setDate(newDate);
-    setKey(prev => prev + 1);
+    setKey(prev => prev + 1); // Force calendar re-render
   };
 
-  // Handle booking creation
+  // Handle booking creation with validation and error handling
   const handleCreateBooking = async (values: BookingFormValues) => {
     // Validate teacher permissions
     if (!userInfo?.teacherId) {
@@ -170,7 +175,7 @@ export default function CalendarPage() {
     }
   };
 
-  // Helper function to get bookings for a specific date
+  // Helper function to filter bookings for a specific date
   const getBookingsForDate = (date: Date) => {
     return bookings.filter(booking => {
       const bookingDate = new Date(booking.start_time);
@@ -187,7 +192,7 @@ export default function CalendarPage() {
       <div className="flex h-screen w-full bg-neutral-light/50">
         <AppSidebar />
         <main className="flex-1 overflow-auto p-2 md:p-6">
-          {/* Header section */}
+          {/* Header section with title and new booking button */}
           <div className="flex items-center justify-between gap-4 p-6 border-b">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
@@ -204,10 +209,10 @@ export default function CalendarPage() {
             )}
           </div>
 
-          {/* Main content */}
+          {/* Main content area with calendar and booking details */}
           <div className="container mx-auto py-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Calendar card */}
+              {/* Calendar card with booking indicators */}
               <Card className="bg-white shadow-md md:col-span-2">
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="text-lg text-primary md:text-xl">
@@ -234,6 +239,7 @@ export default function CalendarPage() {
                             className="relative w-full h-full flex items-center justify-center"
                           >
                             <span>{dayDate.getDate()}</span>
+                            {/* Booking indicator dot */}
                             {getBookingsForDate(dayDate).length > 0 && (
                               <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
                             )}
@@ -245,7 +251,7 @@ export default function CalendarPage() {
                 </CardContent>
               </Card>
 
-              {/* Bookings details card */}
+              {/* Bookings details card for selected date */}
               {date && (
                 <div className="space-y-4">
                   <Card className="bg-white shadow-md">
@@ -304,7 +310,7 @@ export default function CalendarPage() {
         </main>
       </div>
 
-      {/* Booking dialog */}
+      {/* Booking dialog for creating new bookings */}
       <BookingDialog
         isOpen={isBookingDialogOpen}
         onOpenChange={setIsBookingDialogOpen}
