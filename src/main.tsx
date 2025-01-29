@@ -12,6 +12,7 @@ import './index.css';
 import Index from './pages/Index';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
+import Grades from './pages/Grades';
 import Teachers from './pages/Teachers';
 import Students from './pages/Students';
 import Classrooms from './pages/Classrooms';
@@ -68,6 +69,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <SidebarProvider>
           <Dashboard />
+        </SidebarProvider>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/grades",
+    element: (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <Grades />
         </SidebarProvider>
       </ProtectedRoute>
     ),
