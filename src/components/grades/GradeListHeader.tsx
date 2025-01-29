@@ -1,49 +1,111 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { CardHeader, CardTitle } from "@/components/ui/card";
+import { PlusCircle, Upload } from "lucide-react";
+import { useState } from "react";
+import { GradeEntryDialog } from "./GradeEntryDialog";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GradeListHeaderProps {
   isAdmin: boolean;
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onAddGrade?: () => void;
 }
 
-export function GradeListHeader({ 
-  isAdmin, 
-  searchQuery, 
-  onSearchChange, 
-  onAddGrade 
-}: GradeListHeaderProps) {
+export function GradeListHeader({ isAdmin, searchQuery, onSearchChange }: GradeListHeaderProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'text/csv') {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a CSV file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const { data, error } = await supabase.functions.invoke('import-grades', {
+        body: formData,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Import Complete",
+        description: `Successfully imported ${data.successful} grades. ${data.failed} failed.`,
+        variant: data.failed > 0 ? "destructive" : "default",
+      });
+
+      if (data.errors?.length > 0) {
+        console.error('Import errors:', data.errors);
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import Failed",
+        description: error.message || "Failed to import grades",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
   return (
-    <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 pb-4 bg-primary/5 rounded-t-lg">
-      <div>
-        <CardTitle className="text-xl font-bold text-primary-dark">Student Grades</CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">
-          View and manage student grades
-        </p>
-      </div>
-      <div className="flex items-center gap-4 w-full sm:w-auto">
-        <div className="relative flex-1 sm:flex-initial max-w-[300px]">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search students..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-8"
-          />
-        </div>
-        {isAdmin && onAddGrade && (
-          <Button 
-            onClick={onAddGrade}
-            className="bg-primary hover:bg-primary-dark transition-colors"
-          >
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Add Grade</span>
-          </Button>
+    <div className="p-4 flex flex-col sm:flex-row gap-4">
+      <Input
+        placeholder="Search by student name or ID..."
+        value={searchQuery}
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="flex-1"
+      />
+      <div className="flex gap-2">
+        {isAdmin && (
+          <>
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="whitespace-nowrap"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Grade
+            </Button>
+            <div className="relative">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={isUploading}
+              />
+              <Button
+                variant="outline"
+                className="whitespace-nowrap"
+                disabled={isUploading}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {isUploading ? "Importing..." : "Import CSV"}
+              </Button>
+            </div>
+          </>
         )}
       </div>
-    </CardHeader>
+      <GradeEntryDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
+    </div>
   );
 }
