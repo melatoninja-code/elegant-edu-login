@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { GradeTable } from "./GradeTable";
 import { GradeListHeader } from "./GradeListHeader";
@@ -54,7 +54,7 @@ export function GradeList() {
 
       // Apply search filter if query exists
       if (searchQuery) {
-        query = query.or(`student.name.ilike.%${searchQuery}%,student.student_id.ilike.%${searchQuery}%`);
+        query = query.or(`student.name.ilike.%${searchQuery}%,student.student_id.ilike.%${searchQuery}%`.split(','));
       }
 
       // Get total count first
