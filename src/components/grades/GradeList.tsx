@@ -1,15 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GradeTable } from "./GradeTable";
 import { GradeListHeader } from "./GradeListHeader";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 export function GradeList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const { toast } = useToast();
   const pageSize = 10;
 
   // First, get the session and user role
@@ -54,10 +56,11 @@ export function GradeList() {
 
       // Apply search filter if query exists
       if (searchQuery) {
-        query = query.or([
+        const searchConditions = [
           `student.name.ilike.%${searchQuery}%`,
           `student.student_id.ilike.%${searchQuery}%`
-        ].join(','));
+        ].join(',');
+        query = query.or(searchConditions);
       }
 
       // Get total count first
@@ -82,6 +85,31 @@ export function GradeList() {
     },
     enabled: !!session?.user?.id,
   });
+
+  // Set up real-time listener for grade updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('grade-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'grades'
+        },
+        (payload) => {
+          toast({
+            title: "Grade Updated",
+            description: "A grade has been modified. Refreshing data...",
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
 
   if (error) {
     return (
