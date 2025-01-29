@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface GradeTableProps {
   grades: any[];
@@ -28,10 +29,10 @@ export function GradeTable({
   onPageChange,
 }: GradeTableProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600";
-    if (score >= 70) return "text-blue-600";
-    if (score >= 50) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 90) return "text-green-600 bg-green-50";
+    if (score >= 70) return "text-blue-600 bg-blue-50";
+    if (score >= 50) return "text-yellow-600 bg-yellow-50";
+    return "text-red-600 bg-red-50";
   };
 
   if (isLoading) {
@@ -61,8 +62,8 @@ export function GradeTable({
           <TableHeader>
             <TableRow className="bg-primary/5 hover:bg-primary/10">
               <TableHead className="font-semibold">Student</TableHead>
-              <TableHead className="font-semibold">Student ID</TableHead>
-              <TableHead className="font-semibold">Score</TableHead>
+              <TableHead className="font-semibold">ID</TableHead>
+              <TableHead className="font-semibold text-center">Score</TableHead>
               <TableHead className="hidden md:table-cell font-semibold">Teacher</TableHead>
               <TableHead className="hidden lg:table-cell font-semibold">Feedback</TableHead>
               <TableHead className="hidden lg:table-cell font-semibold">Date</TableHead>
@@ -72,25 +73,27 @@ export function GradeTable({
             {grades.map((grade, index) => (
               <TableRow 
                 key={grade.id}
-                className="animate-fadeIn"
+                className="animate-fadeIn hover:bg-primary/5"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <TableCell className="font-medium">
                   {grade.student?.name || "Unknown Student"}
                 </TableCell>
-                <TableCell>{grade.student?.student_id || "N/A"}</TableCell>
+                <TableCell className="font-mono text-sm">
+                  {grade.student?.student_id || "N/A"}
+                </TableCell>
                 <TableCell>
-                  <span className={`font-bold ${getScoreColor(grade.score)}`}>
+                  <span className={`inline-block px-2 py-1 rounded-full text-sm font-bold ${getScoreColor(grade.score)}`}>
                     {grade.score}%
                   </span>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {grade.teacher?.name || "Unknown Teacher"}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
+                <TableCell className="hidden lg:table-cell max-w-[200px] truncate">
                   {grade.feedback || "-"}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
+                <TableCell className="hidden lg:table-cell text-sm">
                   {format(new Date(grade.created_at), "MMM d, yyyy")}
                 </TableCell>
               </TableRow>
@@ -104,8 +107,9 @@ export function GradeTable({
           variant="outline"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
+          className="h-8 w-8 p-0"
         >
-          Previous
+          <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="text-sm text-muted-foreground">
           Page {currentPage} of {totalPages}
@@ -114,8 +118,9 @@ export function GradeTable({
           variant="outline"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
+          className="h-8 w-8 p-0"
         >
-          Next
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </>
