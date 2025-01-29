@@ -104,7 +104,14 @@ export function GradeListHeader({ isAdmin, searchQuery, onSearchChange }: GradeL
       </div>
       <GradeEntryDialog
         open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSuccess={() => {
+          setIsDialogOpen(false);
+          toast({
+            title: "Success",
+            description: "Grade added successfully",
+          });
+        }}
       />
     </div>
   );
