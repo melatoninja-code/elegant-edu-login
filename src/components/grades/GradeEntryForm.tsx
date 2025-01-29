@@ -4,7 +4,7 @@ import * as z from "zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -64,7 +64,7 @@ export function GradeEntryForm({ grade, onClose, onSuccess }: GradeEntryFormProp
   });
 
   // Fetch students and teachers when component mounts
-  useState(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [studentsResponse, teachersResponse] = await Promise.all([
