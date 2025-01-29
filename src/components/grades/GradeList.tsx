@@ -54,7 +54,10 @@ export function GradeList() {
 
       // Apply search filter if query exists
       if (searchQuery) {
-        query = query.or(`student.name.ilike.%${searchQuery}%,student.student_id.ilike.%${searchQuery}%`.split(','));
+        query = query.or([
+          `student.name.ilike.%${searchQuery}%`,
+          `student.student_id.ilike.%${searchQuery}%`
+        ].join(','));
       }
 
       // Get total count first
